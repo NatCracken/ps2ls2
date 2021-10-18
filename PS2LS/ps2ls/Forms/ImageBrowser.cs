@@ -36,24 +36,16 @@ namespace ps2ls.Forms
             imageListbox.Items.Clear();
 
             Dock = DockStyle.Fill;
-
         }
 
-
-        private void refreshImageListBox()
+        public void onEnter(object sender, EventArgs e)
         {
-            imageListbox.PopulateBox(searchText.Text);
-
-            int count = imageListbox.Items.Count;
-            int max = imageListbox.MaxCount;
-
-            imagesCountLabel.Text = count + "/" + max;
-
+            refreshImageListBox();
         }
 
         private void imageListbox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Asset asset = null;
+            Asset asset;
 
             try
             {
@@ -68,53 +60,92 @@ namespace ps2ls.Forms
             pictureWindow.BackgroundImage = i;
             BackgroundImageLayout = ImageLayout.Stretch;
             pictureWindow.Show();
-            
-
-
         }
 
-       
-         private void searchText_TextChanged(object sender, EventArgs e)
+
+        private void searchText_TextChanged(object sender, EventArgs e)
+        {
+            handleTextTimer();
+        }
+
+        private void handleTextTimer()
         {
             searchTextTimer.Stop();
             searchTextTimer.Start();
         }
 
-      
 
-         private void searchTextTimer_Tick(object sender, EventArgs e)
-         {
-             if (searchText.Text.Length > 0)
-             {
-                 searchText.BackColor = Color.Yellow;
-                 toolStripButton2.Enabled = true;
+        private void searchTextTimer_Tick(object sender, EventArgs e)
+        {
+            if (searchText.Text.Length > 0)
+            {
+                searchText.BackColor = Color.Yellow;
+                toolStripButton2.Enabled = true;
 
-             }
-             else
-             {
-                 searchText.BackColor = Color.White;
-                 toolStripButton2.Enabled = false;
-             }
+            }
+            else
+            {
+                searchText.BackColor = Color.White;
+                toolStripButton2.Enabled = false;
+            }
 
-             searchTextTimer.Stop();
-             refreshImageListBox();
-         }
+            searchTextTimer.Stop();
+            refreshImageListBox();
+        }
 
-         private void toolStripButton2_Click(object sender, EventArgs e)
-         {
-             searchText.Clear();
-         }
+        private void refreshImageListBox()
+        {
+            imageListbox.PopulateBox(searchText.Text ?? "");
 
-         private void pictureWindow_Click(object sender, EventArgs e)
-         {
+            int count = imageListbox.Items.Count;
+            int max = imageListbox.MaxCount;
 
-         }
+            imagesCountLabel.Text = count + "/" + max;
 
-         private void ImageBrowser_Load(object sender, EventArgs e)
-         {
-             searchTextTimer.Stop();
-             searchTextTimer.Start();
-         }
+        }
+
+        private void toolStripButton2_Click(object sender, EventArgs e)
+        {
+            searchText.Clear();
+        }
+
+        private void toolStripButton3_Click(object sender, EventArgs e)
+        {
+            List<string> fileNames = new List<string>();
+
+            foreach (object selectedItem in imageListbox.SelectedItems)
+            {
+                Asset asset = null;
+
+                try
+                {
+                    asset = (Asset)selectedItem;
+                }
+                catch (InvalidCastException) { continue; }
+
+                fileNames.Add(asset.Name);
+            }
+
+            foreach (string s in fileNames)
+            {
+                Console.WriteLine(s);
+            }
+
+
+            ImageExportForm modelExportForm = new ImageExportForm();
+            modelExportForm.FileNames = fileNames;
+            modelExportForm.ShowDialog();
+        }
+
+        private void pictureWindow_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ImageBrowser_Load(object sender, EventArgs e)
+        {
+            handleTextTimer();
+        }
 
 
     }

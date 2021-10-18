@@ -17,6 +17,8 @@ namespace ps2ls.IO
             Obj
         }
 
+        public static string outputDirectory;
+
         public class ExportFormatInfo
         {
             public ExportFormats ExportFormat { get; internal set; }
@@ -109,6 +111,10 @@ namespace ps2ls.IO
 
         public static void ExportModelToDirectory(Model model, string directory, ExportOptions exportOptions)
         {
+
+            exportModelAsOBJToDirectory(model, directory, exportOptions);
+
+            /*//TODO - support other formats
             switch (exportOptions.ExportFormatInfo.ExportFormat)
             {
                 case ExportFormats.Obj:
@@ -117,7 +123,7 @@ namespace ps2ls.IO
                 //case ModelExportFormats.STL:
                 //    exportModelAsSTLToDirectory(model, directory, formatOptions.Options);
                 //    break;
-            }
+            }*/
         }
 
         private static void exportModelAsOBJToDirectory(Model model, string directory, ExportOptions options)
@@ -146,7 +152,7 @@ namespace ps2ls.IO
                 ImageImporter imageImporter = new ImageImporter();
                 ImageExporter imageExporter = new ImageExporter();
 
-                foreach(String textureString in model.TextureStrings)
+                foreach(string textureString in model.TextureStrings)
                 {
                     MemoryStream textureMemoryStream = AssetManager.Instance.CreateAssetMemoryStreamByName(textureString);
 
@@ -170,8 +176,19 @@ namespace ps2ls.IO
             for (Int32 i = 0; i < model.Meshes.Length; ++i)
             {
                 Mesh mesh = model.Meshes[i];
-
-                MaterialDefinition materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[model.Materials[(Int32)mesh.MaterialIndex].MaterialDefinitionHash];
+                Assets.Dma.Material material = model.Materials[(Int32)mesh.MaterialIndex];
+                MaterialDefinition materialDefinition;
+                if (!MaterialDefinitionManager.Instance.MaterialDefinitions.ContainsKey(material.MaterialDefinitionHash))// if material is missing from material manager
+                {
+                    uint lowestKey = uint.MaxValue;
+                    foreach (uint key in MaterialDefinitionManager.Instance.MaterialDefinitions.Keys) if (key < lowestKey) lowestKey = key;
+                    materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[lowestKey];
+                    Console.WriteLine("Material " + material.MaterialDefinitionHash + " missing, using " + lowestKey);
+                }
+                else
+                {
+                    materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[material.MaterialDefinitionHash];
+                }
                 VertexLayout vertexLayout = MaterialDefinitionManager.Instance.VertexLayouts[materialDefinition.DrawStyles[0].VertexLayoutNameHash];
 
                 //position
@@ -218,7 +235,7 @@ namespace ps2ls.IO
                                     texCoord.Y = 1.0f - BitConverter.ToSingle(texCoord0Stream.Data, (j * texCoord0Stream.BytesPerVertex) + 4);
                                     break;
                                 case VertexLayout.Entry.DataTypes.float16_2:
-                                    texCoord.X = Half.FromBytes(texCoord0Stream.Data, (j * texCoord0Stream.BytesPerVertex) + texCoord0Offset + 0).ToSingle();
+                                    texCoord.X = Half.FromBytes(texCoord0Stream.Data, (j * texCoord0Stream.BytesPerVertex) + texCoord0Offset + 0).ToSingle();//index out of range
                                     texCoord.Y = 1.0f - Half.FromBytes(texCoord0Stream.Data, (j * texCoord0Stream.BytesPerVertex) + texCoord0Offset + 2).ToSingle();
                                     break;
                                 default:

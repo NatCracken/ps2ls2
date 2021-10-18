@@ -129,7 +129,7 @@ namespace ps2ls.Forms
                 textureFormatComboBox.Items.Add(textureFormat);
             }
 
-            textureFormatComboBox.SelectedIndex = textureFormatComboBox.Items.Count > 0 ? 0 : -1;
+            textureFormatComboBox.SelectedIndex = textureFormatComboBox.Items.Count > 0 ? 2 : -1;//2 = png
         }
 
         private void scaleLinkAxesCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -177,7 +177,8 @@ namespace ps2ls.Forms
 
         private void ModelExportForm_Load(object sender, EventArgs e)
         {
-            exportFolderBrowserDialog.SelectedPath = Application.StartupPath;
+            if (ModelExporterStatic.outputDirectory == null) ModelExporterStatic.outputDirectory = Application.StartupPath;
+            exportFolderBrowserDialog.SelectedPath = ModelExporterStatic.outputDirectory;
 
             exportBackgroundWorker.WorkerReportsProgress = true;
             exportBackgroundWorker.ProgressChanged += new ProgressChangedEventHandler(exportProgressChanged);

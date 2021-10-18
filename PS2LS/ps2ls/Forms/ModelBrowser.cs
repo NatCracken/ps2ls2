@@ -44,7 +44,7 @@ namespace ps2ls.Forms
         private int currentShader = 0;
         private List<ToolStripButton> renderModeButtons = new List<ToolStripButton>();
 
-        private List<int> textures = new List<int>(new int[]{0,0,0,0,0});
+        private List<int> textures = new List<int>(new int[] { 0, 0, 0, 0, 0 });
 
         public int gray;
 
@@ -101,7 +101,7 @@ namespace ps2ls.Forms
             renderModeButtons.Add(renderModeWireframeButton);
             renderModeButtons.Add(renderModeSmoothButton);
 
-           
+
         }
 
         //TODO: move this elsehwere
@@ -216,7 +216,7 @@ void main()
             Int32 fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
             if ((e = GL.GetError()) != ErrorCode.NoError) { Console.WriteLine(e); }
 
-          
+
 
             compileShader(vertexShader, vertexShaderSource);
             int res = 0;
@@ -243,7 +243,7 @@ void main()
 
             String info;
             GL.GetProgramInfoLog(shaderProgram, out info);
-            
+
             Console.WriteLine(info);
 
             if (fragmentShader != 0)
@@ -263,7 +263,7 @@ void main()
 
         private void update()
         {
-            glControl1.Camera.AspectRatio = (Single)glControl1.ClientSize.Width / (Single)glControl1.ClientSize.Height;
+            glControl1.Camera.AspectRatio = glControl1.ClientSize.Width / glControl1.ClientSize.Height;
             glControl1.Camera.Update();
         }
 
@@ -328,11 +328,11 @@ void main()
                 GL.Enable(EnableCap.CullFace);
                 GL.Enable(EnableCap.Texture2D);
                 GL.Enable(EnableCap.Blend);
-                GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+                GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
                 GL.CullFace(CullFaceMode.Back);
                 GL.FrontFace(FrontFaceDirection.Cw);
 
-             
+
 
                 for (Int32 i = 0; i < model.Meshes.Length; ++i)
                 {
@@ -357,7 +357,19 @@ void main()
                     }
 
                     //fetch material definition and vertex layout
-                    MaterialDefinition materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[model.Materials[(Int32)mesh.MaterialIndex].MaterialDefinitionHash];
+                    Assets.Dma.Material material = model.Materials[(Int32)mesh.MaterialIndex];
+                    MaterialDefinition materialDefinition;
+                    if (!MaterialDefinitionManager.Instance.MaterialDefinitions.ContainsKey(material.MaterialDefinitionHash))// if material is missing from material manager
+                    {
+                        uint lowestKey = uint.MaxValue;
+                        foreach (uint key in MaterialDefinitionManager.Instance.MaterialDefinitions.Keys) if (key < lowestKey) lowestKey = key;
+                        materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[lowestKey];
+                        Debug.WriteLine("Material " + material.MaterialDefinitionHash + " missing, using " + lowestKey);
+                    }
+                    else
+                    {
+                        materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[material.MaterialDefinitionHash];
+                    }
                     VertexLayout vertexLayout = MaterialDefinitionManager.Instance.VertexLayouts[materialDefinition.DrawStyles[0].VertexLayoutNameHash];
 
                     GL.Color3(meshColors[i % meshColors.Length]);
@@ -398,7 +410,7 @@ void main()
                         GL.EnableClientState(ArrayCap.NormalArray);
                         GL.NormalPointer(NormalPointerType.Float, mesh.VertexStreams[normalStream].BytesPerVertex, normalData + normalOffset);
                     }
-                    
+
 
                     //texture coordiantes
                     VertexLayout.Entry.DataTypes texCoord0DataType = VertexLayout.Entry.DataTypes.None;
@@ -430,7 +442,7 @@ void main()
                     }
 
 
-                   
+
                     //indices
                     GCHandle indexDataHandle = GCHandle.Alloc(mesh.IndexData, GCHandleType.Pinned);
                     IntPtr indexData = indexDataHandle.AddrOfPinnedObject();
@@ -598,7 +610,7 @@ void main()
             searchModelsText.Clear();
         }
 
-      
+
         private void modelsListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             Asset asset = null;
@@ -615,9 +627,15 @@ void main()
 
             model = Model.LoadFromStream(asset.Name, memoryStream);
 
+            if (model == null)
+            {
+                Console.WriteLine("Unable to load " + asset.Name + " from memorystream.");
+                return;
+            }
+
             ModelBrowserModelStats1.Model = model;
             textures.Clear();
-            
+
             for (int i = 0; i < model.Meshes.Length; i++)
             {
                 textures.Add(gray);
@@ -637,7 +655,7 @@ void main()
                 }
                 currentShader = texturedShader;
             }
-            materialSelectionComboBox.SelectedIndex = 0;
+            materialSelectionComboBox.SelectedIndex = materialSelectionComboBox.Items.Count > 0 ? 0 : -1; //if no material found
 
 
             snapCameraToModel();
@@ -761,7 +779,7 @@ void main()
         private void materialSelectionComboBox_Changed(object sender, EventArgs e)
         {
             // Set the new texture
-            currentTexture = LoadTexture(materialSelectionComboBox.Text); 
+            currentTexture = LoadTexture(materialSelectionComboBox.Text);
         }
 
         private int LoadTexture(string name)

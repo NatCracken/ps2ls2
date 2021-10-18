@@ -39,7 +39,7 @@ namespace ps2ls.Cameras
             Projection = Matrix4.CreatePerspectiveFieldOfView(FieldOfView, AspectRatio, NearPlaneDistance, FarPlaneDistance);
             
             Matrix4 world = Matrix4.CreateRotationX(Pitch) * Matrix4.CreateRotationY(Yaw);
-            Vector3 forward = Vector3.Transform(Vector3.UnitZ, world);
+            Vector3 forward = Vector3.TransformNormal(Vector3.UnitZ, world);
 
             View = Matrix4.LookAt(Position, Position + forward, Vector3.UnitY);
         }

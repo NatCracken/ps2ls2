@@ -59,8 +59,8 @@ namespace ps2ls.Forms
             ActorForm.CreateInstance();
 
             ImageList imageList = new ImageList();
-            imageList.Images.Add(Properties.Resources.box_small);
-            imageList.Images.Add(Properties.Resources.tree_small);
+            imageList.Images.Add(Resources.box_small);
+            imageList.Images.Add(Resources.tree_small);
             tabControl1.ImageList = imageList;
 
             TabPage assetBrowserTabPage = new TabPage("Asset Browser");
@@ -78,11 +78,11 @@ namespace ps2ls.Forms
             modelBrowserTabPage.Controls.Add(ModelBrowser.Instance);
             modelBrowserTabPage.ImageIndex = 1;
             tabControl1.TabPages.Add(modelBrowserTabPage);
-
          
             TabPage imageBrowser = new TabPage("Image Browser");
             imageBrowser.Controls.Add(ImageBrowser.Instance);
             imageBrowser.ImageIndex = 3;
+            imageBrowser.Enter += ImageBrowser.Instance.onEnter;
             tabControl1.TabPages.Add(imageBrowser);
 
             TabPage soundBrowser = new TabPage("Sound Browser");
@@ -90,13 +90,11 @@ namespace ps2ls.Forms
             soundBrowser.ImageIndex = 4;
             soundBrowser.Enter += SoundBrowser.Instance.onEnter;
             tabControl1.TabPages.Add(soundBrowser);
-
-            
         }
 
         private void reportIssueToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(Properties.Settings.Default.ProjectNewIssueURL);
+            System.Diagnostics.Process.Start(Settings.Default.ProjectNewIssueURL);
         }
 
         private void compareToolStripMenuItem_Click(object sender, EventArgs e)

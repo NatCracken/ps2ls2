@@ -207,6 +207,8 @@ namespace ps2ls.Assets.Pack
         {
             Asset asset = null;
 
+            if (name == null) return null;
+
             if (false == assetLookupCache.TryGetValue(name.GetHashCode(), out asset))
             {
                 return null;

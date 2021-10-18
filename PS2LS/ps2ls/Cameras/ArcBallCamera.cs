@@ -59,7 +59,7 @@ namespace ps2ls.Cameras
             Pitch = DesiredPitch;
 
             Matrix4 world = Matrix4.CreateRotationX(Pitch) * Matrix4.CreateRotationY(Yaw);
-            Vector3 forward = Vector3.Transform(Vector3.UnitZ, world);
+            Vector3 forward = Vector3.TransformNormal(Vector3.UnitZ, world);
 
             Position = target - (forward * distance);
 

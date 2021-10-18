@@ -74,7 +74,7 @@ namespace ps2ls.Forms
             {
                 Matrix4 world = Matrix4.CreateFromAxisAngle(Vector3.UnitX, Camera.Pitch) * Matrix4.CreateFromAxisAngle(Vector3.UnitY, Camera.Yaw);
 
-                Vector3 forward = Vector3.Transform(Vector3.UnitZ, world);
+                Vector3 forward = Vector3.TransformNormal(Vector3.UnitZ, world);
                 forward.Y = 0;
                 forward.Normalize();
 

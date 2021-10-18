@@ -45,3 +45,7 @@ obj
 *.suo
 *.user
 _ReSharper.*
+
+# Directories #
+#################
+**/packages/**/*
