@@ -3,7 +3,8 @@ PS2LS
 
 A toolkit for inspecting Planetside 2 files. It should work on other Forgelight files, but for now I am not interested in supporting them.
 
-This project was at one point worked on in #REside on irc.planetside-universe.com
+This project was at one point worked on in #REside on irc.planetside-universe.com.
+
 Planetside Universe has since shut down. If you can find an an archive, let me know. I'd like to see what was discussed there.
 
 For now, contact me on discord NatCracken#1770.
