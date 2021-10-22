@@ -81,11 +81,6 @@ namespace ps2ls.Forms
             system.init(32, FMOD.INITFLAGS.STREAM_FROM_UPDATE, (IntPtr)null);
 
             system.setFileSystem(myopen, myclose, myread, myseek, null, null, 2048);
-
-         
-
-
-
         }
 
         private void loadSound(string name)
@@ -94,7 +89,7 @@ namespace ps2ls.Forms
 
             if (res != FMOD.RESULT.OK)
             {
-                MessageBox.Show("Cannot load file.  Reason: " + res.ToString(), "FMOD Load Error", MessageBoxButtons.OK);
+                MessageBox.Show("Cannot load " + name + ".  Reason: " + res.ToString(), "FMOD Load Error", MessageBoxButtons.OK);
             }
 
         }
@@ -120,10 +115,5 @@ namespace ps2ls.Forms
 
             return result;
         }
-
-
-
-
-       
     }
 }

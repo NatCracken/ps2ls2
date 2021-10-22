@@ -45,12 +45,9 @@ namespace ps2ls.Forms
         FMOD.System system;
         FMOD.Sound fsb = null;
 
+        //FMODSTUDIO.System systemstd;
+
         FMOD.Channel channel = null;
-        
-           
-
-      
-
 
         private FMOD.SOUND_PCMREADCALLBACK pcmreadcallback = new FMOD.SOUND_PCMREADCALLBACK(PCMREADCALLBACK);
         private FMOD.SOUND_PCMSETPOSCALLBACK pcmsetposcallback = new FMOD.SOUND_PCMSETPOSCALLBACK(PCMSETPOSCALLBACK);
@@ -137,9 +134,7 @@ namespace ps2ls.Forms
 
         private void initFmod()
         {
-            FMOD.RESULT res;
-
-            res = FMOD.Factory.System_Create(ref system);
+            FMOD.RESULT res = FMOD.Factory.System_Create(ref system);
 
             system.init(32, FMOD.INITFLAGS.NORMAL, (IntPtr)null);
 
@@ -148,6 +143,8 @@ namespace ps2ls.Forms
             system.setOutput(FMOD.OUTPUTTYPE.AUTODETECT);
 
 
+
+           // FMODSTUDIO.RESULT altRes = FMODSTUDIO.Factory.System_Create(out systemstd);
 
         }
 
@@ -169,24 +166,49 @@ namespace ps2ls.Forms
            FMOD.RESULT res =  system.createSound(name, (FMOD.MODE._2D | FMOD.MODE.HARDWARE | FMOD.MODE.CREATESTREAM), ref fsb);
             
           
-         
+            
            if (res != FMOD.RESULT.OK)
            {
-               MessageBox.Show("Cannot load file.  Reason: " + res.ToString(), "FMOD Load Error", MessageBoxButtons.OK);
+               MessageBox.Show("Cannot load " + name + ".  Reason: " + res.ToString(), "FMOD Load Error", MessageBoxButtons.OK);
            }
 
         }
 
+        public void onEnter(object sender, EventArgs e)
+        {
+            soundListBox.LoadAndSortAssets();
+            refreshListBox();
+        }
+
+        private int pageNumber = 0;
+        private int pageSize = 1000;
+
         private void refreshListBox()
         {
+            soundListBox.FilterBySearch(searchBox.Text ?? "");
 
-            soundListBox.PopulateBox(searchBox.Text);
+            int filtered = soundListBox.MaxFilteredCount;
 
-            int count = soundListBox.Items.Count;
-            int max = soundListBox.MaxCount;
+            int populateStart = pageNumber * pageSize;
+            int populateEnd = populateStart + pageSize;
+            if (populateEnd > filtered) populateEnd = filtered;
+            soundListBox.PopulateBox(populateStart, populateEnd);
 
-            filesListed.Text = count + "/" + max;
+            filesListed.Text = "Page " + (pageNumber + 1)
+                + ": " + populateStart + " - " + populateEnd + " / " + filtered;
+        }
 
+        private void nextPageButton_Click(object sender, EventArgs e)
+        {
+            int maxPageIndex = soundListBox.MaxFilteredCount / pageSize;
+            if (++pageNumber > maxPageIndex) pageNumber = maxPageIndex;
+            refreshListBox();
+        }
+
+        private void lastPageButton_Click(object sender, EventArgs e)
+        {
+            if (--pageNumber < 0) pageNumber = 0;
+            refreshListBox();
         }
 
         private void SoundBrowser_Load(object sender, EventArgs e)
@@ -212,12 +234,6 @@ namespace ps2ls.Forms
 
             refreshTimer.Stop();
             refreshListBox();
-            
-        }
-
-        public void onEnter(object sender, EventArgs e)
-        {
-           
         }
 
         private void SearchBoxClear_Click(object sender, EventArgs e)
@@ -296,9 +312,9 @@ namespace ps2ls.Forms
                 fileNames.Add(asset.Name);
             }
 
-           // SoundExportForm modelExportForm = new SoundExportForm();
-           // modelExportForm.FileNames = fileNames;
-           // modelExportForm.ShowDialog();
+            SoundExportForm modelExportForm = new SoundExportForm();
+            modelExportForm.FileNames = fileNames;
+            modelExportForm.ShowDialog();
         }
 
         

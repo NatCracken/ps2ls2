@@ -18,7 +18,10 @@ namespace ps2ls.Forms.Controls
             set;
         }
 
+        List<Asset> assets = new List<Asset>();
         public int MaxCount { get; protected set; }
+        List<Asset> filteredAssets = new List<Asset>();
+        public int MaxFilteredCount { get; protected set; }
         public CustomListBox()
         {
             this.DrawItem += new DrawItemEventHandler(this.CustomListBox_DrawItem);
@@ -48,34 +51,34 @@ namespace ps2ls.Forms.Controls
             e.DrawFocusRectangle();
         }
 
-        public void PopulateBox(string searchText)
+        public void LoadAndSortAssets()
         {
-            this.Items.Clear();
+            assets = new List<Asset>();
+            AssetManager.Instance.AssetsByType.TryGetValue(AssetType, out List<Asset> getAssets);
 
-            List<Asset> assets = new List<Asset>();
-            List<Asset> images = null;
-
-            AssetManager.Instance.AssetsByType.TryGetValue(AssetType, out images);
-
-            if (images != null)
-            {
-                assets.AddRange(images);
-            }
+            if (getAssets != null) assets.AddRange(getAssets);
 
             assets.Sort(new Asset.NameComparer());
 
-            if (assets != null)
-            {
-                foreach (Asset asset in assets)
-                {
-                    if (asset.Name.IndexOf(searchText, 0, StringComparison.OrdinalIgnoreCase) >= 0)
-                    {
-                        this.Items.Add(asset);
-                    }
+            MaxCount = assets == null ? 0 : assets.Count;
+        }
 
+        public void FilterBySearch(string searchText)
+        {
+            filteredAssets = new List<Asset>();
+            if (assets != null) foreach (Asset asset in assets)
+                {
+                    if (asset.Name.IndexOf(searchText, 0, StringComparison.OrdinalIgnoreCase) >= 0) filteredAssets.Add(asset);
                 }
-            }
-            MaxCount = assets == null ? assets.Count : 0;
+            MaxFilteredCount = filteredAssets == null ? 0 : filteredAssets.Count;
+        }
+
+        public void PopulateBox(int startIndex, int endIndex)
+        {
+            this.Items.Clear();
+
+            if (filteredAssets.Count < endIndex) endIndex = filteredAssets.Count;
+            for (int i = startIndex; i < endIndex; i++) Items.Add(filteredAssets[i]);
         }
     }
 }

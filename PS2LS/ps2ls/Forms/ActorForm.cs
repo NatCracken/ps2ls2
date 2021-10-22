@@ -38,7 +38,7 @@ namespace ps2ls.Forms
 
         public void PopulateList()
         {
-            customListBox1.PopulateBox("");
+            customListBox1.FilterBySearch("");
 
          
 

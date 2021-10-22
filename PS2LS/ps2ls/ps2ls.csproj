@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ps2ls</RootNamespace>
     <AssemblyName>ps2ls</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -376,6 +376,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ps2ls.ico" />
+    <None Include="Resources\arrow-right.png" />
+    <None Include="Resources\arrow-left.png" />
     <None Include="Resources\materials_3.xml" />
     <None Include="Resources\robot.png" />
     <None Include="Resources\robotic-arm.png" />
@@ -417,6 +419,10 @@
     <ProjectReference Include="..\fmodNET\fmodNET.csproj">
       <Project>{d3a5783f-a596-4263-905d-255d59174818}</Project>
       <Name>fmodNET</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\fmodSTUDIO\fmodSTUDIO.csproj">
+      <Project>{48e17f7c-5d0d-4b69-8b66-045ebc820469}</Project>
+      <Name>fmodSTUDIO</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

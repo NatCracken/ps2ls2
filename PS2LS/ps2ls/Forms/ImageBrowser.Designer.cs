@@ -37,6 +37,8 @@
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.pictureWindow = new System.Windows.Forms.PictureBox();
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
+            this.lastPageButton = new System.Windows.Forms.ToolStripButton();
+            this.nextPageButton = new System.Windows.Forms.ToolStripButton();
             this.imagesCountLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.searchTextTimer = new System.Windows.Forms.Timer(this.components);
             this.imageListbox = new ps2ls.Forms.Controls.CustomListBox();
@@ -56,17 +58,18 @@
             // 
             // toolStrip1
             // 
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButton1,
-            this.searchText,
-            this.toolStripButton2,
-            this.toolStripSeparator1,
-            this.toolStripButton3});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(213, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(312, 25);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { 
+                toolStripButton1,
+                searchText,
+                toolStripButton2,
+                toolStripSeparator1,
+                toolStripButton3,
+            });
             // 
             // toolStripButton1
             // 
@@ -117,27 +120,43 @@
             this.pictureWindow.InitialImage = null;
             this.pictureWindow.Location = new System.Drawing.Point(0, 0);
             this.pictureWindow.Name = "pictureWindow";
-            this.pictureWindow.Size = new System.Drawing.Size(583, 600);
+            this.pictureWindow.Size = new System.Drawing.Size(484, 600);
             this.pictureWindow.TabIndex = 2;
             this.pictureWindow.TabStop = false;
-            this.pictureWindow.Click += new System.EventHandler(this.pictureWindow_Click);
             // 
             // statusStrip2
             // 
-            this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.imagesCountLabel});
             this.statusStrip2.Location = new System.Drawing.Point(0, 578);
             this.statusStrip2.Name = "statusStrip2";
-            this.statusStrip2.Size = new System.Drawing.Size(213, 22);
+            this.statusStrip2.Size = new System.Drawing.Size(312, 22);
             this.statusStrip2.TabIndex = 4;
             this.statusStrip2.Text = "statusStrip2";
+            this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+                lastPageButton,
+                nextPageButton,
+                imagesCountLabel,
+            });
+            // 
+            // lastPageButton
+            // 
+            this.lastPageButton.Image = global::ps2ls.Properties.Resources.arrow_left;
+            this.lastPageButton.Name = "lastPageButton";
+            this.lastPageButton.Size = new System.Drawing.Size(23, 20);
+            this.lastPageButton.Click += new System.EventHandler(this.lastPageButton_Click);
+            // 
+            // nextPageButton
+            // 
+            this.nextPageButton.Image = global::ps2ls.Properties.Resources.arrow_right;
+            this.nextPageButton.Name = "nextPageButton";
+            this.nextPageButton.Size = new System.Drawing.Size(23, 20);
+            this.nextPageButton.Click += new System.EventHandler(this.nextPageButton_Click);
             // 
             // imagesCountLabel
             // 
             this.imagesCountLabel.Image = global::ps2ls.Properties.Resources.image;
             this.imagesCountLabel.Name = "imagesCountLabel";
-            this.imagesCountLabel.Size = new System.Drawing.Size(40, 17);
-            this.imagesCountLabel.Text = "0/0";
+            this.imagesCountLabel.Size = new System.Drawing.Size(133, 17);
+            this.imagesCountLabel.Text = "Page 1: 0 - 0 / 0";
             // 
             // searchTextTimer
             // 
@@ -157,7 +176,7 @@
             this.imageListbox.Location = new System.Drawing.Point(0, 25);
             this.imageListbox.Name = "imageListbox";
             this.imageListbox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.imageListbox.Size = new System.Drawing.Size(213, 553);
+            this.imageListbox.Size = new System.Drawing.Size(312, 553);
             this.imageListbox.TabIndex = 0;
             this.imageListbox.SelectedIndexChanged += new System.EventHandler(this.imageListbox_SelectedIndexChanged);
             // 
@@ -178,19 +197,20 @@
             this.splitContainer1.Panel2.Controls.Add(this.toolStrip2);
             this.splitContainer1.Panel2.Controls.Add(this.pictureWindow);
             this.splitContainer1.Size = new System.Drawing.Size(800, 600);
-            this.splitContainer1.SplitterDistance = 213;
+            this.splitContainer1.SplitterDistance = 250;
             this.splitContainer1.TabIndex = 5;
             // 
             // toolStrip2
             // 
-            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ImageStrechButton,
-            this.ImageCenterButton});
             this.toolStrip2.Location = new System.Drawing.Point(0, 0);
             this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(583, 25);
+            this.toolStrip2.Size = new System.Drawing.Size(484, 25);
             this.toolStrip2.TabIndex = 3;
-            this.toolStrip2.Text = "toolStrip2";
+            this.toolStrip2.Text = "toolStrip2"; 
+            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+                ImageStrechButton,
+                ImageCenterButton,
+            });
             // 
             // ImageStrechButton
             // 
@@ -247,6 +267,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton toolStripButton3;
         private System.Windows.Forms.StatusStrip statusStrip2;
+        private System.Windows.Forms.ToolStripButton lastPageButton;
+        private System.Windows.Forms.ToolStripButton nextPageButton;
         private System.Windows.Forms.ToolStripStatusLabel imagesCountLabel;
         private System.Windows.Forms.Timer searchTextTimer;
         private System.Windows.Forms.PictureBox pictureWindow;

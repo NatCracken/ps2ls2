@@ -51,7 +51,7 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(280, 98);
+            this.groupBox1.Size = new System.Drawing.Size(280, 48);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Export Settings";
@@ -69,7 +69,7 @@
             // 
             // exportButton
             // 
-            this.exportButton.Location = new System.Drawing.Point(217, 404);
+            this.exportButton.Location = new System.Drawing.Point(217, 66);
             this.exportButton.Name = "exportButton";
             this.exportButton.Size = new System.Drawing.Size(75, 23);
             this.exportButton.TabIndex = 2;
@@ -80,7 +80,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(299, 439);
+            this.ClientSize = new System.Drawing.Size(299, 99);
             this.Controls.Add(this.exportButton);
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

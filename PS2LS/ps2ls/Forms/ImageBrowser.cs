@@ -40,6 +40,7 @@ namespace ps2ls.Forms
 
         public void onEnter(object sender, EventArgs e)
         {
+            imageListbox.LoadAndSortAssets();
             refreshImageListBox();
         }
 
@@ -93,15 +94,34 @@ namespace ps2ls.Forms
             refreshImageListBox();
         }
 
+        private int pageNumber = 0;
+        private int pageSize = 1000;
         private void refreshImageListBox()
         {
-            imageListbox.PopulateBox(searchText.Text ?? "");
+            imageListbox.FilterBySearch(searchText.Text ?? "");
 
-            int count = imageListbox.Items.Count;
-            int max = imageListbox.MaxCount;
+            int filtered = imageListbox.MaxFilteredCount;
 
-            imagesCountLabel.Text = count + "/" + max;
+            int populateStart = pageNumber * pageSize;
+            int populateEnd = populateStart + pageSize;
+            if (populateEnd > filtered) populateEnd = filtered;
+            imageListbox.PopulateBox(populateStart, populateEnd);
 
+            imagesCountLabel.Text = "Page " + (pageNumber + 1)
+                + ": " + populateStart + " - " + populateEnd + " / " + filtered;
+        }
+
+        private void nextPageButton_Click(object sender, EventArgs e)
+        {
+            int maxPageIndex = imageListbox.MaxFilteredCount / pageSize;
+            if (++pageNumber > maxPageIndex) pageNumber = maxPageIndex;
+            refreshImageListBox();
+        }
+
+        private void lastPageButton_Click(object sender, EventArgs e)
+        {
+            if (--pageNumber < 0) pageNumber = 0;
+            refreshImageListBox();
         }
 
         private void toolStripButton2_Click(object sender, EventArgs e)
@@ -137,16 +157,10 @@ namespace ps2ls.Forms
             modelExportForm.ShowDialog();
         }
 
-        private void pictureWindow_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void ImageBrowser_Load(object sender, EventArgs e)
         {
             handleTextTimer();
         }
-
-
     }
 }
