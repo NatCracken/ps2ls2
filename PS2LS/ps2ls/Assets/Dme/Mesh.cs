@@ -33,14 +33,14 @@ namespace ps2ls.Assets.Dme
         public VertexStream[] VertexStreams { get; private set; }
         public Byte[] IndexData { get; private set; }
 
-        public UInt32 MaterialIndex { get; set; }
-        public UInt32 Unknown1 { get; set; }
-        public UInt32 Unknown2 { get; set; }
-        public UInt32 Unknown3 { get; set; }
-        public UInt32 Unknown4 { get; set; }
-        public UInt32 VertexCount { get; set; }
-        public UInt32 IndexCount { get; private set; }
-        public UInt32 IndexSize { get; private set; }
+        public uint MaterialIndex { get; set; }
+        public uint Unknown1 { get; set; }
+        public uint Unknown2 { get; set; }
+        public uint Unknown3 { get; set; }
+        public uint Unknown4 { get; set; }
+        public uint VertexCount { get; set; }
+        public uint IndexCount { get; private set; }
+        public uint IndexSize { get; private set; }
 
         public string AssignedTexture
         {
@@ -71,6 +71,16 @@ namespace ps2ls.Assets.Dme
             mesh.IndexCount = binaryReader.ReadUInt32();
             mesh.VertexCount = binaryReader.ReadUInt32();
 
+            Console.WriteLine("~~~~~Mesh Properties~~~~");
+            Console.WriteLine("I: " + mesh.MaterialIndex);
+            Console.WriteLine("u: " + mesh.Unknown1);
+            Console.WriteLine("u: " + mesh.Unknown2);
+            Console.WriteLine("u: " + mesh.Unknown3);
+            Console.WriteLine("vStream: " + vertexStreamCount);
+            Console.WriteLine("iSize: " + mesh.IndexSize);//on new models this is waaaay to large. perhaps its a ushort?
+            Console.WriteLine("iCount: " + mesh.IndexCount);
+            Console.WriteLine("vCtount: " + mesh.VertexCount);
+
             mesh.VertexStreams = new VertexStream[(Int32)vertexStreamCount];
 
             // read vertex streams
@@ -78,7 +88,7 @@ namespace ps2ls.Assets.Dme
             {
                 bytesPerVertex = binaryReader.ReadUInt32();
 
-                VertexStream vertexStream = VertexStream.LoadFromStream(binaryReader.BaseStream, (Int32)mesh.VertexCount, (Int32)bytesPerVertex);
+                VertexStream vertexStream = VertexStream.LoadFromStream(binaryReader.BaseStream, Convert.ToInt32(mesh.IndexCount), Convert.ToInt32(bytesPerVertex));
 
                 if (vertexStream != null)
                 {
@@ -87,7 +97,7 @@ namespace ps2ls.Assets.Dme
             }
 
             // read indices
-            mesh.IndexData = binaryReader.ReadBytes((Int32)mesh.IndexCount * (Int32)mesh.IndexSize);
+            mesh.IndexData = binaryReader.ReadBytes(Convert.ToInt32(mesh.IndexCount) * Convert.ToInt32(mesh.IndexSize));
 
             return mesh;
         }

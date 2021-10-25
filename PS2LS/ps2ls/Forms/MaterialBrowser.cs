@@ -79,7 +79,7 @@ namespace ps2ls.Forms
 
         private void update()
         {
-            glControl1.Camera.AspectRatio = (Single)glControl1.ClientSize.Width / (Single)glControl1.ClientSize.Height;
+            glControl1.Camera.AspectRatio = glControl1.ClientSize.Width / glControl1.ClientSize.Height;
             glControl1.Camera.Update();
         }
 

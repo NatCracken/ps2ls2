@@ -3,13 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31729.503
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ps2ls", "ps2ls\ps2ls.csproj", "{EA8DD307-8B70-4B76-A3E4-140D2A5ECB89}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ps2ls2", "ps2ls\ps2ls2.csproj", "{EA8DD307-8B70-4B76-A3E4-140D2A5ECB89}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevILNet", "devil-net\DevILNet\DevILNet.csproj", "{578FD0D9-41AA-4FA4-8D9B-4021978FA48D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fmodNET", "fmodNET\fmodNET.csproj", "{D3A5783F-A596-4263-905D-255D59174818}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fmodSTUDIO", "fmodSTUDIO\fmodSTUDIO.csproj", "{48E17F7C-5D0D-4B69-8B66-045EBC820469}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,22 +59,6 @@ Global
 		{D3A5783F-A596-4263-905D-255D59174818}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{D3A5783F-A596-4263-905D-255D59174818}.Release|x64.ActiveCfg = Release|Any CPU
 		{D3A5783F-A596-4263-905D-255D59174818}.Release|x86.ActiveCfg = Release|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Debug|x64.Build.0 = Debug|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Debug|x86.Build.0 = Debug|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Release|Any CPU.Build.0 = Release|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Release|x64.ActiveCfg = Release|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Release|x64.Build.0 = Release|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Release|x86.ActiveCfg = Release|Any CPU
-		{48E17F7C-5D0D-4B69-8B66-045EBC820469}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

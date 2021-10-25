@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using System.Diagnostics;
 using ps2ls.IO;
+using Ionic.Zlib;
 
 namespace ps2ls.Assets.Pack
 {
@@ -16,24 +17,35 @@ namespace ps2ls.Assets.Pack
         [ReadOnlyAttribute(true)]
         public string Path { get; private set; }
 
+        [DescriptionAttribute("The number of assets contained in this pack file.")]
+        [ReadOnlyAttribute(true)]
+        public UInt32 AssetCount { get; private set; }
+
+        [DescriptionAttribute("The size of the pack2 file in bytes.")]
+        [ReadOnlyAttribute(true)]
+        public ulong Length { get; private set; }
+
+        [DescriptionAttribute("Offset of the Map, where all the asset hashes are located")]
+        [ReadOnlyAttribute(true)]
+        public ulong MapOffset { get; private set; }
+
         [BrowsableAttribute(false)]
         public List<Asset> Assets { get; private set; }
 
-        [DescriptionAttribute("The number of assets contained in this pack file.")]
-        [ReadOnlyAttribute(true)]
-        public Int32 AssetCount { get { return Assets.Count; } }
+        [BrowsableAttribute(false)]
+        public List<Asset> Raw_Assets { get; private set; }
 
         [DescriptionAttribute("The total size in bytes of all assets contained in this pack file.")]
         [ReadOnlyAttribute(true)]
-        public UInt32 AssetSize
+        public ulong AssetSize
         {
             get
             {
-                UInt32 assetSize = 0;
+                ulong assetSize = 0;
 
-                foreach(Asset asset in Assets)
+                foreach (Asset asset in Assets)
                 {
-                    assetSize += asset.Size;
+                    assetSize += asset.DataLength;
                 }
 
                 return assetSize;
@@ -54,7 +66,7 @@ namespace ps2ls.Assets.Pack
             Assets = new List<Asset>();
         }
 
-        public static Pack LoadBinary(string path)
+        public static Pack LoadBinary(string path, Dictionary<ulong, string> nameDict)
         {
             Pack pack = new Pack(path);
             FileStream fileStream = null;
@@ -70,27 +82,40 @@ namespace ps2ls.Assets.Pack
                 return null;
             }
 
-            BinaryReaderBigEndian binaryReader = new BinaryReaderBigEndian(fileStream);
-            UInt32 nextChunkAbsoluteOffset = 0;
-            UInt32 fileCount = 0;
+            //BinaryReaderBigEndian BinaryReaderBE = new BinaryReaderBigEndian(fileStream);
+            BinaryReader BinaryReaderLE = new BinaryReader(fileStream);
 
-            do
+
+            //---------------------------------read header--------------------------
+            fileStream.Seek(0, SeekOrigin.Begin);
+            uint magic = BinaryReaderLE.ReadUInt32();
+            //TODO check magic matches pak header
+            pack.AssetCount = BinaryReaderLE.ReadUInt32();
+            Console.WriteLine(pack.AssetCount);
+            pack.Length = BinaryReaderLE.ReadUInt64();
+            pack.MapOffset = BinaryReaderLE.ReadUInt64();
+
+            fileStream.Seek(Convert.ToInt64(pack.MapOffset), SeekOrigin.Begin);
+            for (int i = 0; i < pack.AssetCount; i++)
             {
-                fileStream.Seek(nextChunkAbsoluteOffset, SeekOrigin.Begin);
-
-                nextChunkAbsoluteOffset = binaryReader.ReadUInt32();
-                fileCount = binaryReader.ReadUInt32();
-
-                for (UInt32 i = 0; i < fileCount; ++i)
-                {
-                    Asset file = Asset.LoadBinary(pack, binaryReader.BaseStream);
-                    pack.assetLookupCache.Add(file.Name.GetHashCode(), file);
-                    pack.Assets.Add(file);
-                }
+                Asset asset = Asset.LoadBinary(pack, fileStream, nameDict);
+                pack.assetLookupCache.Add(asset.Name.GetHashCode(), asset);
+                pack.Assets.Add(asset);
             }
-            while (nextChunkAbsoluteOffset != 0);
+
 
             return pack;
+        }
+
+        static byte[] decompress(byte[] data)
+        {
+            using (var memStream = new MemoryStream(data))
+            using (var zLibStream = new ZlibStream(memStream, CompressionMode.Decompress))
+            using (var outStream = new MemoryStream())
+            {
+                zLibStream.CopyTo(outStream);
+                return outStream.ToArray();
+            }
         }
 
         public Boolean ExtractAllAssetsToDirectory(String directory)
@@ -110,13 +135,13 @@ namespace ps2ls.Assets.Pack
 
             foreach (Asset asset in Assets)
             {
-                byte[] buffer = new byte[(int)asset.Size];
+                byte[] buffer = new byte[(int)asset.DataLength];
 
-                fileStream.Seek(asset.AbsoluteOffset, SeekOrigin.Begin);
-                fileStream.Read(buffer, 0, (int)asset.Size);
+                fileStream.Seek(Convert.ToInt64(asset.Offset) + 8, SeekOrigin.Begin);
+                fileStream.Read(buffer, 0, (int)asset.DataLength);
 
                 FileStream file = new FileStream(directory + @"\" + asset.Name, FileMode.Create, FileAccess.Write, FileShare.Write);
-                file.Write(buffer, 0, (int)asset.Size);
+                file.Write(decompress(buffer), 0, (int)asset.UnzippedLength);
                 file.Close();
             }
 
@@ -133,30 +158,31 @@ namespace ps2ls.Assets.Pack
             {
                 fileStream = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 System.Windows.Forms.MessageBox.Show(e.Message, "Error", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
 
                 return false;
             }
 
-            foreach(String name in names)
+            foreach (String name in names)
             {
                 Asset asset = null;
-                
-                if(false == assetLookupCache.TryGetValue(name.GetHashCode(), out asset))
+
+                if (false == assetLookupCache.TryGetValue(name.GetHashCode(), out asset))
                 {
                     // could not find file, skip.
                     continue;
                 }
 
-                byte[] buffer = new byte[(int)asset.Size];
+                byte[] buffer = new byte[(int)asset.DataLength];
 
-                fileStream.Seek(asset.AbsoluteOffset, SeekOrigin.Begin);
-                fileStream.Read(buffer, 0, (int)asset.Size);
+                fileStream.Seek(Convert.ToInt64(asset.Offset) + 8, SeekOrigin.Begin);
+                fileStream.Read(buffer, 0, (int)asset.DataLength);
 
+                //TODO, unzip asset and save unzipped version
                 FileStream file = new FileStream(directory + @"\" + asset.Name, FileMode.Create, FileAccess.Write, FileShare.Write);
-                file.Write(buffer, 0, (int)asset.Size);
+                file.Write(decompress(buffer), 0, (int)asset.UnzippedLength);
                 file.Close();
             }
 
@@ -165,7 +191,7 @@ namespace ps2ls.Assets.Pack
             return true;
         }
 
-        public Boolean ExtractAssetByNameToDirectory(String name, String directory) 
+        public Boolean ExtractAssetByNameToDirectory(String name, String directory)
         {
             FileStream fileStream = null;
 
@@ -189,13 +215,13 @@ namespace ps2ls.Assets.Pack
                 return false;
             }
 
-            byte[] buffer = new byte[(int)asset.Size];
+            byte[] buffer = new byte[(int)asset.DataLength];
 
-            fileStream.Seek(asset.AbsoluteOffset, SeekOrigin.Begin);
-            fileStream.Read(buffer, 0, (int)asset.Size);
+            fileStream.Seek(Convert.ToInt64(asset.Offset) + 8, SeekOrigin.Begin);
+            fileStream.Read(buffer, 0, (int)asset.DataLength);
 
             FileStream file = new FileStream(directory + @"\" + asset.Name, FileMode.Create, FileAccess.Write, FileShare.Write);
-            file.Write(buffer, 0, (int)asset.Size);
+            file.Write(decompress(buffer), 0, (int)asset.UnzippedLength);
             file.Close();
 
             fileStream.Close();
@@ -214,6 +240,8 @@ namespace ps2ls.Assets.Pack
                 return null;
             }
 
+            //ExtractAssetByNameToDirectory(name, "E:\\Out"); //rip asset without showing it, for debugging assets in the alternate dmod format
+
             FileStream file = null;
 
             try
@@ -227,14 +255,12 @@ namespace ps2ls.Assets.Pack
                 return null;
             }
 
-            byte[] buffer = new byte[asset.Size];
+            byte[] buffer = new byte[asset.DataLength];
 
-            file.Seek(asset.AbsoluteOffset, SeekOrigin.Begin);
-            file.Read(buffer, 0, (Int32)asset.Size);
+            file.Seek(Convert.ToInt64(asset.Offset) + 8, SeekOrigin.Begin);
+            file.Read(buffer, 0, (int)asset.DataLength);
 
-            MemoryStream memoryStream = new MemoryStream(buffer);
-
-            return memoryStream;
+            return new MemoryStream(decompress(buffer));
         }
 
         public Boolean CreateTemporaryFileAndOpen(String name)

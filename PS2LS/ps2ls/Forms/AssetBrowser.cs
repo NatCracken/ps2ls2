@@ -35,12 +35,28 @@ namespace ps2ls.Forms
             InitializeComponent();
 
             packOpenFileDialog.InitialDirectory = Properties.Settings.Default.AssetDirectory;
+            namelistOpenFileDialog.InitialDirectory = Properties.Settings.Default.AssetDirectory;
 
             Dock = DockStyle.Fill;
         }
+        private void addNameListButton_Click(object sender, EventArgs e)
+        {
+            DialogResult result = namelistOpenFileDialog.ShowDialog();
+
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                AssetManager.Instance.LoadNameListFromPath(namelistOpenFileDialog.FileName);
+                hasNamelist = true;
+                addPacksButton.Enabled = hasNamelist;
+            }
+        }
+
+        bool hasNamelist;
 
         private void addPacksButton_Click(object sender, EventArgs e)
         {
+            if (!hasNamelist) return;
+
             DialogResult result = packOpenFileDialog.ShowDialog();
 
             if (result == System.Windows.Forms.DialogResult.OK)
@@ -206,7 +222,7 @@ namespace ps2ls.Forms
                     Image icon = Asset.GetImageFromType(asset.Type);
 
                     DataGridViewRow row = new DataGridViewRow();
-                    row.CreateCells(assetsDataGridView, new object[] { icon, asset.Name, asset.Type, asset.Size / 1024 });
+                    row.CreateCells(assetsDataGridView, new object[] { icon, asset.Name, asset.Type, asset.UnzippedLength / 1024 });
                     row.Tag = asset;
 
                     rowsToBeAdded.Add(row);

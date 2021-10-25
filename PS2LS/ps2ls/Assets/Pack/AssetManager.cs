@@ -33,6 +33,9 @@ namespace ps2ls.Assets.Pack
         // Internal cache to check whether a pack has already been loaded
         private Dictionary<Int32, Pack> packLookupCache = new Dictionary<Int32, Pack>();
 
+        //break down a namelist file into this, hashxxxxxxxxxxxx:name_name_name.name format
+        private Dictionary<ulong, string> nameDict = new Dictionary<ulong, string>();
+
         private GenericLoadingForm loadingForm;
         private BackgroundWorker loadBackgroundWorker;
         private BackgroundWorker extractAllBackgroundWorker;
@@ -120,7 +123,7 @@ namespace ps2ls.Assets.Pack
 
                 if (packLookupCache.TryGetValue(path.GetHashCode(), out pack) == false)
                 {
-                    pack = Pack.LoadBinary(path);
+                    pack = Pack.LoadBinary(path, nameDict);
 
                     if (pack != null)
                     {
@@ -142,6 +145,21 @@ namespace ps2ls.Assets.Pack
                 Single percent = (Single)(i + 1) / (Single)paths.Count();
                 backgroundWorker.ReportProgress((Int32)(percent * 100.0f), System.IO.Path.GetFileName(path));
             }
+        }
+
+        public bool LoadNameListFromPath(string paths)
+        {
+            string[] lines = System.IO.File.ReadAllLines(paths);
+
+            nameDict = new Dictionary<ulong, string>();
+            foreach (string line in lines)
+            {
+                string[] temp = line.Split(':');
+                nameDict.Add(ulong.Parse(temp[0]), temp[1]);
+            }
+
+            Console.WriteLine("NameList Loaded, " + nameDict.Count + " entries");
+            return true;
         }
 
         public void ExtractAllToDirectory(string directory)
@@ -270,7 +288,7 @@ namespace ps2ls.Assets.Pack
                 {
                     foreach (Asset asset in p.Assets)
                     {
-                        writer.WriteLine(string.Format("{0}\t{1}\t{2}", asset.Name, asset.Size, asset.Crc32));
+                        writer.WriteLine(string.Format("{0}\t{1}\t{2}", asset.Name, asset.UnzippedLength, asset.Crc32));
                     }
                 }
             }

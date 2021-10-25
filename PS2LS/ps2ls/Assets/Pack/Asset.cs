@@ -10,6 +10,8 @@ namespace ps2ls.Assets.Pack
 {
     public class Asset
     {
+        static readonly uint[] ZIPPED_FLAGS = new uint[] { 0x01, 0x11 };
+        static readonly uint[] UNZIPPED_FLAGS = new uint[] { 0x10, 0x00 };
         public enum Types
         {
             ADR,
@@ -41,8 +43,12 @@ namespace ps2ls.Assets.Pack
         {
             Pack = pack;
             Name = String.Empty;
-            Size = 0;
-            AbsoluteOffset = 0;
+            NameHash = 0;
+            Offset = 0;
+            DataLength = 0;
+            isZipped = false;
+            dataHash = 0;
+            UnzippedLength = 0;
             Type = Types.Unknown;
         }
 
@@ -51,22 +57,45 @@ namespace ps2ls.Assets.Pack
             createTypeImages();
         }
 
-        public static Asset LoadBinary(Pack pack, Stream stream)
+        public static Asset LoadBinary(Pack pack, Stream stream, Dictionary<ulong, string> nameDict)
         {
-            BinaryReaderBigEndian reader = new BinaryReaderBigEndian(stream);
+            BinaryReader BinaryReaderLE = new BinaryReader(stream);
+            BinaryReaderBigEndian BinaryReaderBE = new BinaryReaderBigEndian(stream);
 
             Asset asset = new Asset(pack);
 
-            UInt32 count = reader.ReadUInt32();
-            asset.Name = new String(reader.ReadChars((Int32)count));
-            asset.AbsoluteOffset = reader.ReadUInt32();
-            asset.Size = reader.ReadUInt32();
-            asset.Crc32 = reader.ReadUInt32();
+            //read map to find metadata
+            asset.NameHash = BinaryReaderLE.ReadUInt64();
+            asset.Offset = BinaryReaderLE.ReadUInt64();
+            asset.DataLength = BinaryReaderLE.ReadUInt64();
+            uint zippedflag = BinaryReaderLE.ReadUInt32();
+            asset.isZipped = testZipped(zippedflag) && asset.DataLength > 0;
+            asset.dataHash = BinaryReaderLE.ReadUInt32();
+            asset.UnzippedLength = 0;
+            if (asset.isZipped)
+            {
+                long pos = stream.Position;
+                stream.Seek(Convert.ToInt64(asset.Offset), SeekOrigin.Begin);
+                uint zipMagic = BinaryReaderLE.ReadUInt32();
+                //TODO check magic matches a1b2c3d4 header
+                asset.UnzippedLength = BinaryReaderBE.ReadUInt32();
+                stream.Seek(pos, SeekOrigin.Begin);
+            }
+
+            //TODO: search lookup for my name
+
+            if (nameDict.ContainsKey(asset.NameHash))
+            {
+                asset.Name = nameDict[asset.NameHash];
+            } else
+            {
+                asset.Name = asset.NameHash + ".unknown";
+            }
 
             // Set the type of the asset based on the extension
             {
                 // First get the extension without the leading '.'
-                string extension = Path.GetExtension(asset.Name).Substring(1);
+                string extension = System.IO.Path.GetExtension(asset.Name).Substring(1);
                 try
                 {
                     asset.Type = (Asset.Types)Enum.Parse(typeof(Types), extension, true);
@@ -80,6 +109,12 @@ namespace ps2ls.Assets.Pack
             }
 
             return asset;
+        }
+
+        private static bool testZipped(uint flag)
+        {
+            foreach (uint zipped in ZIPPED_FLAGS) if (flag == zipped) return true;
+            return false;
         }
 
         public override string ToString()
@@ -129,11 +164,16 @@ namespace ps2ls.Assets.Pack
 
         [BrowsableAttribute(false)]
         public Pack Pack { get; private set; }
-
         public String Name { get; private set; }
-        public UInt32 Size { get; private set; }
-        public UInt32 AbsoluteOffset { get; private set; }
+        public String Path { get; private set; }
+        public ulong NameHash { get; private set; }
+        public ulong Offset { get; private set; }
+        public ulong DataLength { get; private set; }
+        public uint UnzippedLength { get; private set; }
+        public bool isZipped { get; private set; }
+        public uint dataHash { get; private set; }
         public UInt32 Crc32 { get; private set; }
+
 
         public Asset.Types Type { get; private set; }
 
@@ -148,9 +188,9 @@ namespace ps2ls.Assets.Pack
         {
             public override int Compare(Asset x, Asset y)
             {
-                if (x.Size > y.Size)
+                if (x.DataLength > y.DataLength)
                     return -1;
-                if (x.Size < y.Size)
+                if (x.DataLength < y.DataLength)
                     return 1;
                 else
                     return 0;

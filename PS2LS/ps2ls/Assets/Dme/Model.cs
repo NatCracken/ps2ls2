@@ -80,8 +80,8 @@ namespace ps2ls.Assets.Dme
             {
                 return null;
             }
-
-            UInt32 modelHeaderOffset = binaryReader.ReadUInt32();
+            
+            long afterMatOffset = binaryReader.ReadUInt32() + binaryReader.BaseStream.Position;
 
             model.Name = name;
 
@@ -90,6 +90,7 @@ namespace ps2ls.Assets.Dme
             model.Materials = new List<Material>();
             Dma.Dma.LoadFromStream(binaryReader.BaseStream, model.TextureStrings, model.Materials);
 
+            binaryReader.BaseStream.Seek(afterMatOffset, SeekOrigin.Begin);
             //bounding box
             model.min.X = binaryReader.ReadSingle();
             model.min.Y = binaryReader.ReadSingle();
