@@ -263,7 +263,7 @@ void main()
 
         private void update()
         {
-            glControl1.Camera.AspectRatio = glControl1.ClientSize.Width / glControl1.ClientSize.Height;
+            glControl1.Camera.AspectRatio = glControl1.ClientSize.Width / (float)glControl1.ClientSize.Height;
             glControl1.Camera.Update();
         }
 
