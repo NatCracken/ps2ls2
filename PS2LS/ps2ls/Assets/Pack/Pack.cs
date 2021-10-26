@@ -91,7 +91,6 @@ namespace ps2ls.Assets.Pack
             uint magic = BinaryReaderLE.ReadUInt32();
             //TODO check magic matches pak header
             pack.AssetCount = BinaryReaderLE.ReadUInt32();
-            Console.WriteLine(pack.AssetCount);
             pack.Length = BinaryReaderLE.ReadUInt64();
             pack.MapOffset = BinaryReaderLE.ReadUInt64();
 

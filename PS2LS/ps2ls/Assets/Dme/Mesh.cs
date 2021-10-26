@@ -26,16 +26,16 @@ namespace ps2ls.Assets.Dme
                 return vertexStream;
             }
 
-            public Int32 BytesPerVertex { get; private set; }
+            public int BytesPerVertex { get; private set; }
             public Byte[] Data { get; private set; }
         }
 
         public VertexStream[] VertexStreams { get; private set; }
         public Byte[] IndexData { get; private set; }
 
-        public uint MaterialIndex { get; set; }
-        public uint Unknown1 { get; set; }
-        public uint Unknown2 { get; set; }
+        public uint drawCallOffset { get; set; }
+        public uint drawCallCount { get; set; }
+        public uint boneTransformCount { get; set; }
         public uint Unknown3 { get; set; }
         public uint Unknown4 { get; set; }
         public uint VertexCount { get; set; }
@@ -62,12 +62,12 @@ namespace ps2ls.Assets.Dme
             UInt32 bytesPerVertex = 0;
             UInt32 vertexStreamCount = 0;
 
-            mesh.MaterialIndex = binaryReader.ReadUInt32();
-            mesh.Unknown1 = binaryReader.ReadUInt32();
-            mesh.Unknown2 = binaryReader.ReadUInt32();
+            mesh.drawCallOffset = binaryReader.ReadUInt32();
+            mesh.drawCallCount = binaryReader.ReadUInt32();
+            mesh.boneTransformCount = binaryReader.ReadUInt32();
             mesh.Unknown3 = binaryReader.ReadUInt32();//is usually max value
             vertexStreamCount = binaryReader.ReadUInt32();
-            mesh.IndexSize = binaryReader.ReadUInt32();
+            mesh.IndexSize = binaryReader.ReadUInt32();//byte length of each index (should always be 2)
             mesh.IndexCount = binaryReader.ReadUInt32();
             mesh.VertexCount = binaryReader.ReadUInt32();
 
@@ -81,7 +81,7 @@ namespace ps2ls.Assets.Dme
             Console.WriteLine("iCount: " + mesh.IndexCount);
             Console.WriteLine("vCtount: " + mesh.VertexCount);*/
 
-            mesh.VertexStreams = new VertexStream[(Int32)vertexStreamCount];
+            mesh.VertexStreams = new VertexStream[vertexStreamCount];
 
             // read vertex streams
             for (Int32 j = 0; j < vertexStreamCount; ++j)
@@ -101,5 +101,6 @@ namespace ps2ls.Assets.Dme
 
             return mesh;
         }
+
     }
 }

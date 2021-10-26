@@ -78,9 +78,9 @@ namespace ps2ls.Forms
             meshVertexCountLabel.Text = mesh != null ? mesh.VertexCount.ToString() : "0";
             meshTriangleCountLabel.Text = mesh != null ? (mesh.IndexCount / 3).ToString() : "0";
             //meshBytesPerVertexLabel.Text = mesh != null ? mesh.BytesPerVertex.ToString() : "0";
-            meshIndexLabel.Text = mesh != null ? mesh.MaterialIndex.ToString() : "0";
-            meshUnknown1Label.Text = mesh != null ? mesh.Unknown1.ToString() : "0";
-            meshUnknown2Label.Text = mesh != null ? mesh.Unknown2.ToString() : "0";
+            meshIndexLabel.Text = mesh != null ? mesh.drawCallOffset.ToString() : "0";
+            meshUnknown1Label.Text = mesh != null ? mesh.drawCallCount.ToString() : "0";
+            meshUnknown2Label.Text = mesh != null ? mesh.boneTransformCount.ToString() : "0";
             meshUnknown3Label.Text = mesh != null ? mesh.Unknown3.ToString() : "0";
             meshUnknown4Label.Text = mesh != null ? mesh.Unknown4.ToString() : "0";
             meshVertexBlockCountLabel.Text = mesh != null ? mesh.VertexStreams.Length.ToString() : "0";

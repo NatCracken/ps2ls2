@@ -357,7 +357,7 @@ void main()
                     }
 
                     //fetch material definition and vertex layout
-                    Assets.Dma.Material material = model.Materials[(Int32)mesh.MaterialIndex];
+                    Assets.Dma.Material material = model.Materials[(Int32)mesh.drawCallOffset];
                     MaterialDefinition materialDefinition;
                     if (!MaterialDefinitionManager.Instance.MaterialDefinitions.ContainsKey(material.MaterialDefinitionHash))// if material is missing from material manager
                     {

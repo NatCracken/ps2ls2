@@ -176,7 +176,7 @@ namespace ps2ls.IO
             for (Int32 i = 0; i < model.Meshes.Length; ++i)
             {
                 Mesh mesh = model.Meshes[i];
-                Assets.Dma.Material material = model.Materials[(Int32)mesh.MaterialIndex];
+                Assets.Dma.Material material = model.Materials[(Int32)mesh.drawCallOffset];
                 MaterialDefinition materialDefinition;
                 if (!MaterialDefinitionManager.Instance.MaterialDefinitions.ContainsKey(material.MaterialDefinitionHash))// if material is missing from material manager
                 {
