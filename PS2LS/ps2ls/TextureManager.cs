@@ -42,10 +42,16 @@ namespace ps2ls
             return glTextureHandle;
         }
 
-        public static System.Drawing.Image LoadDrawingImageFromStream(Stream stream)
+        public static SD.Image LoadDrawingImageFromStream(Stream stream, Assets.Pack.Asset.Types type)
         {
+            if (type == Assets.Pack.Asset.Types.PNG)
+            {
+                return SD.Image.FromStream(stream);
+            }
+
             ImageImporter importer = new ImageImporter();         
             Image img = importer.LoadImageFromStream(stream);
+            importer.Dispose();
 
             DevIL.Unmanaged.ImageInfo data = img.GetImageInfo();
             SD.Bitmap bitmap = new SD.Bitmap(data.Width, data.Height, SDI.PixelFormat.Format32bppArgb);
@@ -56,7 +62,7 @@ namespace ps2ls
 
             bitmap.UnlockBits(bdata);
 
-            return (SD.Image)bitmap;          
+            return bitmap;          
 
         }
     }

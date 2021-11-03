@@ -94,7 +94,8 @@ namespace ps2ls.Forms
 
         private void reportIssueToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(Settings.Default.ProjectNewIssueURL);
+            Console.WriteLine("no issue url found");
+           // System.Diagnostics.Process.Start(Settings.Default.ProjectNewIssueURL);
         }
 
         private void compareToolStripMenuItem_Click(object sender, EventArgs e)

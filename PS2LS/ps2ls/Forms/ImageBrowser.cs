@@ -56,7 +56,7 @@ namespace ps2ls.Forms
 
             System.IO.MemoryStream memoryStream = asset.Pack.CreateAssetMemoryStreamByName(asset.Name);
 
-            Image i = TextureManager.LoadDrawingImageFromStream(memoryStream);
+            Image i = TextureManager.LoadDrawingImageFromStream(memoryStream, asset.Type);
 
             pictureWindow.BackgroundImage = i;
             BackgroundImageLayout = ImageLayout.Stretch;

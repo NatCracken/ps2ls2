@@ -84,6 +84,9 @@ namespace ps2ls.Forms
                 result++;
             }
 
+            imageImporter.Dispose();
+            imageExporter.Dispose();
+
             return result;
         }
 

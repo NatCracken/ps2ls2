@@ -74,6 +74,9 @@ namespace ps2ls.IO
 
                     imageExporter.SaveImage(textureImage, exportOptions.TextureFormat.ImageType, directory + @"\" + Path.GetFileNameWithoutExtension(textureString) + @"." + exportOptions.TextureFormat.Extension);
                 }
+
+                imageImporter.Dispose();
+                imageExporter.Dispose();
             }
 
             String path = directory + @"\" + Path.GetFileNameWithoutExtension(model.Name) + ".obj";

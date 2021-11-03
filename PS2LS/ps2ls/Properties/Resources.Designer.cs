@@ -452,14 +452,14 @@ namespace ps2ls.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
-        ///&lt;Object Class=&quot;MaterialDefinitionCollection&quot;&gt;
+        ///&lt;Object Class=&quot;MaterialDefinitionCollection&quot; uuid=&quot;f38fee01-ca14-4098-b5dc-7869275bde0a&quot;&gt;
         ///
         ///
         ///
         ///
         ///  &lt;!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--&gt;
         ///  &lt;!-- /////////////////////////////////////////////////////////////      INPUT LAYOUTS     /////////////////////////////////////////////////////////////////////////--&gt;
-        ///  &lt;!-- ////////////////////////////////////////////////////////////////////// [rest of string was truncated]&quot;;.
+        ///  &lt;!-- ////////////////////////// [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string materials_3 {
             get {
@@ -553,6 +553,16 @@ namespace ps2ls.Properties {
         internal static System.Drawing.Bitmap sphere_aabb2 {
             get {
                 object obj = ResourceManager.GetObject("sphere-aabb2", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap sphere_wire_occluder {
+            get {
+                object obj = ResourceManager.GetObject("sphere_wire_occluder", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

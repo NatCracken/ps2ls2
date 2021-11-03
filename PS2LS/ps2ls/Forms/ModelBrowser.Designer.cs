@@ -41,6 +41,7 @@
             this.clearSearchModelsText = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.showAutoLODModelsButton = new System.Windows.Forms.ToolStripButton();
+            this.showCollisionModelsButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exportSelectedModelsToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.ModelBrowserModelStats1 = new ps2ls.Forms.ModelBrowserModelStats();
@@ -88,7 +89,7 @@
             // 
             // modelsListBox
             // 
-            this.modelsListBox.AssetType = ps2ls.Assets.Pack.Asset.Types.DME;
+            this.modelsListBox.AssetType = new ps2ls.Assets.Pack.Asset.Types[] { ps2ls.Assets.Pack.Asset.Types.DME };
             this.modelsListBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.modelsListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.modelsListBox.FormattingEnabled = true;
@@ -129,6 +130,7 @@
             this.clearSearchModelsText,
             this.toolStripSeparator2,
             this.showAutoLODModelsButton,
+            this.showCollisionModelsButton,
             this.toolStripSeparator1,
             this.exportSelectedModelsToolStripButton});
             this.toolStrip2.Location = new System.Drawing.Point(0, 0);
@@ -179,6 +181,17 @@
             this.showAutoLODModelsButton.Size = new System.Drawing.Size(23, 22);
             this.showAutoLODModelsButton.Text = "Show Auto LOD Models";
             this.showAutoLODModelsButton.CheckedChanged += new System.EventHandler(this.showAutoLODModelsButton_CheckedChanged);
+            // 
+            // showCollisionModlesButton
+            // 
+            this.showCollisionModelsButton.CheckOnClick = true;
+            this.showCollisionModelsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.showCollisionModelsButton.Image = global::ps2ls.Properties.Resources.sphere_wire_occluder;
+            this.showCollisionModelsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.showCollisionModelsButton.Name = "showCollisionModlesButton";
+            this.showCollisionModelsButton.Size = new System.Drawing.Size(23, 22);
+            this.showCollisionModelsButton.Text = "Show Collision and Occluder Models";
+            this.showCollisionModelsButton.CheckedChanged += new System.EventHandler(this.showCollisionModelsButton_CheckedChanged);
             // 
             // toolStripSeparator1
             // 
@@ -364,7 +377,7 @@
         private System.Windows.Forms.ToolStripStatusLabel modelsCountToolStripStatusLabel;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton exportSelectedModelsToolStripButton;
-        private ModelBrowserGLControl glControl1;
+        private ps2ls.Forms.ModelBrowserGLControl glControl1;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton renderModeWireframeButton;
         private System.Windows.Forms.ToolStripButton renderModeSmoothButton;
@@ -374,6 +387,7 @@
         private ModelBrowserModelStats ModelBrowserModelStats1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton showAutoLODModelsButton;
+        private System.Windows.Forms.ToolStripButton showCollisionModelsButton;
         private System.Windows.Forms.ToolStripComboBox materialSelectionComboBox;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
     }

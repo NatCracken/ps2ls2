@@ -150,6 +150,7 @@ namespace ps2ls.Forms
 
             if (exportFolderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
+                ModelExporterStatic.outputDirectory = exportFolderBrowserDialog.SelectedPath;
                 List<object> argument = new List<object>()
                 {
                     exportFolderBrowserDialog.SelectedPath,

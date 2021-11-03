@@ -36,6 +36,7 @@ namespace ps2ls.Assets.Pack
             TXT,
             XML,
             ZONE,
+            PNG,
             Unknown
         };
 
@@ -81,8 +82,6 @@ namespace ps2ls.Assets.Pack
                 asset.UnzippedLength = BinaryReaderBE.ReadUInt32();
                 stream.Seek(pos, SeekOrigin.Begin);
             }
-
-            //TODO: search lookup for my name
 
             if (nameDict.ContainsKey(asset.NameHash))
             {
@@ -144,6 +143,7 @@ namespace ps2ls.Assets.Pack
                         typeImages[type] = Properties.Resources.tree;
                         break;
                     case Asset.Types.DDS:
+                    case Asset.Types.PNG:
                         typeImages[type] = Properties.Resources.image;
                         break;
                     case Asset.Types.TXT:

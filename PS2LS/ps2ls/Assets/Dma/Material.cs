@@ -8,9 +8,9 @@ namespace ps2ls.Assets.Dma
 {
     public class Material
     {
-        public UInt32 NameHash { get; private set; }
-        public UInt32 DataLength { get; private set; }
-        public UInt32 MaterialDefinitionHash { get; private set; }
+        public uint NameHash { get; private set; }
+        public uint DataLength { get; private set; }
+        public uint MaterialDefinitionHash { get; private set; }
         public List<Parameter> Parameters { get; private set; }
 
         private Material()
@@ -26,11 +26,10 @@ namespace ps2ls.Assets.Dma
             material.NameHash = binaryReader.ReadUInt32();
             material.DataLength = binaryReader.ReadUInt32();
             material.MaterialDefinitionHash = binaryReader.ReadUInt32();
+            uint parameterCount = binaryReader.ReadUInt32();
+            material.Parameters = new List<Parameter>(Convert.ToInt32(parameterCount));
 
-            UInt32 parameterCount = binaryReader.ReadUInt32();
-            material.Parameters = new List<Parameter>((Int32)parameterCount);
-
-            for (UInt32 j = 0; j < parameterCount; ++j)
+            for (uint j = 0; j < parameterCount; ++j)
             {
                 Parameter parameter = Parameter.LoadFromStream(stream);
 

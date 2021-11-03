@@ -73,7 +73,7 @@
             // 
             // texturesListBox
             // 
-            this.texturesListBox.AssetType = ps2ls.Assets.Pack.Asset.Types.DMA;
+            this.texturesListBox.AssetType = new ps2ls.Assets.Pack.Asset.Types[] { ps2ls.Assets.Pack.Asset.Types.DMA };
             this.texturesListBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.texturesListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.texturesListBox.FormattingEnabled = true;

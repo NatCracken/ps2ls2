@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define USEGL
+#undef USEGL
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -47,18 +49,21 @@ namespace ps2ls.Forms
 
         private void MaterialBrowserControl_Load(object sender, EventArgs e)
         {
+#if USEGL
             glControl1.CreateGraphics();
-
+#endif
             Application.Idle += applicationIdle;
         }
 
         private void applicationIdle(object sender, EventArgs e)
         {
+#if USEGL
             while (glControl1.Context != null && glControl1.IsIdle)
             {
                 update();
                 render();
             }
+#endif
         }
 
         private void glControl1_Resize(object sender, EventArgs e)
@@ -73,10 +78,14 @@ namespace ps2ls.Forms
 
         private void glControl1_Paint(object sender, PaintEventArgs e)
         {
+
+#if USEGL
             update();
             render();
+#endif
         }
 
+#if USEGL
         private void update()
         {
             glControl1.Camera.AspectRatio = glControl1.ClientSize.Width / glControl1.ClientSize.Height;
@@ -154,7 +163,7 @@ namespace ps2ls.Forms
 
             glControl1.SwapBuffers();
         }
-
+#endif
         public override void Refresh()
         {
             base.Refresh();
@@ -234,26 +243,32 @@ namespace ps2ls.Forms
 
         private void showAxesButton_Click(object sender, EventArgs e)
         {
+#if USEGL
             glControl1.Invalidate();
+#endif
         }
 
         private void showWireframeButton_Click(object sender, EventArgs e)
         {
+#if USEGL
             glControl1.Invalidate();
+#endif
         }
 
         private void showAABBButton_Click(object sender, EventArgs e)
         {
+
+#if USEGL
             glControl1.Invalidate();
+#endif
         }
 
         private void showBoundingBoxButton_Click(object sender, EventArgs e)
         {
-            glControl1.Invalidate();
-        }
 
-        private void glControl1_MouseEnter(object sender, EventArgs e)
-        {
+#if USEGL
+            glControl1.Invalidate();
+#endif
         }
     }
 }

@@ -290,7 +290,7 @@ void main()
             if (showAxesButton.Checked)
             {
                 // debug axes
-                GL.Begin(BeginMode.Lines);
+                GL.Begin(PrimitiveType.Lines);
                 //x
                 GL.Color3(Color.Red);
                 GL.Vertex3(Vector3.Zero);
@@ -357,20 +357,17 @@ void main()
                     }
 
                     //fetch material definition and vertex layout
-                    Assets.Dma.Material material = model.Materials[(Int32)mesh.drawCallOffset];
-                    MaterialDefinition materialDefinition;
-                    if (!MaterialDefinitionManager.Instance.MaterialDefinitions.ContainsKey(material.MaterialDefinitionHash))// if material is missing from material manager
+                    uint materialHash = model.Materials[(Int32)mesh.drawCallOffset].MaterialDefinitionHash;
+                    VertexLayout vertexLayout = null;
+                    if (MaterialDefinitionManager.Instance.MaterialDefinitions.ContainsKey(materialHash))
                     {
-                        uint lowestKey = uint.MaxValue;
-                        foreach (uint key in MaterialDefinitionManager.Instance.MaterialDefinitions.Keys) if (key < lowestKey) lowestKey = key;
-                        materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[lowestKey];
-                        Debug.WriteLine("Material " + material.MaterialDefinitionHash + " missing, using " + lowestKey);
+                        MaterialDefinition materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[materialHash];
+                        vertexLayout = MaterialDefinitionManager.Instance.VertexLayouts[materialDefinition.DrawStyles[0].VertexLayoutNameHash];
                     }
                     else
                     {
-                        materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[material.MaterialDefinitionHash];
+                        //Console.WriteLine("Missing Material: " + materialHash.ToString("X"));
                     }
-                    VertexLayout vertexLayout = MaterialDefinitionManager.Instance.VertexLayouts[materialDefinition.DrawStyles[0].VertexLayoutNameHash];
 
                     GL.Color3(meshColors[i % meshColors.Length]);
 
@@ -387,21 +384,20 @@ void main()
                     VertexLayout.Entry.DataTypes positionDataType = VertexLayout.Entry.DataTypes.None;
                     Int32 positionStream = 0;
                     Int32 positionOffset = 0;
-                    bool positionExists = vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Position, 0, out positionDataType, out positionStream, out positionOffset);
+                    bool positionExists = vertexLayout == null ? false : vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Position, 0, out positionDataType, out positionStream, out positionOffset);
 
-                    if (positionExists)
-                    {
-                        IntPtr positionData = streamDataGCHandles[positionStream].AddrOfPinnedObject();
+                    //assume position exsists, and that 0,0 are the right values for stream and offset
+                    IntPtr positionData = streamDataGCHandles[positionStream].AddrOfPinnedObject();
 
-                        GL.EnableClientState(ArrayCap.VertexArray);
-                        GL.VertexPointer(3, VertexPointerType.Float, mesh.VertexStreams[positionStream].BytesPerVertex, positionData + positionOffset);
-                    }
+                    GL.EnableClientState(ArrayCap.VertexArray);
+                    GL.VertexPointer(3, VertexPointerType.Float, mesh.VertexStreams[positionStream].BytesPerVertex, positionData + positionOffset);
+
 
                     //normal
                     VertexLayout.Entry.DataTypes normalDataType = VertexLayout.Entry.DataTypes.None;
                     Int32 normalStream = 0;
                     Int32 normalOffset = 0;
-                    bool normalExists = vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Normal, 0, out normalDataType, out normalStream, out normalOffset);
+                    bool normalExists = vertexLayout == null ? false : vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Normal, 0, out normalDataType, out normalStream, out normalOffset);
 
                     if (normalExists)
                     {
@@ -416,7 +412,7 @@ void main()
                     VertexLayout.Entry.DataTypes texCoord0DataType = VertexLayout.Entry.DataTypes.None;
                     Int32 texCoord0Stream = 0;
                     Int32 texCoord0Offset = 0;
-                    bool texCoord0Exists = vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Texcoord, 0, out texCoord0DataType, out texCoord0Stream, out texCoord0Offset);
+                    bool texCoord0Exists = vertexLayout == null ? false : vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Texcoord, 0, out texCoord0DataType, out texCoord0Stream, out texCoord0Offset);
 
                     if (texCoord0Exists)
                     {
@@ -447,7 +443,7 @@ void main()
                     GCHandle indexDataHandle = GCHandle.Alloc(mesh.IndexData, GCHandleType.Pinned);
                     IntPtr indexData = indexDataHandle.AddrOfPinnedObject();
 
-                    GL.DrawElements(BeginMode.Triangles, (Int32)mesh.IndexCount, DrawElementsType.UnsignedShort, indexData);
+                    GL.DrawElements(PrimitiveType.Triangles, (Int32)mesh.IndexCount, DrawElementsType.UnsignedShort, indexData);
 
                     indexDataHandle.Free();
 
@@ -568,6 +564,14 @@ void main()
                         }
                     }
 
+                    if (showCollisionModelsButton.Checked == false)
+                    {
+                        if (asset.Name.Contains("Collision") || asset.Name.Contains("Occluder"))
+                        {
+                            continue;
+                        }
+                    }
+
                     if (asset.Name.IndexOf(searchModelsText.Text, 0, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         modelsListBox.Items.Add(asset);
@@ -610,7 +614,6 @@ void main()
             searchModelsText.Clear();
         }
 
-
         private void modelsListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             Asset asset = null;
@@ -625,13 +628,21 @@ void main()
 
             System.IO.MemoryStream memoryStream = asset.Pack.CreateAssetMemoryStreamByName(asset.Name);
 
-            model = Model.LoadFromStream(asset.Name, memoryStream);
-
+            try
+            {
+                model = Model.LoadFromStream(asset.Name, memoryStream);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+            }
             if (model == null)
             {
                 Console.WriteLine("Unable to load " + asset.Name + " from memorystream.");
                 return;
             }
+
+
 
             ModelBrowserModelStats1.Model = model;
             textures.Clear();
@@ -775,6 +786,12 @@ void main()
         {
             refreshModelsListBox();
         }
+
+        private void showCollisionModelsButton_CheckedChanged(object sender, EventArgs e)
+        {
+            refreshModelsListBox();
+        }
+
         Int32 currentTexture = 0;
         private void materialSelectionComboBox_Changed(object sender, EventArgs e)
         {

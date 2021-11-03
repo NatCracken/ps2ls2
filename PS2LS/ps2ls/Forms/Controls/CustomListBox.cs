@@ -12,11 +12,7 @@ namespace ps2ls.Forms.Controls
     {
         public Image Image { get; set; }
 
-        public Asset.Types AssetType
-        {
-            get;
-            set;
-        }
+        public Asset.Types[] AssetType;
 
         List<Asset> assets = new List<Asset>();
         public int MaxCount { get; protected set; }
@@ -54,9 +50,12 @@ namespace ps2ls.Forms.Controls
         public void LoadAndSortAssets()
         {
             assets = new List<Asset>();
-            AssetManager.Instance.AssetsByType.TryGetValue(AssetType, out List<Asset> getAssets);
 
-            if (getAssets != null) assets.AddRange(getAssets);
+            foreach (Asset.Types type in AssetType)
+            {
+                AssetManager.Instance.AssetsByType.TryGetValue(type, out List<Asset> getAssets);
+                if (getAssets != null) assets.AddRange(getAssets);
+            }
 
             assets.Sort(new Asset.NameComparer());
 

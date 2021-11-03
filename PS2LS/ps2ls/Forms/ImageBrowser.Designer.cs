@@ -63,7 +63,7 @@
             this.toolStrip1.Size = new System.Drawing.Size(312, 25);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { 
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
                 toolStripButton1,
                 searchText,
                 toolStripButton2,
@@ -166,7 +166,7 @@
             // 
             // imageListbox
             // 
-            this.imageListbox.AssetType = ps2ls.Assets.Pack.Asset.Types.DDS;
+            this.imageListbox.AssetType = new ps2ls.Assets.Pack.Asset.Types[] { ps2ls.Assets.Pack.Asset.Types.DDS, ps2ls.Assets.Pack.Asset.Types.PNG };
             this.imageListbox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.imageListbox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.imageListbox.FormattingEnabled = true;
@@ -206,7 +206,7 @@
             this.toolStrip2.Name = "toolStrip2";
             this.toolStrip2.Size = new System.Drawing.Size(484, 25);
             this.toolStrip2.TabIndex = 3;
-            this.toolStrip2.Text = "toolStrip2"; 
+            this.toolStrip2.Text = "toolStrip2";
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
                 ImageStrechButton,
                 ImageCenterButton,

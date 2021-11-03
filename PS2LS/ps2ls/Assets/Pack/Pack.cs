@@ -140,7 +140,9 @@ namespace ps2ls.Assets.Pack
                 fileStream.Read(buffer, 0, (int)asset.DataLength);
 
                 FileStream file = new FileStream(directory + @"\" + asset.Name, FileMode.Create, FileAccess.Write, FileShare.Write);
-                file.Write(decompress(buffer), 0, (int)asset.UnzippedLength);
+                if (asset.isZipped) buffer = decompress(buffer);
+
+                file.Write(buffer, 0, (int)asset.UnzippedLength);
                 file.Close();
             }
 
@@ -181,7 +183,9 @@ namespace ps2ls.Assets.Pack
 
                 //TODO, unzip asset and save unzipped version
                 FileStream file = new FileStream(directory + @"\" + asset.Name, FileMode.Create, FileAccess.Write, FileShare.Write);
-                file.Write(decompress(buffer), 0, (int)asset.UnzippedLength);
+                if (asset.isZipped) buffer = decompress(buffer);
+
+                file.Write(buffer, 0, (int)asset.UnzippedLength);
                 file.Close();
             }
 
@@ -220,7 +224,9 @@ namespace ps2ls.Assets.Pack
             fileStream.Read(buffer, 0, (int)asset.DataLength);
 
             FileStream file = new FileStream(directory + @"\" + asset.Name, FileMode.Create, FileAccess.Write, FileShare.Write);
-            file.Write(decompress(buffer), 0, (int)asset.UnzippedLength);
+            if (asset.isZipped) buffer = decompress(buffer);
+
+            file.Write(buffer, 0, (int)asset.UnzippedLength);
             file.Close();
 
             fileStream.Close();
@@ -258,8 +264,9 @@ namespace ps2ls.Assets.Pack
 
             file.Seek(Convert.ToInt64(asset.Offset) + 8, SeekOrigin.Begin);
             file.Read(buffer, 0, (int)asset.DataLength);
+            if (asset.isZipped) buffer = decompress(buffer);
 
-            return new MemoryStream(decompress(buffer));
+            return new MemoryStream(buffer);
         }
 
         public Boolean CreateTemporaryFileAndOpen(String name)

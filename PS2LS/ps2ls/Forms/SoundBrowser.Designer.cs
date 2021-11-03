@@ -76,7 +76,7 @@
             // 
             // soundListBox
             // 
-            this.soundListBox.AssetType = ps2ls.Assets.Pack.Asset.Types.FSB;
+            this.soundListBox.AssetType = new ps2ls.Assets.Pack.Asset.Types[] { ps2ls.Assets.Pack.Asset.Types.FSB };
             this.soundListBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.soundListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.soundListBox.Image = global::ps2ls.Properties.Resources.music;

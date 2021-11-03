@@ -111,8 +111,16 @@ namespace ps2ls.IO
 
         public static void ExportModelToDirectory(Model model, string directory, ExportOptions exportOptions)
         {
-
-            exportModelAsOBJToDirectory(model, directory, exportOptions);
+            
+            try
+            {
+                exportModelAsOBJToDirectory(model, directory, exportOptions);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to export " + model.Name);
+                Console.WriteLine(ex.StackTrace);
+            }
 
             /*//TODO - support other formats
             switch (exportOptions.ExportFormatInfo.ExportFormat)
@@ -152,20 +160,23 @@ namespace ps2ls.IO
                 ImageImporter imageImporter = new ImageImporter();
                 ImageExporter imageExporter = new ImageExporter();
 
-                foreach(string textureString in model.TextureStrings)
+                foreach (string textureString in model.TextureStrings)
                 {
                     MemoryStream textureMemoryStream = AssetManager.Instance.CreateAssetMemoryStreamByName(textureString);
 
-                    if(textureMemoryStream == null)
+                    if (textureMemoryStream == null)
                         continue;
 
                     Image textureImage = imageImporter.LoadImageFromStream(textureMemoryStream);
 
-                    if(textureImage == null)
+                    if (textureImage == null)
                         continue;
 
                     imageExporter.SaveImage(textureImage, options.TextureFormat.ImageType, directory + @"\" + Path.GetFileNameWithoutExtension(textureString) + @"." + options.TextureFormat.Extension);
                 }
+
+                imageImporter.Dispose();
+                imageExporter.Dispose();
             }
 
             String path = directory + @"\" + Path.GetFileNameWithoutExtension(model.Name) + ".obj";
@@ -176,28 +187,25 @@ namespace ps2ls.IO
             for (Int32 i = 0; i < model.Meshes.Length; ++i)
             {
                 Mesh mesh = model.Meshes[i];
-                Assets.Dma.Material material = model.Materials[(Int32)mesh.drawCallOffset];
-                MaterialDefinition materialDefinition;
-                if (!MaterialDefinitionManager.Instance.MaterialDefinitions.ContainsKey(material.MaterialDefinitionHash))// if material is missing from material manager
+
+                uint materialHash = model.Materials[(Int32)mesh.drawCallOffset].MaterialDefinitionHash;
+                VertexLayout vertexLayout = null;
+                if (MaterialDefinitionManager.Instance.MaterialDefinitions.ContainsKey(materialHash))
                 {
-                    uint lowestKey = uint.MaxValue;
-                    foreach (uint key in MaterialDefinitionManager.Instance.MaterialDefinitions.Keys) if (key < lowestKey) lowestKey = key;
-                    materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[lowestKey];
-                    Console.WriteLine("Material " + material.MaterialDefinitionHash + " missing, using " + lowestKey);
-                }
-                else
+                    MaterialDefinition materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[materialHash];
+                    vertexLayout = MaterialDefinitionManager.Instance.VertexLayouts[materialDefinition.DrawStyles[0].VertexLayoutNameHash];
+                } else
                 {
-                    materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[material.MaterialDefinitionHash];
+                    Console.WriteLine("Missing Material: " + materialHash.ToString("X"));
                 }
-                VertexLayout vertexLayout = MaterialDefinitionManager.Instance.VertexLayouts[materialDefinition.DrawStyles[0].VertexLayoutNameHash];
 
                 //position
                 VertexLayout.Entry.DataTypes positionDataType;
-                Int32 positionOffset;
-                Int32 positionStreamIndex;
+                Int32 positionOffset = 0;
+                Int32 positionStreamIndex = 0;
 
-                vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Position, 0, out positionDataType, out positionStreamIndex, out positionOffset);
-                
+                bool hasPositions = vertexLayout == null ? false : vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Position, 0, out positionDataType, out positionStreamIndex, out positionOffset);
+
                 Mesh.VertexStream positionStream = mesh.VertexStreams[positionStreamIndex];
 
                 for (Int32 j = 0; j < mesh.VertexCount; ++j)
@@ -214,11 +222,11 @@ namespace ps2ls.IO
                 //texture coordinates
                 if (options.TextureCoordinates)
                 {
-                    VertexLayout.Entry.DataTypes texCoord0DataType;
+                    VertexLayout.Entry.DataTypes texCoord0DataType = VertexLayout.Entry.DataTypes.None;
                     Int32 texCoord0Offset = 0;
                     Int32 texCoord0StreamIndex = 0;
 
-                    Boolean texCoord0Present = vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Texcoord, 0, out texCoord0DataType, out texCoord0StreamIndex, out texCoord0Offset);
+                    Boolean texCoord0Present = vertexLayout == null ? false : vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Texcoord, 0, out texCoord0DataType, out texCoord0StreamIndex, out texCoord0Offset);
 
                     if (texCoord0Present)
                     {
