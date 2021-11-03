@@ -366,7 +366,7 @@ void main()
                     }
                     else
                     {
-                        //Console.WriteLine("Missing Material: " + materialHash.ToString("X"));
+                        Console.WriteLine("Missing Material: " + materialHash.ToString("X"));
                     }
 
                     GL.Color3(meshColors[i % meshColors.Length]);
@@ -382,8 +382,8 @@ void main()
 
                     //position
                     VertexLayout.Entry.DataTypes positionDataType = VertexLayout.Entry.DataTypes.None;
-                    Int32 positionStream = 0;
-                    Int32 positionOffset = 0;
+                    int positionStream = 0;
+                    int positionOffset = 0;
                     bool positionExists = vertexLayout == null ? false : vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Position, 0, out positionDataType, out positionStream, out positionOffset);
 
                     //assume position exsists, and that 0,0 are the right values for stream and offset
@@ -395,8 +395,8 @@ void main()
 
                     //normal
                     VertexLayout.Entry.DataTypes normalDataType = VertexLayout.Entry.DataTypes.None;
-                    Int32 normalStream = 0;
-                    Int32 normalOffset = 0;
+                    int normalStream = 0;
+                    int normalOffset = 0;
                     bool normalExists = vertexLayout == null ? false : vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Normal, 0, out normalDataType, out normalStream, out normalOffset);
 
                     if (normalExists)

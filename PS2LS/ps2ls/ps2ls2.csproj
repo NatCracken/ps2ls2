@@ -123,6 +123,7 @@
     <Compile Include="Forms\SoundExportForm.Designer.cs">
       <DependentUpon>SoundExportForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Graphics\Materials\ParameterGroup.cs" />
     <Compile Include="IO\ModelExporter.cs" />
     <Compile Include="IO\ModelExporterStatic.cs" />
     <Compile Include="Assets\Pack\AssetManager.cs" />

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using ps2ls.Graphics.Materials;
 using ps2ls.Cryptography;
 using OpenTK;
 
@@ -13,25 +12,17 @@ namespace ps2ls.Assets.Dme
     {
         public class VertexStream
         {
-            public static VertexStream LoadFromStream(Stream stream, Int32 bytesPerVertex, Int32 vertexCount)
+            public VertexStream(int getBytesPerVertex, byte[] getBytes)
             {
-                VertexStream vertexStream = new VertexStream();
-
-                vertexStream.BytesPerVertex = bytesPerVertex;
-
-                BinaryReader binaryReader = new BinaryReader(stream);
-
-                vertexStream.Data = binaryReader.ReadBytes(vertexCount * bytesPerVertex);
-
-                return vertexStream;
+                BytesPerVertex = getBytesPerVertex;
+                Data = getBytes;
             }
-
             public int BytesPerVertex { get; private set; }//if 12, 3 floats. if 6, 3 halves
-            public Byte[] Data { get; private set; }
+            public byte[] Data { get; private set; }
         }
 
         public VertexStream[] VertexStreams { get; private set; }
-        public Byte[] IndexData { get; private set; }
+        public byte[] IndexData { get; private set; }
 
         public uint drawCallOffset { get; set; }
         public uint drawCallCount { get; set; }
@@ -53,13 +44,12 @@ namespace ps2ls.Assets.Dme
             AssignedTexture = "grey.dds";
         }
 
-        public static Mesh LoadFromStream(Stream stream, ICollection<Dma.Material> materials)
+        public static Mesh LoadFromStream(Stream stream, List<Dma.Material> materials)
         {
             BinaryReader binaryReader = new BinaryReader(stream);
 
             Mesh mesh = new Mesh();
 
-            uint bytesPerVertex;
             uint vertexStreamCount;
 
             Console.WriteLine("~~~~~Mesh Properties~~~~");
@@ -87,16 +77,11 @@ namespace ps2ls.Assets.Dme
             mesh.VertexStreams = new VertexStream[vertexStreamCount];
 
             // read vertex streams
-            for (Int32 j = 0; j < vertexStreamCount; ++j)
+            for (int j = 0; j < vertexStreamCount; ++j)
             {
-                bytesPerVertex = binaryReader.ReadUInt32();//is usually 12 (3 floats - 4 bytes each)
-
-                VertexStream vertexStream = VertexStream.LoadFromStream(binaryReader.BaseStream, Convert.ToInt32(bytesPerVertex), Convert.ToInt32(mesh.VertexCount));
-
-                if (vertexStream != null)
-                {
-                    mesh.VertexStreams[j] = vertexStream;
-                }
+                int bytesPerVertex = Convert.ToInt32(binaryReader.ReadUInt32());//is usually 12 (3 floats - 4 bytes each)
+                VertexStream vertexStream = new VertexStream(bytesPerVertex, binaryReader.ReadBytes(bytesPerVertex * Convert.ToInt32(mesh.VertexCount)));
+                mesh.VertexStreams[j] = vertexStream;
             }
 
             // read indices

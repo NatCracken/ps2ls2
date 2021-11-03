@@ -9,36 +9,33 @@ namespace ps2ls.Graphics.Materials
 {
     public class MaterialDefinition
     {
-        public String Name { get; private set; }
-        public UInt32 NameHash { get; private set; }
-        public String Type { get; private set; }
-        public UInt32 TypeHash { get; private set; }
+        public string Name { get; private set; }
+        public uint NameHash { get; private set; }
+        public string Type { get; private set; }
+        public uint TypeHash { get; private set; }
         public List<DrawStyle> DrawStyles { get; private set; }
 
         private MaterialDefinition()
         {
-            Name = String.Empty;
+            Name = string.Empty;
             NameHash = 0;
-            Type = String.Empty;
+            Type = string.Empty;
             TypeHash = 0;
             DrawStyles = new List<DrawStyle>();
         }
 
         public static MaterialDefinition LoadFromXPathNavigator(XPathNavigator navigator)
         {
-            if (navigator == null)
-            {
-                return null;
-            }
+            if (navigator == null) return null;
 
             MaterialDefinition materialDefinition = new MaterialDefinition();
 
             //name
-            materialDefinition.Name = navigator.GetAttribute("Name", String.Empty);
+            materialDefinition.Name = navigator.GetAttribute("Name", string.Empty);
             materialDefinition.NameHash = Jenkins.OneAtATime(materialDefinition.Name);
 
             //type
-            materialDefinition.Type = navigator.GetAttribute("Type", String.Empty);
+            materialDefinition.Type = navigator.GetAttribute("Type", string.Empty);
             materialDefinition.TypeHash = Jenkins.OneAtATime(materialDefinition.Type);
 
             //draw styles
@@ -47,11 +44,7 @@ namespace ps2ls.Graphics.Materials
             while (entries.MoveNext())
             {
                 DrawStyle drawStyle = DrawStyle.LoadFromXPathNavigator(entries.Current);
-
-                if (drawStyle != null)
-                {
-                    materialDefinition.DrawStyles.Add(drawStyle);
-                }
+                if (drawStyle != null) materialDefinition.DrawStyles.Add(drawStyle);
             }
 
             return materialDefinition;

@@ -13,18 +13,18 @@ namespace ps2ls.Assets.Dme
 {
     public class Model
     {
-        public UInt32 Version { get; private set; }
-        public String Name { get; private set; }
-        public UInt32 Unknown0 { get; private set; }
-        public UInt32 Unknown1 { get; private set; }
-        public UInt32 Unknown2 { get; private set; }
+        public uint Version { get; private set; }
+        public string Name { get; private set; }
+        public uint Unknown0 { get; private set; }
+        public uint Unknown1 { get; private set; }
+        public uint Unknown2 { get; private set; }
         private Vector3 min;
         public Vector3 Min { get { return min; } }
         private Vector3 max;
         public Vector3 Max { get { return max; } }
         public List<Material> Materials { get; private set; }
         public Mesh[] Meshes { get; private set; }
-        public List<String> TextureStrings { get; private set; }
+        public List<string> TextureStrings { get; private set; }
         public BoneMap[] BoneMaps { get; private set; }
 
         #region Attributes
@@ -74,24 +74,24 @@ namespace ps2ls.Assets.Dme
                 return null;
             }
             Model model = new Model();
-
+            model.Name = name;
             model.Version = binaryReader.ReadUInt32();
 
             if (model.Version != 4)
             {
+                Console.WriteLine(name + " is an unsupported dmod file. v." + model.Version);
                 return null;
             }
 
-            long afterMatOffset = binaryReader.ReadUInt32() + binaryReader.BaseStream.Position;
-
-            model.Name = name;
-
             //materials
-            model.TextureStrings = new List<String>();
-            model.Materials = new List<Material>();
-            Dma.Dma.LoadFromStream(binaryReader.BaseStream, model.TextureStrings, model.Materials);
+            uint dmatLength = binaryReader.ReadUInt32();
+            byte[] dmatData = binaryReader.ReadBytes(Convert.ToInt32(dmatLength));
+            List<string> texStringList = new List<string>();
+            List<Material> matList = new List<Material>();
+            Dma.Dma.LoadFromStream(dmatData, ref texStringList, ref matList);
+            model.TextureStrings = texStringList;
+            model.Materials = matList;
 
-            binaryReader.BaseStream.Seek(afterMatOffset, SeekOrigin.Begin);
             //bounding box
             model.min.X = binaryReader.ReadSingle();
             model.min.Y = binaryReader.ReadSingle();
@@ -102,27 +102,23 @@ namespace ps2ls.Assets.Dme
             model.max.Z = binaryReader.ReadSingle();
 
             //meshes
-            UInt32 meshCount = binaryReader.ReadUInt32();
+            uint meshCount = binaryReader.ReadUInt32();
 
             model.Meshes = new Mesh[meshCount];
 
-            for (Int32 i = 0; i < meshCount; ++i)
+            for (int i = 0; i < meshCount; ++i)
             {
                 Mesh mesh = Mesh.LoadFromStream(binaryReader.BaseStream, model.Materials);
 
-                if (mesh != null)
-                {
-                    model.Meshes[i] = mesh;
-
-                }
+                if (mesh != null) model.Meshes[i] = mesh;
             }
 
             //bone maps
-            UInt32 boneMapCount = binaryReader.ReadUInt32();
+            uint boneMapCount = binaryReader.ReadUInt32();
 
             model.BoneMaps = new BoneMap[boneMapCount];
 
-            for (Int32 i = 0; i < boneMapCount; ++i)
+            for (int i = 0; i < boneMapCount; ++i)
             {
                 BoneMap boneMap = BoneMap.LoadFromStream(binaryReader.BaseStream);
 
@@ -133,11 +129,11 @@ namespace ps2ls.Assets.Dme
             }
 
             //bone map entries
-            UInt32 boneMapEntryCount = binaryReader.ReadUInt32();
+            uint boneMapEntryCount = binaryReader.ReadUInt32();
 
             BoneMapEntry[] boneMapEntries = new BoneMapEntry[boneMapEntryCount];
 
-            for (Int32 i = 0; i < boneMapEntryCount; ++i)
+            for (int i = 0; i < boneMapEntryCount; ++i)
             {
                 BoneMapEntry boneMapEntry = BoneMapEntry.LoadFromStream(binaryReader.BaseStream);
 

@@ -29,13 +29,15 @@ namespace ps2ls.Graphics.Materials
         public static MaterialDefinitionManager Instance { get { return instance; } }
         #endregion
 
-        public Dictionary<UInt32, MaterialDefinition> MaterialDefinitions { get; private set; }
-        public Dictionary<UInt32, VertexLayout> VertexLayouts { get; private set; }
+        public Dictionary<uint, MaterialDefinition> MaterialDefinitions { get; private set; }
+        public Dictionary<uint, ParameterGroup> ParameterGroups { get; private set; }
+        public Dictionary<uint, VertexLayout> VertexLayouts { get; private set; }
 
         MaterialDefinitionManager()
         {
-            MaterialDefinitions = new Dictionary<UInt32, MaterialDefinition>();
-            VertexLayouts = new Dictionary<UInt32, VertexLayout>();
+            MaterialDefinitions = new Dictionary<uint, MaterialDefinition>();
+            ParameterGroups = new Dictionary<uint, ParameterGroup>();
+            VertexLayouts = new Dictionary<uint, VertexLayout>();
         }
 
         private void loadFromStringReader(StringReader stringReader)
@@ -56,16 +58,29 @@ namespace ps2ls.Graphics.Materials
 
             XPathNavigator navigator = document.CreateNavigator();
 
-            //vertex layouts
-            loadVertexLayoutsByXPathNavigator(navigator.Clone());
+            bool loadedSuccesfully = true;
 
-            //TODO: parameter groups
+            //vertex layouts
+            loadedSuccesfully = loadVertexLayoutsByXPathNavigator(navigator.Clone()) && loadedSuccesfully;
+
+            //parameter groups
+            loadedSuccesfully = loadParameterGroupsByXPathNavigator(navigator.Clone()) && loadedSuccesfully;
 
             //material definitions
-            loadMaterialDefinitionsByXPathNavigator(navigator.Clone());
+            loadedSuccesfully = loadMaterialDefinitionsByXPathNavigator(navigator.Clone()) && loadedSuccesfully;
+
+
+            if (loadedSuccesfully)
+            {
+                Console.WriteLine("Material Data Loaded");
+            }
+            else
+            {
+                Console.WriteLine("Error Loading Material Data");
+            }
         }
 
-        private void loadMaterialDefinitionsByXPathNavigator(XPathNavigator navigator)
+        private bool loadMaterialDefinitionsByXPathNavigator(XPathNavigator navigator)
         {
             XPathNodeIterator materialDefinitions = null;
 
@@ -75,21 +90,48 @@ namespace ps2ls.Graphics.Materials
             }
             catch (Exception)
             {
-                return;
+                return false;
             }
 
             while (materialDefinitions.MoveNext())
             {
                 MaterialDefinition materialDefinition = MaterialDefinition.LoadFromXPathNavigator(materialDefinitions.Current);
 
-                if (materialDefinition != null && false == MaterialDefinitions.ContainsKey(materialDefinition.NameHash))
+                if (materialDefinition != null && !hasMaterialHash(materialDefinition.NameHash))
                 {
                     MaterialDefinitions.Add(materialDefinition.NameHash, materialDefinition);
                 }
             }
+            return true;
         }
 
-        private void loadVertexLayoutsByXPathNavigator(XPathNavigator navigator)
+
+        private bool loadParameterGroupsByXPathNavigator(XPathNavigator navigator)
+        {
+            XPathNodeIterator parameterGroups = null;
+
+            try
+            {
+                parameterGroups = navigator.Select("/Object/Array[@Name='ParameterGroups']/Object[@Class='ParameterGroup']");
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            while (parameterGroups.MoveNext())
+            {
+                ParameterGroup parameterGroup = ParameterGroup.LoadFromXPathNavigator(parameterGroups.Current);
+
+                if (parameterGroup != null && !hasParameterGroupHash(parameterGroup.NameHash))
+                {
+                    ParameterGroups.Add(parameterGroup.NameHash, parameterGroup);
+                }
+            }
+            return true;
+        }
+
+        private bool loadVertexLayoutsByXPathNavigator(XPathNavigator navigator)
         {
             //material definitions
             XPathNodeIterator vertexLayouts = null;
@@ -100,7 +142,7 @@ namespace ps2ls.Graphics.Materials
             }
             catch (Exception)
             {
-                return;
+                return false;
             }
 
             while (vertexLayouts.MoveNext())
@@ -112,6 +154,7 @@ namespace ps2ls.Graphics.Materials
                     VertexLayouts.Add(vertexLayout.NameHash, vertexLayout);
                 }
             }
+            return true;
         }
 
         public MaterialDefinition GetMaterialDefinitionFromHash(UInt32 materialDefinitionHash)
@@ -128,6 +171,19 @@ namespace ps2ls.Graphics.Materials
             }
 
             return materialDefinition;
+        }
+
+        public bool hasMaterialHash(uint definitionHash)
+        {
+            return MaterialDefinitions.ContainsKey(definitionHash);
+        }
+        public bool hasParameterGroupHash(uint definitionHash)
+        {
+            return ParameterGroups.ContainsKey(definitionHash);
+        }
+        public bool hasVertexHash(uint definitionHash)
+        {
+            return VertexLayouts.ContainsKey(definitionHash);
         }
     }
 }

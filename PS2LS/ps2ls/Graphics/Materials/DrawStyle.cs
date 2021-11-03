@@ -9,16 +9,16 @@ namespace ps2ls.Graphics.Materials
 {
     public class DrawStyle
     {
-        public String Name { get; private set; }
-        public UInt32 NameHash { get; private set; }
-        public String Effect { get; private set; }
-        public UInt32 VertexLayoutNameHash { get; private set; }
+        public string Name { get; private set; }
+        public uint NameHash { get; private set; }
+        public string Effect { get; private set; }
+        public uint VertexLayoutNameHash { get; private set; }
 
         private DrawStyle()
         {
-            Name = String.Empty;
+            Name = string.Empty;
             NameHash = 0;
-            Effect = String.Empty;
+            Effect = string.Empty;
             VertexLayoutNameHash = 0;
         }
 
@@ -32,7 +32,7 @@ namespace ps2ls.Graphics.Materials
             DrawStyle drawStyle = new DrawStyle();
 
             //name
-            drawStyle.Name = navigator.GetAttribute("Name", String.Empty);
+            drawStyle.Name = navigator.GetAttribute("Name", string.Empty);
             drawStyle.NameHash = Jenkins.OneAtATime(drawStyle.Name);
 
             //effect

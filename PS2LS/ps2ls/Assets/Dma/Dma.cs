@@ -7,11 +7,9 @@ namespace ps2ls.Assets.Dma
 {
     public static class Dma
     {
-        public static void LoadFromStream(Stream stream, ICollection<String> textures, ICollection<Material> materials)
+        public static void LoadFromStream(byte[] dmatBlock, ref List<string> textures, ref List<Material> materials)
         {
-            if (stream == null || textures == null || materials == null)
-                return;
-
+            MemoryStream stream = new MemoryStream(dmatBlock);
             BinaryReader binaryReader = new BinaryReader(stream);
 
             //header
@@ -25,20 +23,20 @@ namespace ps2ls.Assets.Dma
                 return;
             }
 
-            UInt32 version = binaryReader.ReadUInt32();
+            uint version = binaryReader.ReadUInt32();
 
             //textures
-            UInt32 texturesLength = binaryReader.ReadUInt32();
-            char[] buffer = binaryReader.ReadChars((Int32)texturesLength);
-            Int32 startIndex = 0;
+            uint texturesLength = binaryReader.ReadUInt32();
+            char[] buffer = binaryReader.ReadChars(Convert.ToInt32(texturesLength));
+            int startIndex = 0;
 
-            for (Int32 i = 0; i < buffer.Count(); ++i)
+            for (int i = 0; i < buffer.Count(); ++i)
             {
                 if (buffer[i] == '\0')
                 {
-                    Int32 length = i - startIndex;
+                    int length = i - startIndex;
 
-                    String textureName = new String(buffer, startIndex, length);
+                    string textureName = new string(buffer, startIndex, length);
                     startIndex = i + 1;
 
                     textures.Add(textureName);
@@ -46,13 +44,18 @@ namespace ps2ls.Assets.Dma
             }
 
             //materials
-            UInt32 materialCount = binaryReader.ReadUInt32();
+            uint materialCount = binaryReader.ReadUInt32();
 
-            for (Int32 i = 0; i < materialCount; ++i)
+            for (int i = 0; i < materialCount; ++i)
             {
-                Material material = Material.LoadFromStream(stream);
-                materials.Add(material);
+                Material mat = new Material(binaryReader.ReadUInt32(), binaryReader.ReadUInt32());//name hash, data length
+                byte[] matBlock = binaryReader.ReadBytes(Convert.ToInt32(mat.DataLength));
+                mat.ParseFromBlock(matBlock);
+                materials.Add(mat);
             }
+
+            binaryReader.Dispose();
+            stream.Dispose();
         }
     }
 }
