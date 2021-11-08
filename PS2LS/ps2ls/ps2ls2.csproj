@@ -9,7 +9,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ps2ls</RootNamespace>
-    <AssemblyName>ps2ls</AssemblyName>
+    <AssemblyName>ps2ls2</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -93,6 +93,9 @@
     <Compile Include="Assets\Adr\TextureAlias.cs" />
     <Compile Include="Assets\Dma\Material.cs" />
     <Compile Include="Assets\Dme\BoneMap.cs" />
+    <Compile Include="FMOD\fmod.cs" />
+    <Compile Include="FMOD\fmod_dsp.cs" />
+    <Compile Include="FMOD\fmod_errors.cs" />
     <Compile Include="Forms\ActorForm.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -381,7 +384,15 @@
     <None Include="Resources\document-arrow-drive.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="FMOD\fmod.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FMOD\fmodL.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ps2ls.ico" />
+    <None Include="Resources\Image-scaled.png" />
+    <None Include="Resources\FMOD Logo Black - White Background.png" />
     <None Include="Resources\sphere-wire-occluder.png" />
     <None Include="Resources\document-plus.png" />
     <None Include="Resources\arrow-right.png" />
@@ -424,19 +435,11 @@
       <Project>{578fd0d9-41aa-4fa4-8d9b-4021978fa48d}</Project>
       <Name>DevILNet</Name>
     </ProjectReference>
-    <ProjectReference Include="..\fmodNET\fmodNET.csproj">
-      <Project>{d3a5783f-a596-4263-905d-255d59174818}</Project>
-      <Name>fmodNET</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y $(SolutionDir)devil-net\Libs\$(Platform)\DevIL.dll .
-xcopy /Y $(SolutionDir)devil-net\Libs\$(Platform)\ILU.dll .
-xcopy /Y $(SolutionDir)fmodNET\fmodex.dll .
-xcopy /Y $(SolutionDir)fmodNET\fmodex64.dll .
-xcopy /Y $(SolutionDir)fmodNET\fmodexL.dll .
-xcopy /Y $(SolutionDir)fmodNET\fmodexL64.dll .</PostBuildEvent>
+xcopy /Y $(SolutionDir)devil-net\Libs\$(Platform)\ILU.dll .</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

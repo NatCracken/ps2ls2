@@ -42,15 +42,14 @@ namespace ps2ls.Forms
 
             Dock = DockStyle.Fill;
         }
+
         FMOD.System system;
-        FMOD.Sound fsb = null;
+        FMOD.Sound fsb;
+        FMOD.ChannelGroup channelGroup;
+        FMOD.Channel channel;
 
-        //FMODSTUDIO.System systemstd;
-
-        FMOD.Channel channel = null;
-
-        private FMOD.SOUND_PCMREADCALLBACK pcmreadcallback = new FMOD.SOUND_PCMREADCALLBACK(PCMREADCALLBACK);
-        private FMOD.SOUND_PCMSETPOSCALLBACK pcmsetposcallback = new FMOD.SOUND_PCMSETPOSCALLBACK(PCMSETPOSCALLBACK);
+        private FMOD.SOUND_PCMREAD_CALLBACK pcmreadcallback = new FMOD.SOUND_PCMREAD_CALLBACK(PCMREADCALLBACK);
+        private FMOD.SOUND_PCMSETPOS_CALLBACK pcmsetposcallback = new FMOD.SOUND_PCMSETPOS_CALLBACK(PCMSETPOSCALLBACK);
 
         private static float t1 = 0, t2 = 0;        // time
         private static float v1 = 0, v2 = 0;        // velocity
@@ -87,24 +86,26 @@ namespace ps2ls.Forms
         }
 
 
-        private FMOD.FILE_OPENCALLBACK myopen = new FMOD.FILE_OPENCALLBACK(OPENCALLBACK);
-        private FMOD.FILE_CLOSECALLBACK myclose = new FMOD.FILE_CLOSECALLBACK(CLOSECALLBACK);
-        private FMOD.FILE_READCALLBACK myread = new FMOD.FILE_READCALLBACK(READCALLBACK);
-        private FMOD.FILE_SEEKCALLBACK myseek = new FMOD.FILE_SEEKCALLBACK(SEEKCALLBACK);
+        private FMOD.FILE_OPEN_CALLBACK myopen = new FMOD.FILE_OPEN_CALLBACK(OPENCALLBACK);
+        private FMOD.FILE_CLOSE_CALLBACK myclose = new FMOD.FILE_CLOSE_CALLBACK(CLOSECALLBACK);
+        private FMOD.FILE_READ_CALLBACK myread = new FMOD.FILE_READ_CALLBACK(READCALLBACK);
+        private FMOD.FILE_SEEK_CALLBACK myseek = new FMOD.FILE_SEEK_CALLBACK(SEEKCALLBACK);
 
-        static MemoryStream ms;
-        private static FMOD.RESULT OPENCALLBACK([MarshalAs(UnmanagedType.LPWStr)]string name, int unicode, ref uint filesize, ref IntPtr handle, ref IntPtr userdata)
+        static MemoryStream memStream;
+        private static FMOD.RESULT OPENCALLBACK(IntPtr name, ref uint filesize, ref IntPtr handle, IntPtr userdata)
         {
-            ms = AssetManager.Instance.CreateAssetMemoryStreamByName(name);
-            ms = Utils.FixSoundHeader(ms);
-            filesize = (uint)ms.Length;
+            FMOD.StringWrapper stringWrapper = new FMOD.StringWrapper(name);
+            memStream = AssetManager.Instance.CreateAssetMemoryStreamByName(stringWrapper);
+            if (memStream == null) return FMOD.RESULT.ERR_FILE_NOTFOUND;
+            memStream = Utils.FixSoundHeader(memStream);
+            filesize = (uint)memStream.Length;
 
             return FMOD.RESULT.OK;
         }
 
         private static FMOD.RESULT CLOSECALLBACK(IntPtr handle, IntPtr userdata)
         {
-            ms.Close();
+            memStream.Close();
 
             return FMOD.RESULT.OK;
         }
@@ -113,7 +114,7 @@ namespace ps2ls.Forms
         {
             byte[] readbuffer = new byte[sizebytes];
 
-            bytesread = (uint)ms.Read(readbuffer, 0, (int)sizebytes);
+            bytesread = (uint)memStream.Read(readbuffer, 0, (int)sizebytes);
             if (bytesread == 0)
             {
                 return FMOD.RESULT.ERR_FILE_EOF;
@@ -124,9 +125,9 @@ namespace ps2ls.Forms
             return FMOD.RESULT.OK;
         }
 
-        private static FMOD.RESULT SEEKCALLBACK(IntPtr handle, int pos, IntPtr userdata)
+        private static FMOD.RESULT SEEKCALLBACK(IntPtr handle, uint pos, IntPtr userdata)
         {
-            ms.Seek(pos, SeekOrigin.Begin);
+            memStream.Seek(pos, SeekOrigin.Begin);
             return FMOD.RESULT.OK;
         }
 
@@ -134,7 +135,7 @@ namespace ps2ls.Forms
 
         private void initFmod()
         {
-            FMOD.RESULT res = FMOD.Factory.System_Create(ref system);
+            FMOD.RESULT res = FMOD.Factory.System_Create(out system);
 
             system.init(32, FMOD.INITFLAGS.NORMAL, (IntPtr)null);
 
@@ -142,36 +143,37 @@ namespace ps2ls.Forms
 
             system.setOutput(FMOD.OUTPUTTYPE.AUTODETECT);
 
-
-
-           // FMODSTUDIO.RESULT altRes = FMODSTUDIO.Factory.System_Create(out systemstd);
+            system.createChannelGroup("MyGroup", out channelGroup);
 
         }
 
         private void loadSound(string name)
         {
-            if (channel != null)
+            stopPlaying();
+            fsb.release();
+
+            FMOD.RESULT res = system.createSound(name, FMOD.MODE._2D, out fsb);//FMOD.MODE.DEFAULT | FMOD.MODE.CREATESTREAM
+
+            /* AMB_EMIT_SMOKESTACK_03.fsb broke, others fine
+             * AMB_EMIT_TERMINAL_COMPUTER_03/04 broke, 01/02 fine
+             * all PSBR file broken, not surprising
+             * all DX files broken, to do with translations
+             * 
+             * 
+             */
+
+            if (res != FMOD.RESULT.OK)
             {
-                bool playing = false;
-                channel.isPlaying(ref playing);
-                if (playing)
-                {
-                    channel.stop();
-                }
-                subsound.release();
-                fsb.release();
-               
+                MessageBox.Show("Cannot load " + name + ".  Reason: " + res.ToString(), "FMOD Load Error", MessageBoxButtons.OK);
             }
 
-           FMOD.RESULT res =  system.createSound(name, (FMOD.MODE._2D | FMOD.MODE.HARDWARE | FMOD.MODE.CREATESTREAM), ref fsb);
-            
-          
-            
-           if (res != FMOD.RESULT.OK)
-           {
-               MessageBox.Show("Cannot load " + name + ".  Reason: " + res.ToString(), "FMOD Load Error", MessageBoxButtons.OK);
-           }
+        }
 
+        private void stopPlaying()
+        {
+            channel.isPlaying(out bool playing);
+            if (playing) channel.stop();
+            sound.release();
         }
 
         public void onEnter(object sender, EventArgs e)
@@ -194,7 +196,7 @@ namespace ps2ls.Forms
             if (populateEnd > filtered) populateEnd = filtered;
             soundListBox.PopulateBox(populateStart, populateEnd);
 
-            filesListed.Text = "Page " + (pageNumber + 1)
+            filesListedLabel.Text = "Page " + (pageNumber + 1)
                 + ": " + populateStart + " - " + populateEnd + " / " + filtered;
         }
 
@@ -246,13 +248,14 @@ namespace ps2ls.Forms
             refreshTimer.Stop();
             refreshTimer.Start();
         }
-        FMOD.Sound subsound = null;
-           
+
+        FMOD.Sound sound;
+
         private void PlayPause_Click(object sender, EventArgs e)
         {
-            fsb.getSubSound(0, ref subsound);
-            FMOD.RESULT res = system.playSound(FMOD.CHANNELINDEX.FREE, subsound, false, ref channel);
-          
+            fsb.getSubSound(0, out sound);
+            FMOD.RESULT res = system.playSound(sound, channelGroup, false, out channel);
+
             if (res != FMOD.RESULT.OK)
             {
                 MessageBox.Show("Cannot Play file.  Reason: " + res.ToString(), "FMOD Load Error", MessageBoxButtons.OK);
@@ -264,8 +267,8 @@ namespace ps2ls.Forms
 
         private void onIdle(object sender, EventArgs e)
         {
-            system.update();           
-          
+            system.update();
+
         }
 
         private void soundListBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -283,16 +286,7 @@ namespace ps2ls.Forms
 
         private void StopButton_Click(object sender, EventArgs e)
         {
-            if(channel != null)
-            {
-                bool playing = false;
-                channel.isPlaying(ref playing);
-                if (playing)
-                {
-                    channel.stop();
-                }
-                subsound.release();
-            }
+            stopPlaying();
         }
 
         private void toolStripButton2_Click(object sender, EventArgs e)
@@ -317,6 +311,6 @@ namespace ps2ls.Forms
             modelExportForm.ShowDialog();
         }
 
-        
+
     }
 }

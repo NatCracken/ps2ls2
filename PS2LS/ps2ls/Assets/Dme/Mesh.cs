@@ -44,7 +44,7 @@ namespace ps2ls.Assets.Dme
             AssignedTexture = "grey.dds";
         }
 
-        public static Mesh LoadFromStream(Stream stream, List<Dma.Material> materials)
+        public static Mesh LoadFromStream(Stream stream)
         {
             BinaryReader binaryReader = new BinaryReader(stream);
 
@@ -52,8 +52,8 @@ namespace ps2ls.Assets.Dme
 
             uint vertexStreamCount;
 
-            Console.WriteLine("~~~~~Mesh Properties~~~~");
-            Console.WriteLine("Pos: " + binaryReader.BaseStream.Position);
+            //Console.WriteLine("~~~~~Mesh Properties~~~~");
+            //Console.WriteLine("Pos: " + binaryReader.BaseStream.Position);
 
             mesh.drawCallOffset = binaryReader.ReadUInt32();
             mesh.drawCallCount = binaryReader.ReadUInt32();
@@ -65,21 +65,21 @@ namespace ps2ls.Assets.Dme
             mesh.IndexCount = binaryReader.ReadUInt32();
             mesh.VertexCount = binaryReader.ReadUInt32();
 
-            Console.WriteLine("Offset: " + mesh.drawCallOffset);
+            /*Console.WriteLine("Offset: " + mesh.drawCallOffset);
             Console.WriteLine("DCount: " + mesh.drawCallCount);
             Console.WriteLine("BCount: " + mesh.boneTransformCount);
             Console.WriteLine("FFFF: " + mesh.Unknown3);
             Console.WriteLine("vStream: " + vertexStreamCount);
             Console.WriteLine("iSize: " + mesh.IndexSize);
             Console.WriteLine("iCount: " + mesh.IndexCount);
-            Console.WriteLine("vCtount: " + mesh.VertexCount);
+            Console.WriteLine("vCtount: " + mesh.VertexCount);*/
 
             mesh.VertexStreams = new VertexStream[vertexStreamCount];
 
             // read vertex streams
             for (int j = 0; j < vertexStreamCount; ++j)
             {
-                int bytesPerVertex = Convert.ToInt32(binaryReader.ReadUInt32());//is usually 12 (3 floats - 4 bytes each)
+                int bytesPerVertex = Convert.ToInt32(binaryReader.ReadUInt32());//is usually 12, but doesn't have to be (3 floats - 4 bytes each)
                 VertexStream vertexStream = new VertexStream(bytesPerVertex, binaryReader.ReadBytes(bytesPerVertex * Convert.ToInt32(mesh.VertexCount)));
                 mesh.VertexStreams[j] = vertexStream;
             }

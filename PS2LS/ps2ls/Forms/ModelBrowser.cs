@@ -104,6 +104,12 @@ namespace ps2ls.Forms
 
         }
 
+        public void onEnter(object sender, EventArgs e)
+        {
+            modelsListBox.LoadAndSortAssets();
+            refreshModelsListBox();
+        }
+
         //TODO: move this elsehwere
         private void compileShader(Int32 shader, String source)
         {
@@ -536,53 +542,40 @@ void main()
             refreshModelsListBox();
         }
 
+        private int pageNumber = 0;
+        private int pageSize = 1000;
         private void refreshModelsListBox()
         {
-            modelsListBox.Items.Clear();
 
-            List<Asset> assets = new List<Asset>();
-            List<Asset> dmes = null;
-
-            AssetManager.Instance.AssetsByType.TryGetValue(Asset.Types.DME, out dmes);
-
-            if (dmes != null)
+            modelsListBox.FilterBySearch(searchModelsText.Text ?? "");
+            if (!showAutoLODModelsButton.Checked) modelsListBox.excludeFromFilter("Auto.dme");
+            if (!showCollisionModelsButton.Checked)
             {
-                assets.AddRange(dmes);
+                modelsListBox.excludeFromFilter("Collision");
+                modelsListBox.excludeFromFilter("Occluder");
             }
 
-            assets.Sort(new Asset.NameComparer());
+            int filtered = modelsListBox.MaxFilteredCount;
 
-            if (assets != null)
-            {
-                foreach (Asset asset in assets)
-                {
-                    if (showAutoLODModelsButton.Checked == false)
-                    {
-                        if (asset.Name.EndsWith("Auto.dme"))
-                        {
-                            continue;
-                        }
-                    }
+            int populateStart = pageNumber * pageSize;
+            int populateEnd = populateStart + pageSize;
+            if (populateEnd > filtered) populateEnd = filtered;
+            modelsListBox.PopulateBox(populateStart, populateEnd);
 
-                    if (showCollisionModelsButton.Checked == false)
-                    {
-                        if (asset.Name.Contains("Collision") || asset.Name.Contains("Occluder"))
-                        {
-                            continue;
-                        }
-                    }
+            filesListedLabel.Text = "Page " + (pageNumber + 1)
+                + ": " + populateStart + " - " + populateEnd + " / " + filtered;
+        }
 
-                    if (asset.Name.IndexOf(searchModelsText.Text, 0, StringComparison.OrdinalIgnoreCase) >= 0)
-                    {
-                        modelsListBox.Items.Add(asset);
-                    }
-                }
-            }
-
-            Int32 count = modelsListBox.Items.Count;
-            Int32 max = assets != null ? assets.Count : 0;
-
-            modelsCountToolStripStatusLabel.Text = count + "/" + max;
+        private void nextPageButton_Click(object sender, EventArgs e)
+        {
+            int maxPageIndex = modelsListBox.MaxFilteredCount / pageSize;
+            if (++pageNumber > maxPageIndex) pageNumber = maxPageIndex;
+            refreshModelsListBox();
+        }
+        private void lastPageButton_Click(object sender, EventArgs e)
+        {
+            if (--pageNumber < 0) pageNumber = 0;
+            refreshModelsListBox();
         }
 
         private void searchModelsText_TextChanged(object sender, EventArgs e)

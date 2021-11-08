@@ -222,7 +222,8 @@ namespace ps2ls.Forms
                     Image icon = Asset.GetImageFromType(asset.Type);
 
                     DataGridViewRow row = new DataGridViewRow();
-                    row.CreateCells(assetsDataGridView, new object[] { icon, asset.Name, asset.Type, asset.UnzippedLength / 1024 });
+                    int unzippedLength = asset.isZipped ? Convert.ToInt32(asset.UnzippedLength) / 1024 : -1;
+                    row.CreateCells(assetsDataGridView, new object[] { icon, asset.Name, asset.Type, asset.Offset, unzippedLength, asset.DataLength / 1024 });
                     row.Tag = asset;
 
                     rowsToBeAdded.Add(row);

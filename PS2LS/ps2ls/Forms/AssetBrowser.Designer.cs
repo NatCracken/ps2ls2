@@ -45,10 +45,6 @@
             this.extractSelectedPacksButton = new System.Windows.Forms.ToolStripButton();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.assetsDataGridView = new System.Windows.Forms.DataGridView();
-            this.FileIcon = new System.Windows.Forms.DataGridViewImageColumn();
-            this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.FileType = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.LengthInKilobytes = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.toolStrip3 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.searchTextBox = new System.Windows.Forms.ToolStripTextBox();
@@ -69,6 +65,12 @@
             this.extractToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FileIcon = new System.Windows.Forms.DataGridViewImageColumn();
+            this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.FileType = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Offset = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.LengthInKilobytes = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RawLengthInKilobytes = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -242,7 +244,9 @@
             this.FileIcon,
             this.FileName,
             this.FileType,
-            this.LengthInKilobytes});
+            this.Offset,
+            this.LengthInKilobytes,
+            this.RawLengthInKilobytes});
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
             dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -268,38 +272,6 @@
             this.assetsDataGridView.Size = new System.Drawing.Size(626, 553);
             this.assetsDataGridView.TabIndex = 1;
             this.assetsDataGridView.SelectionChanged += new System.EventHandler(this.assetsDataGridView_SelectionChanged);
-            // 
-            // FileIcon
-            // 
-            this.FileIcon.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.FileIcon.FillWeight = 20F;
-            this.FileIcon.HeaderText = "";
-            this.FileIcon.Name = "FileIcon";
-            this.FileIcon.ReadOnly = true;
-            this.FileIcon.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.FileIcon.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.FileIcon.Width = 20;
-            // 
-            // FileName
-            // 
-            this.FileName.FillWeight = 96.01353F;
-            this.FileName.HeaderText = "File Name";
-            this.FileName.Name = "FileName";
-            this.FileName.ReadOnly = true;
-            // 
-            // FileType
-            // 
-            this.FileType.FillWeight = 96.01353F;
-            this.FileType.HeaderText = "Type";
-            this.FileType.Name = "FileType";
-            this.FileType.ReadOnly = true;
-            // 
-            // LengthInKilobytes
-            // 
-            this.LengthInKilobytes.FillWeight = 96.01353F;
-            this.LengthInKilobytes.HeaderText = "Length (kb)";
-            this.LengthInKilobytes.Name = "LengthInKilobytes";
-            this.LengthInKilobytes.ReadOnly = true;
             // 
             // toolStrip3
             // 
@@ -458,6 +430,50 @@
             this.removeToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.removeToolStripMenuItem.Text = "Remove";
             // 
+            // FileIcon
+            // 
+            this.FileIcon.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.FileIcon.FillWeight = 20F;
+            this.FileIcon.HeaderText = "";
+            this.FileIcon.Name = "FileIcon";
+            this.FileIcon.ReadOnly = true;
+            this.FileIcon.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.FileIcon.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.FileIcon.Width = 20;
+            // 
+            // FileName
+            // 
+            this.FileName.FillWeight = 96.01353F;
+            this.FileName.HeaderText = "File Name";
+            this.FileName.Name = "FileName";
+            this.FileName.ReadOnly = true;
+            // 
+            // FileType
+            // 
+            this.FileType.FillWeight = 96.01353F;
+            this.FileType.HeaderText = "Type";
+            this.FileType.Name = "FileType";
+            this.FileType.ReadOnly = true;
+            // 
+            // Offset
+            // 
+            this.Offset.HeaderText = "Pack Offset";
+            this.Offset.Name = "Offset";
+            this.Offset.ReadOnly = true;
+            // 
+            // LengthInKilobytes
+            // 
+            this.LengthInKilobytes.FillWeight = 96.01353F;
+            this.LengthInKilobytes.HeaderText = "Length (kb)";
+            this.LengthInKilobytes.Name = "LengthInKilobytes";
+            this.LengthInKilobytes.ReadOnly = true;
+            // 
+            // RawLengthInKilobytes
+            // 
+            this.RawLengthInKilobytes.HeaderText = "Raw Length (KB)";
+            this.RawLengthInKilobytes.Name = "RawLengthInKilobytes";
+            this.RawLengthInKilobytes.ReadOnly = true;
+            // 
             // AssetBrowser
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -500,10 +516,6 @@
         private System.Windows.Forms.ToolStripButton extractSelectedPacksButton;
         private System.Windows.Forms.PropertyGrid propertyGrid;
         private System.Windows.Forms.DataGridView assetsDataGridView;
-        private System.Windows.Forms.DataGridViewImageColumn FileIcon;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FileName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FileType;
-        private System.Windows.Forms.DataGridViewTextBoxColumn LengthInKilobytes;
         private System.Windows.Forms.ToolStrip toolStrip3;
         private System.Windows.Forms.ToolStripLabel toolStripLabel1;
         private System.Windows.Forms.ToolStripTextBox searchTextBox;
@@ -528,5 +540,11 @@
         private System.Windows.Forms.ToolStripMenuItem extractPacksToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton addNameListButton;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.DataGridViewImageColumn FileIcon;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FileName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FileType;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Offset;
+        private System.Windows.Forms.DataGridViewTextBoxColumn LengthInKilobytes;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RawLengthInKilobytes;
     }
 }

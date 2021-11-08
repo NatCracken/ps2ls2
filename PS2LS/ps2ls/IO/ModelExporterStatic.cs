@@ -318,44 +318,46 @@ namespace ps2ls.IO
         {
             Vector3 vector3 = new Vector3();
 
+            float value = BitConverter.ToSingle(vertexStream.Data, (vertexStream.BytesPerVertex * index) + offset + 0);
             switch (exportOptions.LeftAxis)
             {
                 case Axes.X:
-                    vector3.X = BitConverter.ToSingle(vertexStream.Data, (vertexStream.BytesPerVertex * index) + offset + 0);
+                    vector3.X = value;
                     break;
                 case Axes.Y:
-                    vector3.Y = BitConverter.ToSingle(vertexStream.Data, (vertexStream.BytesPerVertex * index) + offset + 0);
+                    vector3.Y = value;
                     break;
                 case Axes.Z:
-                    vector3.Z = BitConverter.ToSingle(vertexStream.Data, (vertexStream.BytesPerVertex * index) + offset + 0);
+                    vector3.Z = value;
                     break;
             }
 
+            value = BitConverter.ToSingle(vertexStream.Data, (vertexStream.BytesPerVertex * index) + offset + 4);
             switch (exportOptions.UpAxis)
             {
                 case Axes.X:
-                    vector3.X = BitConverter.ToSingle(vertexStream.Data, (vertexStream.BytesPerVertex * index) + offset + 4);
+                    vector3.X = value;
                     break;
                 case Axes.Y:
-                    vector3.Y = BitConverter.ToSingle(vertexStream.Data, (vertexStream.BytesPerVertex * index) + offset + 4);
+                    vector3.Y = value;
                     break;
                 case Axes.Z:
-                    vector3.Z = BitConverter.ToSingle(vertexStream.Data, (vertexStream.BytesPerVertex * index) + offset + 4);
+                    vector3.Z = value;
                     break;
             }
 
             Axes forwardAxis = getForwardAxis(exportOptions.LeftAxis, exportOptions.UpAxis);
-
+            value = BitConverter.ToSingle(vertexStream.Data, (vertexStream.BytesPerVertex * index) + offset + 8);
             switch (forwardAxis)
             {
                 case Axes.X:
-                    vector3.X = BitConverter.ToSingle(vertexStream.Data, (vertexStream.BytesPerVertex * index) + offset + 8);
+                    vector3.X = value;
                     break;
                 case Axes.Y:
-                    vector3.Y = BitConverter.ToSingle(vertexStream.Data, (vertexStream.BytesPerVertex * index) + offset + 8);
+                    vector3.Y = value;
                     break;
                 case Axes.Z:
-                    vector3.Z = BitConverter.ToSingle(vertexStream.Data, (vertexStream.BytesPerVertex * index) + offset + 8);
+                    vector3.Z = value;
                     break;
             }
 

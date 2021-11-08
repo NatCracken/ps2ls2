@@ -37,6 +37,7 @@ namespace ps2ls.Assets.Pack
             XML,
             ZONE,
             PNG,
+            JPG,
             Unknown
         };
 
@@ -95,6 +96,7 @@ namespace ps2ls.Assets.Pack
             {
                 // First get the extension without the leading '.'
                 string extension = System.IO.Path.GetExtension(asset.Name).Substring(1);
+                if (extension.Equals("jpeg")) extension = "jpg";
                 try
                 {
                     asset.Type = (Asset.Types)Enum.Parse(typeof(Types), extension, true);
@@ -144,6 +146,7 @@ namespace ps2ls.Assets.Pack
                         break;
                     case Asset.Types.DDS:
                     case Asset.Types.PNG:
+                    case Asset.Types.JPG:
                         typeImages[type] = Properties.Resources.image;
                         break;
                     case Asset.Types.TXT:

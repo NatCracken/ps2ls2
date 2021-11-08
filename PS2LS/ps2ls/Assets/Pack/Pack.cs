@@ -117,6 +117,22 @@ namespace ps2ls.Assets.Pack
             }
         }
 
+        byte[] pngHeader = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+        byte[] jpgHeader = new byte[] { 0xFF, 0xD8, 0xFF, 0xE1, 0x11, 0xBF, 0x45, 0x78 };
+        private byte[] createBufferFromAsset(FileStream fileStream, Asset asset)
+        {
+            byte[] buffer = new byte[(int)asset.DataLength];
+
+            long offset = Convert.ToInt64(asset.Offset) + (asset.isZipped ? 8 : 0);//zipped assets need another offset of 8 bytes
+            fileStream.Seek(offset, SeekOrigin.Begin);
+            fileStream.Read(buffer, 0, (int)asset.DataLength);
+
+            if (asset.isZipped) buffer = decompress(buffer);
+
+
+            return buffer;
+        }
+
         public Boolean ExtractAllAssetsToDirectory(String directory)
         {
             FileStream fileStream = null;
@@ -134,15 +150,10 @@ namespace ps2ls.Assets.Pack
 
             foreach (Asset asset in Assets)
             {
-                byte[] buffer = new byte[(int)asset.DataLength];
-
-                fileStream.Seek(Convert.ToInt64(asset.Offset) + 8, SeekOrigin.Begin);
-                fileStream.Read(buffer, 0, (int)asset.DataLength);
+                byte[] buffer = createBufferFromAsset(fileStream, asset);
 
                 FileStream file = new FileStream(directory + @"\" + asset.Name, FileMode.Create, FileAccess.Write, FileShare.Write);
-                if (asset.isZipped) buffer = decompress(buffer);
-
-                file.Write(buffer, 0, (int)asset.UnzippedLength);
+                file.Write(buffer, 0, buffer.Length);
                 file.Close();
             }
 
@@ -176,16 +187,10 @@ namespace ps2ls.Assets.Pack
                     continue;
                 }
 
-                byte[] buffer = new byte[(int)asset.DataLength];
+                byte[] buffer = createBufferFromAsset(fileStream, asset);
 
-                fileStream.Seek(Convert.ToInt64(asset.Offset) + 8, SeekOrigin.Begin);
-                fileStream.Read(buffer, 0, (int)asset.DataLength);
-
-                //TODO, unzip asset and save unzipped version
                 FileStream file = new FileStream(directory + @"\" + asset.Name, FileMode.Create, FileAccess.Write, FileShare.Write);
-                if (asset.isZipped) buffer = decompress(buffer);
-
-                file.Write(buffer, 0, (int)asset.UnzippedLength);
+                file.Write(buffer, 0, buffer.Length);
                 file.Close();
             }
 
@@ -218,18 +223,13 @@ namespace ps2ls.Assets.Pack
                 return false;
             }
 
-            byte[] buffer = new byte[(int)asset.DataLength];
-
-            fileStream.Seek(Convert.ToInt64(asset.Offset) + 8, SeekOrigin.Begin);
-            fileStream.Read(buffer, 0, (int)asset.DataLength);
+            byte[] buffer = createBufferFromAsset(fileStream, asset);
+            fileStream.Close();
 
             FileStream file = new FileStream(directory + @"\" + asset.Name, FileMode.Create, FileAccess.Write, FileShare.Write);
-            if (asset.isZipped) buffer = decompress(buffer);
-
-            file.Write(buffer, 0, (int)asset.UnzippedLength);
+            file.Write(buffer, 0, buffer.Length);
             file.Close();
 
-            fileStream.Close();
 
             return true;
         }
@@ -247,11 +247,11 @@ namespace ps2ls.Assets.Pack
 
             //ExtractAssetByNameToDirectory(name, "E:\\Out"); //rip asset without showing it, for debugging assets in the alternate dmod format
 
-            FileStream file = null;
+            FileStream fileStream = null;
 
             try
             {
-                file = File.Open(asset.Pack.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                fileStream = File.Open(asset.Pack.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
             }
             catch (Exception e)
             {
@@ -260,11 +260,7 @@ namespace ps2ls.Assets.Pack
                 return null;
             }
 
-            byte[] buffer = new byte[asset.DataLength];
-
-            file.Seek(Convert.ToInt64(asset.Offset) + 8, SeekOrigin.Begin);
-            file.Read(buffer, 0, (int)asset.DataLength);
-            if (asset.isZipped) buffer = decompress(buffer);
+            byte[] buffer = createBufferFromAsset(fileStream, asset);
 
             return new MemoryStream(buffer);
         }

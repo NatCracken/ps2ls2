@@ -13,9 +13,7 @@ namespace ps2ls
 {
     public class TextureManager
     {
-        private static Dictionary<Int32, Int32> textures = new Dictionary<int, int>();
-
-        public static Int32 LoadFromStream(Stream stream)
+        public static int LoadFromStream(Stream stream)
         {
             if (stream == null)
                 return 0;
@@ -27,12 +25,12 @@ namespace ps2ls
             GCHandle imageDataGCHandle = GCHandle.Alloc(image.GetImageData(0).Data, GCHandleType.Pinned);
             IntPtr imageDataIntPtr = imageDataGCHandle.AddrOfPinnedObject();
 
-            Int32 glTextureHandle = GL.GenTexture();
+            int glTextureHandle = GL.GenTexture();
 
             GL.Enable(EnableCap.Texture2D);
             GL.BindTexture(TextureTarget.Texture2D, glTextureHandle);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (Int32)All.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (Int32)All.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Linear);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, imageDataIntPtr);
             GL.BindTexture(TextureTarget.Texture2D, 0);
             GL.Disable(EnableCap.Texture2D);
@@ -44,14 +42,13 @@ namespace ps2ls
 
         public static SD.Image LoadDrawingImageFromStream(Stream stream, Assets.Pack.Asset.Types type)
         {
-            if (type == Assets.Pack.Asset.Types.PNG)
+            if (type == Assets.Pack.Asset.Types.PNG || type == Assets.Pack.Asset.Types.JPG)
             {
                 return SD.Image.FromStream(stream);
             }
 
             ImageImporter importer = new ImageImporter();         
             Image img = importer.LoadImageFromStream(stream);
-            importer.Dispose();
 
             DevIL.Unmanaged.ImageInfo data = img.GetImageInfo();
             SD.Bitmap bitmap = new SD.Bitmap(data.Width, data.Height, SDI.PixelFormat.Format32bppArgb);
@@ -61,6 +58,7 @@ namespace ps2ls
             DevIL.Unmanaged.IL.CopyPixels(0, 0, 0, data.Width, data.Height, 1, DataFormat.BGRA, DevIL.DataType.UnsignedByte, bdata.Scan0);
 
             bitmap.UnlockBits(bdata);
+            importer.Dispose();
 
             return bitmap;          
 

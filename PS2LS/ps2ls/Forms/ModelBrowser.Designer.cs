@@ -34,7 +34,9 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.modelsListBox = new ps2ls.Forms.Controls.CustomListBox();
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
-            this.modelsCountToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lastPageButton = new System.Windows.Forms.ToolStripButton();
+            this.nextPageButton = new System.Windows.Forms.ToolStripButton();
+            this.filesListedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
             this.searchModelsText = new System.Windows.Forms.ToolStripTextBox();
@@ -88,7 +90,7 @@
             this.splitContainer1.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer1_SplitterMoved);
             // 
             // modelsListBox
-            // 
+            //
             this.modelsListBox.AssetType = new ps2ls.Assets.Pack.Asset.Types[] { ps2ls.Assets.Pack.Asset.Types.DME };
             this.modelsListBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.modelsListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
@@ -106,7 +108,9 @@
             // statusStrip2
             // 
             this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.modelsCountToolStripStatusLabel});
+            this.lastPageButton,
+            this.nextPageButton,
+            this.filesListedLabel});
             this.statusStrip2.Location = new System.Drawing.Point(0, 578);
             this.statusStrip2.Name = "statusStrip2";
             this.statusStrip2.Size = new System.Drawing.Size(274, 22);
@@ -114,12 +118,26 @@
             this.statusStrip2.TabIndex = 2;
             this.statusStrip2.Text = "statusStrip2";
             // 
-            // modelsCountToolStripStatusLabel
+            // lastPageButton
             // 
-            this.modelsCountToolStripStatusLabel.Image = global::ps2ls.Properties.Resources.document_search_result;
-            this.modelsCountToolStripStatusLabel.Name = "modelsCountToolStripStatusLabel";
-            this.modelsCountToolStripStatusLabel.Size = new System.Drawing.Size(40, 17);
-            this.modelsCountToolStripStatusLabel.Text = "0/0";
+            this.lastPageButton.Image = global::ps2ls.Properties.Resources.arrow_left;
+            this.lastPageButton.Name = "lastPageButton";
+            this.lastPageButton.Size = new System.Drawing.Size(23, 20);
+            this.lastPageButton.Click += new System.EventHandler(this.lastPageButton_Click);
+            // 
+            // nextPageButton
+            // 
+            this.nextPageButton.Image = global::ps2ls.Properties.Resources.arrow_right;
+            this.nextPageButton.Name = "nextPageButton";
+            this.nextPageButton.Size = new System.Drawing.Size(23, 20);
+            this.nextPageButton.Click += new System.EventHandler(this.nextPageButton_Click);
+            // 
+            // modelCountLabel
+            // 
+            this.filesListedLabel.Image = global::ps2ls.Properties.Resources.document_search_result;
+            this.filesListedLabel.Name = "modelCountLabel";
+            this.filesListedLabel.Size = new System.Drawing.Size(40, 17);
+            this.filesListedLabel.Text = "0/0";
             // 
             // toolStrip2
             // 
@@ -151,6 +169,7 @@
             // searchModelsText
             // 
             this.searchModelsText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.searchModelsText.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.searchModelsText.Name = "searchModelsText";
             this.searchModelsText.Size = new System.Drawing.Size(100, 25);
             this.searchModelsText.TextChanged += new System.EventHandler(this.searchModelsText_TextChanged);
@@ -182,13 +201,13 @@
             this.showAutoLODModelsButton.Text = "Show Auto LOD Models";
             this.showAutoLODModelsButton.CheckedChanged += new System.EventHandler(this.showAutoLODModelsButton_CheckedChanged);
             // 
-            // showCollisionModlesButton
+            // showCollisionModelsButton
             // 
             this.showCollisionModelsButton.CheckOnClick = true;
             this.showCollisionModelsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.showCollisionModelsButton.Image = global::ps2ls.Properties.Resources.sphere_wire_occluder;
             this.showCollisionModelsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.showCollisionModelsButton.Name = "showCollisionModlesButton";
+            this.showCollisionModelsButton.Name = "showCollisionModelsButton";
             this.showCollisionModelsButton.Size = new System.Drawing.Size(23, 22);
             this.showCollisionModelsButton.Text = "Show Collision and Occluder Models";
             this.showCollisionModelsButton.CheckedChanged += new System.EventHandler(this.showCollisionModelsButton_CheckedChanged);
@@ -246,7 +265,6 @@
             // 
             // toolStrip1
             // 
-            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.showAxesButton,
             this.toolStripButton1,
@@ -374,7 +392,9 @@
         private System.Windows.Forms.ToolStripButton clearSearchModelsText;
         private System.Windows.Forms.Timer searchModelsTimer;
         private ps2ls.Forms.Controls.CustomListBox modelsListBox;
-        private System.Windows.Forms.ToolStripStatusLabel modelsCountToolStripStatusLabel;
+        private System.Windows.Forms.ToolStripButton lastPageButton;
+        private System.Windows.Forms.ToolStripButton nextPageButton;
+        private System.Windows.Forms.ToolStripStatusLabel filesListedLabel;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton exportSelectedModelsToolStripButton;
         private ps2ls.Forms.ModelBrowserGLControl glControl1;

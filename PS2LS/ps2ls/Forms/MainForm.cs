@@ -73,10 +73,10 @@ namespace ps2ls.Forms
             materialBrowserTabPage.ImageIndex = 2;
             tabControl1.TabPages.Add(materialBrowserTabPage);
 
-
             TabPage modelBrowserTabPage = new TabPage("Model Browser");
             modelBrowserTabPage.Controls.Add(ModelBrowser.Instance);
             modelBrowserTabPage.ImageIndex = 1;
+            modelBrowserTabPage.Enter += ModelBrowser.Instance.onEnter;
             tabControl1.TabPages.Add(modelBrowserTabPage);
          
             TabPage imageBrowser = new TabPage("Image Browser");

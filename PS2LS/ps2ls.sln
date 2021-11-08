@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ps2ls2", "ps2ls\ps2ls2.cspr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevILNet", "devil-net\DevILNet\DevILNet.csproj", "{578FD0D9-41AA-4FA4-8D9B-4021978FA48D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fmodNET", "fmodNET\fmodNET.csproj", "{D3A5783F-A596-4263-905D-255D59174818}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,18 +45,6 @@ Global
 		{578FD0D9-41AA-4FA4-8D9B-4021978FA48D}.Release|x64.Build.0 = Release|x64
 		{578FD0D9-41AA-4FA4-8D9B-4021978FA48D}.Release|x86.ActiveCfg = Release|x86
 		{578FD0D9-41AA-4FA4-8D9B-4021978FA48D}.Release|x86.Build.0 = Release|x86
-		{D3A5783F-A596-4263-905D-255D59174818}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D3A5783F-A596-4263-905D-255D59174818}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D3A5783F-A596-4263-905D-255D59174818}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{D3A5783F-A596-4263-905D-255D59174818}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{D3A5783F-A596-4263-905D-255D59174818}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{D3A5783F-A596-4263-905D-255D59174818}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{D3A5783F-A596-4263-905D-255D59174818}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D3A5783F-A596-4263-905D-255D59174818}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D3A5783F-A596-4263-905D-255D59174818}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{D3A5783F-A596-4263-905D-255D59174818}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{D3A5783F-A596-4263-905D-255D59174818}.Release|x64.ActiveCfg = Release|Any CPU
-		{D3A5783F-A596-4263-905D-255D59174818}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

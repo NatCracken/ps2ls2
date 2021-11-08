@@ -16,7 +16,7 @@ namespace ps2ls.Forms.Controls
 
         List<Asset> assets = new List<Asset>();
         public int MaxCount { get; protected set; }
-        List<Asset> filteredAssets = new List<Asset>();
+        public List<Asset> filteredAssets = new List<Asset>();
         public int MaxFilteredCount { get; protected set; }
         public CustomListBox()
         {
@@ -69,7 +69,21 @@ namespace ps2ls.Forms.Controls
                 {
                     if (asset.Name.IndexOf(searchText, 0, StringComparison.OrdinalIgnoreCase) >= 0) filteredAssets.Add(asset);
                 }
+            updateFilteredCount();
+        }
+
+        public void updateFilteredCount()
+        {
             MaxFilteredCount = filteredAssets == null ? 0 : filteredAssets.Count;
+        }
+
+        public void excludeFromFilter(string searchText)
+        {
+            for(int i = filteredAssets.Count - 1; i >= 0; i--)
+            {
+                if (filteredAssets[i].Name.IndexOf(searchText, 0, StringComparison.OrdinalIgnoreCase) >= 0) filteredAssets.RemoveAt(i);
+            }
+            updateFilteredCount();
         }
 
         public void PopulateBox(int startIndex, int endIndex)

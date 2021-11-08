@@ -103,7 +103,7 @@ namespace ps2ls.Assets.Pack
         private void loadProgressChanged(object sender, ProgressChangedEventArgs args)
         {
             loadingForm.SetProgressBarPercent(args.ProgressPercentage);
-            loadingForm.SetLabelText((String)args.UserState);
+            loadingForm.SetLabelText((string)args.UserState);
         }
 
         private void loadDoWork(object sender, DoWorkEventArgs args)
@@ -116,9 +116,9 @@ namespace ps2ls.Assets.Pack
             BackgroundWorker backgroundWorker = (BackgroundWorker)sender;
             IEnumerable<string> paths = (IEnumerable<string>)arg;
 
-            for (Int32 i = 0; i < paths.Count(); ++i)
+            for (int i = 0; i < paths.Count(); ++i)
             {
-                String path = paths.ElementAt(i);
+                string path = paths.ElementAt(i);
                 Pack pack = null;
 
                 if (packLookupCache.TryGetValue(path.GetHashCode(), out pack) == false)
@@ -142,8 +142,8 @@ namespace ps2ls.Assets.Pack
                     }
                 }
 
-                Single percent = (Single)(i + 1) / (Single)paths.Count();
-                backgroundWorker.ReportProgress((Int32)(percent * 100.0f), System.IO.Path.GetFileName(path));
+                float percent = (i + 1) / (float)paths.Count();
+                backgroundWorker.ReportProgress((int)(percent * 100.0f), System.IO.Path.GetFileName(path));
             }
         }
 
@@ -234,16 +234,16 @@ namespace ps2ls.Assets.Pack
             BackgroundWorker backgroundWorker = (BackgroundWorker)sender;
             object[] args = (object[])arg;
             IEnumerable<Asset> assets = (IEnumerable<Asset>)args[0];
-            String directory = (String)args[1];
+            string directory = (string)args[1];
 
-            for (Int32 i = 0; i < assets.Count(); ++i)
+            for (int i = 0; i < assets.Count(); ++i)
             {
                 Asset file = assets.ElementAt(i);
 
                 file.Pack.ExtractAssetByNameToDirectory(file.Name, directory);
 
-                Single percent = (Single)(i + 1) / (Single)assets.Count();
-                backgroundWorker.ReportProgress((Int32)(percent * 100.0f), System.IO.Path.GetFileName(file.Name));
+                float percent = (i + 1) / (float)assets.Count();
+                backgroundWorker.ReportProgress((int)(percent * 100.0f), System.IO.Path.GetFileName(file.Name));
             }
         }
 
@@ -255,7 +255,7 @@ namespace ps2ls.Assets.Pack
         private void extractSelectionProgressChanged(object sender, ProgressChangedEventArgs args)
         {
             loadingForm.SetProgressBarPercent(args.ProgressPercentage);
-            loadingForm.SetLabelText((String)args.UserState);
+            loadingForm.SetLabelText((string)args.UserState);
         }
 
         private void extractSelectionDoWork(object sender, DoWorkEventArgs args)
@@ -263,7 +263,7 @@ namespace ps2ls.Assets.Pack
             extractByAssetsToDirectory(sender, args.Argument);
         }
 
-        public MemoryStream CreateAssetMemoryStreamByName(String name)
+        public MemoryStream CreateAssetMemoryStreamByName(string name)
         {
             MemoryStream memoryStream = null;
 

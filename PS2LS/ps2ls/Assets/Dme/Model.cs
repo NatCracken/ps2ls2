@@ -108,7 +108,7 @@ namespace ps2ls.Assets.Dme
 
             for (int i = 0; i < meshCount; ++i)
             {
-                Mesh mesh = Mesh.LoadFromStream(binaryReader.BaseStream, model.Materials);
+                Mesh mesh = Mesh.LoadFromStream(binaryReader.BaseStream);
 
                 if (mesh != null) model.Meshes[i] = mesh;
             }

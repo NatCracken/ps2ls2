@@ -40,7 +40,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.lastPageButton = new System.Windows.Forms.ToolStripButton();
             this.nextPageButton = new System.Windows.Forms.ToolStripButton();
-            this.filesListed = new System.Windows.Forms.ToolStripStatusLabel();
+            this.filesListedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.StopButton = new System.Windows.Forms.Button();
             this.PlayPause = new System.Windows.Forms.Button();
             this.StatusLabel = new System.Windows.Forms.Label();
@@ -149,7 +149,7 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lastPageButton,
             this.nextPageButton,
-            this.filesListed});
+            this.filesListedLabel});
             this.statusStrip1.Location = new System.Drawing.Point(0, 578);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(266, 22);
@@ -172,9 +172,10 @@
             // 
             // filesListed
             // 
-            this.filesListed.Name = "filesListed";
-            this.filesListed.Size = new System.Drawing.Size(30, 17);
-            this.filesListed.Text = "0 / 0";
+            this.filesListedLabel.Image = global::ps2ls.Properties.Resources.document_search_result;
+            this.filesListedLabel.Name = "filesListed";
+            this.filesListedLabel.Size = new System.Drawing.Size(30, 17);
+            this.filesListedLabel.Text = "0 / 0";
             // 
             // StopButton
             // 
@@ -240,7 +241,7 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripButton lastPageButton;
         private System.Windows.Forms.ToolStripButton nextPageButton;
-        private System.Windows.Forms.ToolStripStatusLabel filesListed;
+        private System.Windows.Forms.ToolStripStatusLabel filesListedLabel;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStripTextBox searchBox;

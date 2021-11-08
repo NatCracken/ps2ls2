@@ -100,6 +100,46 @@ namespace ps2ls.Forms
         {
             imageListbox.FilterBySearch(searchText.Text ?? "");
 
+            imageListbox.excludeFromFilter("cnx");//TODO figure out what the heck these are
+            imageListbox.excludeFromFilter("sbny");
+
+            if (!showMultipleResolutionsButton.Checked)//for names that contain resolutions, keep only the largest
+            {
+                List<string> nameList = new List<string>();
+                List<int> resolutions = new List<int>();
+                List<Asset> assetList = new List<Asset>();
+                for (int i = imageListbox.filteredAssets.Count - 1; i > 0; i--)
+                {
+                    Asset a = imageListbox.filteredAssets[i];
+                    int resolution = doesNameContainResolution(a.Name);
+                    if (resolution == -1) continue;
+                    string safeName = a.Name.Replace(resolution + "", "N");
+                    if (nameList.Contains(safeName))//if a pair. remove the lower and save the higher
+                    {
+                        int index = nameList.IndexOf(safeName);
+                        if (resolution > resolutions[index])//if new is higher
+                        {
+                            resolutions[index] = resolution;
+
+                            imageListbox.filteredAssets.Remove(assetList[index]);
+                            assetList[index] = a;
+                        }
+                        else//if new is lower
+                        {
+                            imageListbox.filteredAssets.RemoveAt(i);
+                        }
+                    }
+                    else
+                    {
+                        nameList.Add(safeName);
+                        resolutions.Add(resolution);
+                        assetList.Add(a);
+                    }
+                }
+                imageListbox.updateFilteredCount();
+            }
+
+
             int filtered = imageListbox.MaxFilteredCount;
 
             int populateStart = pageNumber * pageSize;
@@ -107,8 +147,18 @@ namespace ps2ls.Forms
             if (populateEnd > filtered) populateEnd = filtered;
             imageListbox.PopulateBox(populateStart, populateEnd);
 
-            imagesCountLabel.Text = "Page " + (pageNumber + 1)
+            filesListedLabel.Text = "Page " + (pageNumber + 1)
                 + ": " + populateStart + " - " + populateEnd + " / " + filtered;
+        }
+
+        //returns -1 if no resolution, else the resolution
+        private int doesNameContainResolution(string name)
+        {
+            for (int i = 16; i <= 1024; i *= 2)
+            {
+                if (name.Contains(i + "")) return i;
+            }
+            return -1;
         }
 
         private void nextPageButton_Click(object sender, EventArgs e)
@@ -161,6 +211,11 @@ namespace ps2ls.Forms
         private void ImageBrowser_Load(object sender, EventArgs e)
         {
             handleTextTimer();
+        }
+
+        private void showCollisionModelsButton_CheckedChanged(object sender, EventArgs e)
+        {
+            refreshImageListBox();
         }
     }
 }

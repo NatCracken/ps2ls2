@@ -383,6 +383,16 @@ namespace ps2ls.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap FMOD_Logo_Black___White_Background {
+            get {
+                object obj = ResourceManager.GetObject("FMOD Logo Black - White Background", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap folder_horizontal_open {
             get {
                 object obj = ResourceManager.GetObject("folder-horizontal-open", resourceCulture);
@@ -436,6 +446,16 @@ namespace ps2ls.Properties {
         internal static System.Drawing.Bitmap image {
             get {
                 object obj = ResourceManager.GetObject("image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Image_scaled {
+            get {
+                object obj = ResourceManager.GetObject("Image-scaled", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

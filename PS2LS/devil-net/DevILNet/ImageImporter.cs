@@ -94,7 +94,7 @@ namespace DevIL {
             if(IL.LoadImageFromStream(stream)) {
                 return new Image(id);
             } else {
-                throw new IOException(String.Format("Failed to loade image: {0}", IL.GetError()));//lots of out of memory when working with multiple exports/large models
+                throw new IOException(String.Format("Failed to loade image: {0}", IL.GetError()));//"NoError" needs more research
             }
         }
 
