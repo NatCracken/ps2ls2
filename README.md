@@ -14,9 +14,7 @@ Building
 =====
 Project was created with Visual Studio 2012. I am working on this fork in VS 2019
 
-You need OpenTK that targets .NET Framework 4.x: https://opentk.net/
-
-I am using OpenTK 3.3.2 and OpenTK.GLControl 3.1.0. They can be easilly installed through VS's NuGet manager.
+Dependant on OpenTK 3.3.2 and OpenTK.GLControl 3.1.0, Zlib Portable 1.11.0, and Pfim 0.10.1 (NuGet)
 
 
 Using
