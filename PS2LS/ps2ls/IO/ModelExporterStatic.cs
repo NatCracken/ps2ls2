@@ -1,5 +1,4 @@
-﻿using DevIL;
-using OpenTK;
+﻿using OpenTK;
 using ps2ls.Assets.Dme;
 using ps2ls.Assets.Pack;
 using ps2ls.Graphics.Materials;
@@ -12,6 +11,13 @@ namespace ps2ls.IO
 {
     public static class ModelExporterStatic
     {
+        public enum Axes
+        {
+            X,
+            Y,
+            Z
+        }
+
         public enum ExportFormats
         {
             Obj
@@ -22,10 +28,10 @@ namespace ps2ls.IO
         public class ExportFormatInfo
         {
             public ExportFormats ExportFormat { get; internal set; }
-            public String Name { get; internal set; }
-            public String Extension { get; internal set; }
-            public Boolean CanExportNormals { get; internal set; }
-            public Boolean CanExportTextureCoordinates { get; internal set; }
+            public string Name { get; internal set; }
+            public string Extension { get; internal set; }
+            public bool CanExportNormals { get; internal set; }
+            public bool CanExportTextureCoordinates { get; internal set; }
 
             public override string ToString()
             {
@@ -37,18 +43,18 @@ namespace ps2ls.IO
         {
             public Axes UpAxis;
             public Axes LeftAxis;
-            public Boolean Normals;
-            public Boolean TextureCoordinates;
+            public bool Normals;
+            public bool TextureCoordinates;
             public Vector3 Scale;
-            public Boolean Textures;
-            public Boolean Package;
+            public bool Textures;
+            public bool Package;
             public ExportFormatInfo ExportFormatInfo;
-            public TextureExporter.TextureFormatInfo TextureFormat;
+            public TextureExporterStatic.TextureFormatInfo TextureFormat;
         }
 
         public struct ModelAxesPreset
         {
-            public String Name;
+            public string Name;
             public Axes UpAxis;
             public Axes LeftAxis;
 
@@ -157,26 +163,10 @@ namespace ps2ls.IO
 
             if (options.Textures)
             {
-                ImageImporter imageImporter = new ImageImporter();
-                ImageExporter imageExporter = new ImageExporter();
-
                 foreach (string textureString in model.TextureStrings)
                 {
-                    MemoryStream textureMemoryStream = AssetManager.Instance.CreateAssetMemoryStreamByName(textureString);
-
-                    if (textureMemoryStream == null)
-                        continue;
-
-                    Image textureImage = imageImporter.LoadImageFromStream(textureMemoryStream);
-
-                    if (textureImage == null)
-                        continue;
-
-                    imageExporter.SaveImage(textureImage, options.TextureFormat.ImageType, directory + @"\" + Path.GetFileNameWithoutExtension(textureString) + @"." + options.TextureFormat.Extension);
+                    TextureExporterStatic.exportTexture(textureString, directory, options.TextureFormat);
                 }
-
-                imageImporter.Dispose();
-                imageExporter.Dispose();
             }
 
             String path = directory + @"\" + Path.GetFileNameWithoutExtension(model.Name) + ".obj";

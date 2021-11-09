@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using DevIL;
 using OpenTK.Graphics.OpenGL;
 using System.Runtime.InteropServices;
 using SD = System.Drawing;
 using SDI = System.Drawing.Imaging;
+using Pfim;
 
 namespace ps2ls
 {
@@ -18,12 +18,8 @@ namespace ps2ls
             if (stream == null)
                 return 0;
 
-            ImageImporter imageImporter = new ImageImporter();
-
-            Image image = imageImporter.LoadImageFromStream(stream);
-
-            GCHandle imageDataGCHandle = GCHandle.Alloc(image.GetImageData(0).Data, GCHandleType.Pinned);
-            IntPtr imageDataIntPtr = imageDataGCHandle.AddrOfPinnedObject();
+            IImage image = Pfim.Pfim.FromStream(stream);
+            IntPtr dataPtr = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
 
             int glTextureHandle = GL.GenTexture();
 
@@ -31,35 +27,44 @@ namespace ps2ls
             GL.BindTexture(TextureTarget.Texture2D, glTextureHandle);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Linear);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, imageDataIntPtr);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, image.Width, image.Height, 0, PixelFormat.Bgra, PixelType.UnsignedInt8888Reversed, dataPtr);
             GL.BindTexture(TextureTarget.Texture2D, 0);
             GL.Disable(EnableCap.Texture2D);
-
-            imageDataGCHandle.Free();
 
             return glTextureHandle;
         }
 
-        public static SD.Image LoadDrawingImageFromStream(Stream stream, Assets.Pack.Asset.Types type)
+        public static SD.Image CommonStreamToBitmap(Stream stream)
         {
-            if (type == Assets.Pack.Asset.Types.PNG || type == Assets.Pack.Asset.Types.JPG)
+            return SD.Image.FromStream(stream);
+        }
+
+        public static SD.Image DDSStreamToBitmap(Stream stream)
+        {
+            IImage image = Pfim.Pfim.FromStream(stream);
+
+            SDI.PixelFormat format;
+
+            // Convert from Pfim's backend agnostic image format into GDI+'s image format
+            switch (image.Format)
             {
-                return SD.Image.FromStream(stream);
+                case ImageFormat.Rgba32:
+                    format = SDI.PixelFormat.Format32bppArgb;
+                    break;
+                default:
+                    // see the sample for more details
+                    throw new NotImplementedException();
             }
 
-            ImageImporter importer = new ImageImporter();         
-            Image img = importer.LoadImageFromStream(stream);
+            IntPtr dataPtr = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+            SD.Bitmap bitmap = new SD.Bitmap(image.Width, image.Height, image.Stride, format, dataPtr);
 
-            DevIL.Unmanaged.ImageInfo data = img.GetImageInfo();
-            SD.Bitmap bitmap = new SD.Bitmap(data.Width, data.Height, SDI.PixelFormat.Format32bppArgb);
-            SD.Rectangle rect = new SD.Rectangle(0, 0, data.Width, data.Height);
-            SDI.BitmapData bdata = bitmap.LockBits(rect, SDI.ImageLockMode.WriteOnly, SDI.PixelFormat.Format32bppArgb);
-
-            DevIL.Unmanaged.IL.CopyPixels(0, 0, 0, data.Width, data.Height, 1, DataFormat.BGRA, DevIL.DataType.UnsignedByte, bdata.Scan0);
-
+            SDI.BitmapData bdata = bitmap.LockBits(new SD.Rectangle(0, 0, image.Width, image.Height), 
+                SDI.ImageLockMode.WriteOnly, SDI.PixelFormat.Format32bppArgb);
             bitmap.UnlockBits(bdata);
-            importer.Dispose();
 
+            image.Dispose();
+            
             return bitmap;          
 
         }

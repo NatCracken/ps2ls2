@@ -100,8 +100,6 @@ namespace ps2ls.Forms
 
             renderModeButtons.Add(renderModeWireframeButton);
             renderModeButtons.Add(renderModeSmoothButton);
-
-
         }
 
         public void onEnter(object sender, EventArgs e)
@@ -299,22 +297,19 @@ void main()
                 GL.Begin(PrimitiveType.Lines);
                 //x
                 GL.Color3(Color.Red);
-                GL.Vertex3(Vector3.Zero);
-                GL.Vertex3(Vector3.UnitX);
+                GL.Vertex3(Vector3.Zero); GL.Vertex3(Vector3.UnitX);
                 GL.Vertex3(Vector3.UnitX); GL.Vertex3(Vector3.UnitX + new Vector3(-0.125f, 0.125f, 0.0f));
                 GL.Vertex3(Vector3.UnitX); GL.Vertex3(Vector3.UnitX + new Vector3(-0.125f, -0.125f, 0.0f));
 
                 //y
                 GL.Color3(Color.Green);
-                GL.Vertex3(Vector3.Zero);
-                GL.Vertex3(Vector3.UnitY);
+                GL.Vertex3(Vector3.Zero); GL.Vertex3(Vector3.UnitY);
                 GL.Vertex3(Vector3.UnitY); GL.Vertex3(Vector3.UnitY + new Vector3(0.125f, -0.125f, 0.0f));
                 GL.Vertex3(Vector3.UnitY); GL.Vertex3(Vector3.UnitY + new Vector3(-0.125f, -0.125f, 0.0f));
 
                 //z
                 GL.Color3(Color.Blue);
-                GL.Vertex3(Vector3.Zero);
-                GL.Vertex3(Vector3.UnitZ);
+                GL.Vertex3(Vector3.Zero); GL.Vertex3(Vector3.UnitZ);
                 GL.Vertex3(Vector3.UnitZ); GL.Vertex3(Vector3.UnitZ + new Vector3(0, -0.125f, -0.125f));
                 GL.Vertex3(Vector3.UnitZ); GL.Vertex3(Vector3.UnitZ + new Vector3(0, 0.125f, -0.125f));
 

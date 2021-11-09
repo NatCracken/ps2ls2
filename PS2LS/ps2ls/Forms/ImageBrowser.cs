@@ -55,8 +55,17 @@ namespace ps2ls.Forms
             catch (InvalidCastException) { return; }
 
             System.IO.MemoryStream memoryStream = asset.Pack.CreateAssetMemoryStreamByName(asset.Name);
-
-            Image i = TextureManager.LoadDrawingImageFromStream(memoryStream, asset.Type);
+            Image i;
+            switch (asset.Type)
+            {
+                case Asset.Types.PNG:
+                case Asset.Types.JPG:
+                    i = TextureManager.CommonStreamToBitmap(memoryStream);
+                    break;
+                default:
+                    i = TextureManager.DDSStreamToBitmap(memoryStream);
+                    break;
+            }
 
             pictureWindow.BackgroundImage = i;
             BackgroundImageLayout = ImageLayout.Stretch;
@@ -99,9 +108,6 @@ namespace ps2ls.Forms
         private void refreshImageListBox()
         {
             imageListbox.FilterBySearch(searchText.Text ?? "");
-
-            imageListbox.excludeFromFilter("cnx");//TODO figure out what the heck these are
-            imageListbox.excludeFromFilter("sbny");
 
             if (!showMultipleResolutionsButton.Checked)//for names that contain resolutions, keep only the largest
             {

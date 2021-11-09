@@ -124,12 +124,12 @@ namespace ps2ls.Forms
         {
             textureFormatComboBox.Items.Clear();
 
-            foreach (TextureExporter.TextureFormatInfo textureFormat in TextureExporter.TextureFormats)
+            foreach (TextureExporterStatic.TextureFormatInfo textureFormat in TextureExporterStatic.TextureFormats)
             {
                 textureFormatComboBox.Items.Add(textureFormat);
             }
 
-            textureFormatComboBox.SelectedIndex = textureFormatComboBox.Items.Count > 0 ? 2 : -1;//2 = png
+            textureFormatComboBox.SelectedIndex = 0;
         }
 
         private void scaleLinkAxesCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -214,12 +214,12 @@ namespace ps2ls.Forms
 
         private void upAxisComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            exportOptions.UpAxis = (Axes)upAxisComboBox.SelectedIndex;
+            exportOptions.UpAxis = (ModelExporterStatic.Axes)upAxisComboBox.SelectedIndex;
         }
 
         private void leftAxisComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            exportOptions.LeftAxis = (Axes)leftAxisComboBox.SelectedIndex;
+            exportOptions.LeftAxis = (ModelExporterStatic.Axes)leftAxisComboBox.SelectedIndex;
         }
 
         private void xScaleNumericUpDown_ValueChanged(object sender, EventArgs e)
@@ -263,7 +263,7 @@ namespace ps2ls.Forms
 
         private void applyCurrentStateToExportOptions()
         {
-            exportOptions.LeftAxis = (Axes)leftAxisComboBox.SelectedIndex;
+            exportOptions.LeftAxis = (ModelExporterStatic.Axes)leftAxisComboBox.SelectedIndex;
             exportOptions.Normals = normalsCheckBox.Checked;
             exportOptions.Package = packageCheckBox.Checked;
             exportOptions.Scale.X = (Single)xScaleNumericUpDown.Value;
@@ -271,13 +271,13 @@ namespace ps2ls.Forms
             exportOptions.Scale.Z = (Single)zScaleNumericUpDown.Value;
             exportOptions.TextureCoordinates = textureCoordinatesCheckBox.Checked;
             exportOptions.Textures = texturesCheckBox.Checked;
-            exportOptions.UpAxis = (Axes)upAxisComboBox.SelectedIndex;
-            exportOptions.TextureFormat = (TextureExporter.TextureFormatInfo)textureFormatComboBox.SelectedItem;
+            exportOptions.UpAxis = (ModelExporterStatic.Axes)upAxisComboBox.SelectedIndex;
+            exportOptions.TextureFormat = (TextureExporterStatic.TextureFormatInfo)textureFormatComboBox.SelectedItem;
         }
 
         private void textureFormatComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            exportOptions.TextureFormat = (TextureExporter.TextureFormatInfo)textureFormatComboBox.SelectedItem;
+            exportOptions.TextureFormat = (TextureExporterStatic.TextureFormatInfo)textureFormatComboBox.SelectedItem;
         }
     }
 }

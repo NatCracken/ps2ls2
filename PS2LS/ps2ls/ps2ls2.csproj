@@ -69,6 +69,9 @@
     <Reference Include="OpenTK.GLControl, Version=3.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.GLControl.3.1.0\lib\net20\OpenTK.GLControl.dll</HintPath>
     </Reference>
+    <Reference Include="Pfim, Version=0.10.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Pfim.0.10.1\lib\netstandard2.0\Pfim.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -127,7 +130,6 @@
       <DependentUpon>SoundExportForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Graphics\Materials\ParameterGroup.cs" />
-    <Compile Include="IO\ModelExporter.cs" />
     <Compile Include="IO\ModelExporterStatic.cs" />
     <Compile Include="Assets\Pack\AssetManager.cs" />
     <Compile Include="Forms\Controls\CustomListBox.cs">
@@ -207,8 +209,7 @@
     <Compile Include="Forms\MaterialBrowserGLControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="IO\ObjModelExporter.cs" />
-    <Compile Include="IO\TextureExporter.cs" />
+    <Compile Include="IO\TextureExporterStatic.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -429,12 +430,6 @@
     <None Include="Resources\tree.png" />
     <None Include="Resources\grid.png" />
     <None Include="Resources\gear.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\devil-net\DevILNet\DevILNet.csproj">
-      <Project>{578fd0d9-41aa-4fa4-8d9b-4021978fa48d}</Project>
-      <Name>DevILNet</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -6,10 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
-using DevIL;
-using OpenTK;
-using ps2ls.Graphics.Materials;
-using System.Globalization;
+
 
 namespace ps2ls.Forms
 {
@@ -27,7 +24,7 @@ namespace ps2ls.Forms
         private ImageExportOptions imageExportOptions = new ImageExportOptions();
         class ImageExportOptions
         {
-            public TextureExporter.TextureFormatInfo textureFormat;
+            public TextureExporterStatic.TextureFormatInfo textureFormat;
         }
 
         private void exportDoWork(object sender, DoWorkEventArgs e)
@@ -48,7 +45,7 @@ namespace ps2ls.Forms
         {
             if (loadingForm != null)
             {
-                loadingForm.SetLabelText((String)e.UserState);
+                loadingForm.SetLabelText((string)e.UserState);
                 loadingForm.SetProgressBarPercent(e.ProgressPercentage);
             }
         }
@@ -57,35 +54,16 @@ namespace ps2ls.Forms
         {
             List<object> arguments = (List<object>)argument;
 
-            String directory = (String)arguments[0];
-            List<String> fileNames = (List<String>)arguments[1];
+            string directory = (string)arguments[0];
+            List<string> fileNames = (List<string>)arguments[1];
             ImageExportOptions exportOptions = (ImageExportOptions)arguments[2];
 
-           // BackgroundWorker backgroundWorker = (BackgroundWorker)sender;
+            // BackgroundWorker backgroundWorker = (BackgroundWorker)sender;
 
-            Int32 result = 0;
-
-            ImageImporter imageImporter = new ImageImporter();
-            ImageExporter imageExporter = new ImageExporter();
+            int result = 0;
 
             foreach (string textureString in fileNames)
-            {
-                MemoryStream textureMemoryStream = AssetManager.Instance.CreateAssetMemoryStreamByName(textureString);
-
-                if (textureMemoryStream == null)
-                    continue;
-
-                Image textureImage = imageImporter.LoadImageFromStream(textureMemoryStream);
-
-                if (textureImage == null)
-                    continue;
-
-                imageExporter.SaveImage(textureImage, exportOptions.textureFormat.ImageType, directory + @"\" + Path.GetFileNameWithoutExtension(textureString) + @"." + exportOptions.textureFormat.Extension);
-                result++;
-            }
-
-            imageImporter.Dispose();
-            imageExporter.Dispose();
+                if (TextureExporterStatic.exportTexture(textureString, directory, exportOptions.textureFormat)) result++;
 
             return result;
         }
@@ -95,12 +73,12 @@ namespace ps2ls.Forms
         {
             textureFormatComboBox.Items.Clear();
 
-            foreach (TextureExporter.TextureFormatInfo textureFormat in TextureExporter.TextureFormats)
+            foreach (TextureExporterStatic.TextureFormatInfo textureFormat in TextureExporterStatic.TextureFormats)
             {
                 textureFormatComboBox.Items.Add(textureFormat);
             }
 
-            textureFormatComboBox.SelectedIndex = textureFormatComboBox.Items.Count > 0 ? 2 : -1;//2 = png
+            textureFormatComboBox.SelectedIndex = 0;
         }
 
         private void exportButton_Click(object sender, EventArgs e)
@@ -140,12 +118,12 @@ namespace ps2ls.Forms
 
         private void applyCurrentStateToExportOptions()
         {
-            imageExportOptions.textureFormat = (TextureExporter.TextureFormatInfo)textureFormatComboBox.SelectedItem;
+            imageExportOptions.textureFormat = (TextureExporterStatic.TextureFormatInfo)textureFormatComboBox.SelectedItem;
         }
 
         private void textureFormatComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            imageExportOptions.textureFormat = (TextureExporter.TextureFormatInfo)textureFormatComboBox.SelectedItem;
+            imageExportOptions.textureFormat = (TextureExporterStatic.TextureFormatInfo)textureFormatComboBox.SelectedItem;
         }
     }
 }
