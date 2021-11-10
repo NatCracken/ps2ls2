@@ -61,17 +61,15 @@ namespace ps2ls.Forms
             ImageList imageList = new ImageList();
             imageList.Images.Add(Resources.box_small);
             imageList.Images.Add(Resources.tree_small);
+            imageList.Images.Add(Resources.image);
+            imageList.Images.Add(Resources.music);
+            imageList.Images.Add(Resources.robot);
             tabControl1.ImageList = imageList;
 
             TabPage assetBrowserTabPage = new TabPage("Asset Browser");
             assetBrowserTabPage.Controls.Add(AssetBrowser.Instance);
             assetBrowserTabPage.ImageIndex = 0;
             tabControl1.TabPages.Add(assetBrowserTabPage);
-
-            TabPage materialBrowserTabPage = new TabPage("Actor Browser");
-            materialBrowserTabPage.Controls.Add(ActorForm.Instance);
-            materialBrowserTabPage.ImageIndex = 2;
-            tabControl1.TabPages.Add(materialBrowserTabPage);
 
             TabPage modelBrowserTabPage = new TabPage("Model Browser");
             modelBrowserTabPage.Controls.Add(ModelBrowser.Instance);
@@ -81,15 +79,20 @@ namespace ps2ls.Forms
          
             TabPage imageBrowser = new TabPage("Image Browser");
             imageBrowser.Controls.Add(ImageBrowser.Instance);
-            imageBrowser.ImageIndex = 3;
+            imageBrowser.ImageIndex = 2;
             imageBrowser.Enter += ImageBrowser.Instance.onEnter;
             tabControl1.TabPages.Add(imageBrowser);
 
             TabPage soundBrowser = new TabPage("Sound Browser");
             soundBrowser.Controls.Add(SoundBrowser.Instance);
-            soundBrowser.ImageIndex = 4;
+            soundBrowser.ImageIndex = 3;
             soundBrowser.Enter += SoundBrowser.Instance.onEnter;
             tabControl1.TabPages.Add(soundBrowser);
+
+            TabPage materialBrowserTabPage = new TabPage("Actor Browser");
+            materialBrowserTabPage.Controls.Add(ActorForm.Instance);
+            materialBrowserTabPage.ImageIndex = 4;
+            tabControl1.TabPages.Add(materialBrowserTabPage);
         }
 
         private void reportIssueToolStripMenuItem_Click(object sender, EventArgs e)

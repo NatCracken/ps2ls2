@@ -68,7 +68,6 @@ namespace ps2ls.Forms
             }
 
             pictureWindow.BackgroundImage = i;
-            BackgroundImageLayout = ImageLayout.Stretch;
             pictureWindow.Show();
         }
 
@@ -103,6 +102,17 @@ namespace ps2ls.Forms
             refreshImageListBox();
         }
 
+        public class AssetSearchParam
+        {
+            public int value;
+            public Asset asset;
+            public AssetSearchParam(int getV, Asset getA)
+            {
+                value = getV;
+                asset = getA;
+            }
+        }
+
         private int pageNumber = 0;
         private int pageSize = 1000;
         private void refreshImageListBox()
@@ -111,35 +121,31 @@ namespace ps2ls.Forms
 
             if (!showMultipleResolutionsButton.Checked)//for names that contain resolutions, keep only the largest
             {
-                List<string> nameList = new List<string>();
-                List<int> resolutions = new List<int>();
-                List<Asset> assetList = new List<Asset>();
-                for (int i = imageListbox.filteredAssets.Count - 1; i > 0; i--)
+                Dictionary<string, AssetSearchParam> nameToAsset = new Dictionary<string, AssetSearchParam>();
+                for (int i = imageListbox.filteredAssets.Count - 1; i >= 0; i--)
                 {
                     Asset a = imageListbox.filteredAssets[i];
                     int resolution = doesNameContainResolution(a.Name);
                     if (resolution == -1) continue;
                     string safeName = a.Name.Replace(resolution + "", "N");
-                    if (nameList.Contains(safeName))//if a pair. remove the lower and save the higher
+                    if (nameToAsset.ContainsKey(safeName))//if a pair. remove the lower and save the higher
                     {
-                        int index = nameList.IndexOf(safeName);
-                        if (resolution > resolutions[index])//if new is higher
+                        AssetSearchParam searchParam = nameToAsset[safeName];
+                        if (resolution > searchParam.value)//if new is higher, keep it discard old
                         {
-                            resolutions[index] = resolution;
+                            searchParam.value = resolution;
 
-                            imageListbox.filteredAssets.Remove(assetList[index]);
-                            assetList[index] = a;
+                            imageListbox.filteredAssets.Remove(searchParam.asset);
+                            searchParam.asset = a;
                         }
-                        else//if new is lower
+                        else//if new is lower discard new
                         {
                             imageListbox.filteredAssets.RemoveAt(i);
                         }
                     }
                     else
                     {
-                        nameList.Add(safeName);
-                        resolutions.Add(resolution);
-                        assetList.Add(a);
+                        nameToAsset.Add(safeName, new AssetSearchParam(resolution, a));
                     }
                 }
                 imageListbox.updateFilteredCount();
@@ -219,9 +225,21 @@ namespace ps2ls.Forms
             handleTextTimer();
         }
 
-        private void showCollisionModelsButton_CheckedChanged(object sender, EventArgs e)
+        private void showMultipleResolutionsButton_CheckedChanged(object sender, EventArgs e)
         {
             refreshImageListBox();
+        }
+
+        private void ImageStrechButton_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ImageStrechButton.Checked)
+            {
+                pictureWindow.BackgroundImageLayout = ImageLayout.Stretch;
+            }
+            else
+            {
+                pictureWindow.BackgroundImageLayout = ImageLayout.Zoom;
+            }
         }
     }
 }

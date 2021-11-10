@@ -44,6 +44,7 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.showAutoLODModelsButton = new System.Windows.Forms.ToolStripButton();
             this.showCollisionModelsButton = new System.Windows.Forms.ToolStripButton();
+            this.showMultipleLODButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exportSelectedModelsToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.ModelBrowserModelStats1 = new ps2ls.Forms.ModelBrowserModelStats();
@@ -148,6 +149,7 @@
             this.clearSearchModelsText,
             this.toolStripSeparator2,
             this.showAutoLODModelsButton,
+            this.showMultipleLODButton,
             this.showCollisionModelsButton,
             this.toolStripSeparator1,
             this.exportSelectedModelsToolStripButton});
@@ -200,6 +202,17 @@
             this.showAutoLODModelsButton.Size = new System.Drawing.Size(23, 22);
             this.showAutoLODModelsButton.Text = "Show Auto LOD Models";
             this.showAutoLODModelsButton.CheckedChanged += new System.EventHandler(this.showAutoLODModelsButton_CheckedChanged);
+            // 
+            // showMultipleLODButton
+            // 
+            this.showMultipleLODButton.CheckOnClick = true;
+            this.showMultipleLODButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.showMultipleLODButton.Image = global::ps2ls.Properties.Resources.Image_scaled;
+            this.showMultipleLODButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.showMultipleLODButton.Name = "showMultipleLODButton";
+            this.showMultipleLODButton.Size = new System.Drawing.Size(23, 22);
+            this.showMultipleLODButton.Text = "Show All LOD's";
+            this.showMultipleLODButton.CheckedChanged += new System.EventHandler(this.showMultipleLODsButton_CheckedChanged);
             // 
             // showCollisionModelsButton
             // 
@@ -407,6 +420,7 @@
         private ModelBrowserModelStats ModelBrowserModelStats1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton showAutoLODModelsButton;
+        private System.Windows.Forms.ToolStripButton showMultipleLODButton;
         private System.Windows.Forms.ToolStripButton showCollisionModelsButton;
         private System.Windows.Forms.ToolStripComboBox materialSelectionComboBox;
         private System.Windows.Forms.ToolStripButton toolStripButton1;

@@ -30,7 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.soundListBox = new ps2ls.Forms.Controls.CustomListBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.searchBox = new System.Windows.Forms.ToolStripTextBox();
@@ -41,16 +40,24 @@
             this.lastPageButton = new System.Windows.Forms.ToolStripButton();
             this.nextPageButton = new System.Windows.Forms.ToolStripButton();
             this.filesListedLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.SoundControlPanel = new System.Windows.Forms.Panel();
+            this.TrackProgressBar = new System.Windows.Forms.ProgressBar();
+            this.PlayPauseButton = new System.Windows.Forms.Button();
+            this.VisualizationBox = new System.Windows.Forms.PictureBox();
+            this.TrackNameLabel = new System.Windows.Forms.Label();
             this.StopButton = new System.Windows.Forms.Button();
-            this.PlayPause = new System.Windows.Forms.Button();
-            this.StatusLabel = new System.Windows.Forms.Label();
+            this.TrackProgressLabel = new System.Windows.Forms.Label();
             this.refreshTimer = new System.Windows.Forms.Timer(this.components);
+            this.progressTimer = new System.Windows.Forms.Timer(this.components);
+            this.soundListBox = new ps2ls.Forms.Controls.CustomListBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            this.SoundControlPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.VisualizationBox)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -67,27 +74,11 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.StopButton);
-            this.splitContainer1.Panel2.Controls.Add(this.PlayPause);
-            this.splitContainer1.Panel2.Controls.Add(this.StatusLabel);
+            this.splitContainer1.Panel2.Controls.Add(this.SoundControlPanel);
+            this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(20);
             this.splitContainer1.Size = new System.Drawing.Size(800, 600);
             this.splitContainer1.SplitterDistance = 266;
             this.splitContainer1.TabIndex = 0;
-            // 
-            // soundListBox
-            // 
-            this.soundListBox.AssetType = new ps2ls.Assets.Pack.Asset.Types[] { ps2ls.Assets.Pack.Asset.Types.FSB };
-            this.soundListBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.soundListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
-            this.soundListBox.Image = global::ps2ls.Properties.Resources.music;
-            this.soundListBox.Items.AddRange(new object[] {
-            "Input a search term to continue"});
-            this.soundListBox.Location = new System.Drawing.Point(0, 25);
-            this.soundListBox.Name = "soundListBox";
-            this.soundListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.soundListBox.Size = new System.Drawing.Size(266, 553);
-            this.soundListBox.TabIndex = 0;
-            this.soundListBox.SelectedIndexChanged += new System.EventHandler(this.soundListBox_SelectedIndexChanged);
             // 
             // toolStrip1
             // 
@@ -115,6 +106,7 @@
             // searchBox
             // 
             this.searchBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.searchBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.searchBox.Name = "searchBox";
             this.searchBox.Size = new System.Drawing.Size(100, 25);
             this.searchBox.TextChanged += new System.EventHandler(this.searchBox_TextChanged);
@@ -170,47 +162,114 @@
             this.nextPageButton.Size = new System.Drawing.Size(23, 20);
             this.nextPageButton.Click += new System.EventHandler(this.nextPageButton_Click);
             // 
-            // filesListed
+            // filesListedLabel
             // 
             this.filesListedLabel.Image = global::ps2ls.Properties.Resources.document_search_result;
-            this.filesListedLabel.Name = "filesListed";
-            this.filesListedLabel.Size = new System.Drawing.Size(30, 17);
+            this.filesListedLabel.Name = "filesListedLabel";
+            this.filesListedLabel.Size = new System.Drawing.Size(46, 17);
             this.filesListedLabel.Text = "0 / 0";
+            // 
+            // SoundControlPanel
+            // 
+            this.SoundControlPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.SoundControlPanel.Controls.Add(this.TrackProgressBar);
+            this.SoundControlPanel.Controls.Add(this.PlayPauseButton);
+            this.SoundControlPanel.Controls.Add(this.VisualizationBox);
+            this.SoundControlPanel.Controls.Add(this.TrackNameLabel);
+            this.SoundControlPanel.Controls.Add(this.StopButton);
+            this.SoundControlPanel.Controls.Add(this.TrackProgressLabel);
+            this.SoundControlPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.SoundControlPanel.Location = new System.Drawing.Point(20, 20);
+            this.SoundControlPanel.Name = "SoundControlPanel";
+            this.SoundControlPanel.Padding = new System.Windows.Forms.Padding(20, 20, 20, 40);
+            this.SoundControlPanel.Size = new System.Drawing.Size(490, 560);
+            this.SoundControlPanel.TabIndex = 6;
+            // 
+            // TrackProgressBar
+            // 
+            this.TrackProgressBar.Location = new System.Drawing.Point(23, 179);
+            this.TrackProgressBar.Name = "TrackProgressBar";
+            this.TrackProgressBar.Size = new System.Drawing.Size(442, 10);
+            this.TrackProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.TrackProgressBar.TabIndex = 4;
+            // 
+            // PlayPauseButton
+            // 
+            this.PlayPauseButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.PlayPauseButton.Location = new System.Drawing.Point(140, 218);
+            this.PlayPauseButton.Name = "PlayPauseButton";
+            this.PlayPauseButton.Size = new System.Drawing.Size(100, 32);
+            this.PlayPauseButton.TabIndex = 1;
+            this.PlayPauseButton.Text = "▶ / ❚❚";
+            this.PlayPauseButton.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.PlayPauseButton.UseVisualStyleBackColor = true;
+            this.PlayPauseButton.Click += new System.EventHandler(this.PlayPause_Click);
+            // 
+            // VisualizationBox
+            // 
+            this.VisualizationBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.VisualizationBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.VisualizationBox.Location = new System.Drawing.Point(23, 125);
+            this.VisualizationBox.Name = "VisualizationBox";
+            this.VisualizationBox.Size = new System.Drawing.Size(442, 60);
+            this.VisualizationBox.TabIndex = 5;
+            this.VisualizationBox.TabStop = false;
+            // 
+            // TrackNameLabel
+            // 
+            this.TrackNameLabel.AutoSize = true;
+            this.TrackNameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TrackNameLabel.Location = new System.Drawing.Point(-5, 97);
+            this.TrackNameLabel.MinimumSize = new System.Drawing.Size(500, 25);
+            this.TrackNameLabel.Name = "TrackNameLabel";
+            this.TrackNameLabel.Size = new System.Drawing.Size(500, 25);
+            this.TrackNameLabel.TabIndex = 0;
+            this.TrackNameLabel.Text = "No Track";
+            this.TrackNameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // StopButton
             // 
-            this.StopButton.Location = new System.Drawing.Point(199, 172);
+            this.StopButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F);
+            this.StopButton.Location = new System.Drawing.Point(246, 218);
             this.StopButton.Name = "StopButton";
-            this.StopButton.Size = new System.Drawing.Size(75, 23);
+            this.StopButton.Size = new System.Drawing.Size(100, 32);
             this.StopButton.TabIndex = 2;
-            this.StopButton.Text = "Stop";
+            this.StopButton.Text = "⬛";
             this.StopButton.UseVisualStyleBackColor = true;
             this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
             // 
-            // PlayPause
+            // TrackProgressLabel
             // 
-            this.PlayPause.Location = new System.Drawing.Point(199, 143);
-            this.PlayPause.Name = "PlayPause";
-            this.PlayPause.Size = new System.Drawing.Size(75, 23);
-            this.PlayPause.TabIndex = 1;
-            this.PlayPause.Text = "Play/Pause";
-            this.PlayPause.UseVisualStyleBackColor = true;
-            this.PlayPause.Click += new System.EventHandler(this.PlayPause_Click);
-            // 
-            // StatusLabel
-            // 
-            this.StatusLabel.AutoSize = true;
-            this.StatusLabel.Location = new System.Drawing.Point(172, 198);
-            this.StatusLabel.Name = "StatusLabel";
-            this.StatusLabel.Size = new System.Drawing.Size(135, 13);
-            this.StatusLabel.TabIndex = 0;
-            this.StatusLabel.Text = "No Song 0:00:00 / 0:00:00";
-            this.StatusLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.TrackProgressLabel.Location = new System.Drawing.Point(140, 192);
+            this.TrackProgressLabel.Name = "TrackProgressLabel";
+            this.TrackProgressLabel.Size = new System.Drawing.Size(206, 23);
+            this.TrackProgressLabel.TabIndex = 3;
+            this.TrackProgressLabel.Text = "00:00:00 / 00:00:00";
+            this.TrackProgressLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // refreshTimer
             // 
             this.refreshTimer.Interval = 500;
             this.refreshTimer.Tick += new System.EventHandler(this.refreshTimer_Tick);
+            // 
+            // progressTimer
+            // 
+            this.progressTimer.Tick += new System.EventHandler(this.progressTimer_Tick);
+            // 
+            // soundListBox
+            // 
+            this.soundListBox.AssetType = new ps2ls.Assets.Pack.Asset.Types[] { ps2ls.Assets.Pack.Asset.Types.FSB };
+            this.soundListBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.soundListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
+            this.soundListBox.Image = global::ps2ls.Properties.Resources.music;
+            this.soundListBox.Items.AddRange(new object[] {
+            "Input a search term to continue"});
+            this.soundListBox.Location = new System.Drawing.Point(0, 25);
+            this.soundListBox.Name = "soundListBox";
+            this.soundListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            this.soundListBox.Size = new System.Drawing.Size(266, 553);
+            this.soundListBox.TabIndex = 0;
+            this.soundListBox.SelectedIndexChanged += new System.EventHandler(this.soundListBox_SelectedIndexChanged);
             // 
             // SoundBrowser
             // 
@@ -223,13 +282,15 @@
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
-            this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.SoundControlPanel.ResumeLayout(false);
+            this.SoundControlPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.VisualizationBox)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -246,11 +307,16 @@
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStripTextBox searchBox;
         private System.Windows.Forms.ToolStripButton SearchBoxClear;
-        private System.Windows.Forms.Label StatusLabel;
+        private System.Windows.Forms.Label TrackNameLabel;
         private System.Windows.Forms.Timer refreshTimer;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.Button StopButton;
-        private System.Windows.Forms.Button PlayPause;
+        private System.Windows.Forms.Button PlayPauseButton;
+        private System.Windows.Forms.ProgressBar TrackProgressBar;
+        private System.Windows.Forms.Label TrackProgressLabel;
+        private System.Windows.Forms.Timer progressTimer;
+        private System.Windows.Forms.Panel SoundControlPanel;
+        private System.Windows.Forms.PictureBox VisualizationBox;
     }
 }

@@ -64,9 +64,9 @@
             "DirectDraw Surface (*.dds)",
             "Portal Network Graphics (*.png)",
             "Truevision TGA (*.tga)"});
-            this.textureFormatComboBox.Location = new System.Drawing.Point(113, 12);
+            this.textureFormatComboBox.Location = new System.Drawing.Point(95, 12);
             this.textureFormatComboBox.Name = "textureFormatComboBox";
-            this.textureFormatComboBox.Size = new System.Drawing.Size(174, 21);
+            this.textureFormatComboBox.Size = new System.Drawing.Size(192, 21);
             this.textureFormatComboBox.TabIndex = 6;
             this.textureFormatComboBox.SelectedIndexChanged += new System.EventHandler(this.textureFormatComboBox_SelectedIndexChanged);
             // 
@@ -83,7 +83,7 @@
             this.MinimizeBox = false;
             this.Name = "ImageExportForm";
             this.ShowInTaskbar = false;
-            this.Text = "Model Export";
+            this.Text = "Texture Export";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.ImageExportForm_Load);
             this.ResumeLayout(false);

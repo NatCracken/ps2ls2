@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
+using SD = System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.IO;
+using FMOD;
 
 namespace ps2ls.Forms
 {
@@ -44,17 +45,17 @@ namespace ps2ls.Forms
         }
 
         FMOD.System system;
-        FMOD.Sound fsb;
-        FMOD.ChannelGroup channelGroup;
-        FMOD.Channel channel;
+        Sound fsb;
+        ChannelGroup channelGroup;
+        Channel channel;
 
-        private FMOD.SOUND_PCMREAD_CALLBACK pcmreadcallback = new FMOD.SOUND_PCMREAD_CALLBACK(PCMREADCALLBACK);
-        private FMOD.SOUND_PCMSETPOS_CALLBACK pcmsetposcallback = new FMOD.SOUND_PCMSETPOS_CALLBACK(PCMSETPOSCALLBACK);
+        private SOUND_PCMREAD_CALLBACK pcmreadcallback = new SOUND_PCMREAD_CALLBACK(PCMREADCALLBACK);
+        private SOUND_PCMSETPOS_CALLBACK pcmsetposcallback = new SOUND_PCMSETPOS_CALLBACK(PCMSETPOSCALLBACK);
 
         private static float t1 = 0, t2 = 0;        // time
         private static float v1 = 0, v2 = 0;        // velocity
 
-        private static FMOD.RESULT PCMREADCALLBACK(IntPtr soundraw, IntPtr data, uint datalen)
+        private static RESULT PCMREADCALLBACK(IntPtr soundraw, IntPtr data, uint datalen)
         {
             unsafe
             {
@@ -73,75 +74,75 @@ namespace ps2ls.Forms
                     v2 += (float)(Math.Sin(t2) * 0.002f);
                 }
             }
-            return FMOD.RESULT.OK;
+            return RESULT.OK;
         }
 
-        private static FMOD.RESULT PCMSETPOSCALLBACK(IntPtr soundraw, int subsound, uint pcmoffset, FMOD.TIMEUNIT postype)
+        private static RESULT PCMSETPOSCALLBACK(IntPtr soundraw, int subsound, uint pcmoffset, TIMEUNIT postype)
         {
             /*
                 This is useful if the user calls Sound::setTime or Sound::setPosition and you want to seek your data accordingly.
             */
 
-            return FMOD.RESULT.OK;
+            return RESULT.OK;
         }
 
 
-        private FMOD.FILE_OPEN_CALLBACK myopen = new FMOD.FILE_OPEN_CALLBACK(OPENCALLBACK);
-        private FMOD.FILE_CLOSE_CALLBACK myclose = new FMOD.FILE_CLOSE_CALLBACK(CLOSECALLBACK);
-        private FMOD.FILE_READ_CALLBACK myread = new FMOD.FILE_READ_CALLBACK(READCALLBACK);
-        private FMOD.FILE_SEEK_CALLBACK myseek = new FMOD.FILE_SEEK_CALLBACK(SEEKCALLBACK);
+        private FILE_OPEN_CALLBACK myopen = new FILE_OPEN_CALLBACK(OPENCALLBACK);
+        private FILE_CLOSE_CALLBACK myclose = new FILE_CLOSE_CALLBACK(CLOSECALLBACK);
+        private FILE_READ_CALLBACK myread = new FILE_READ_CALLBACK(READCALLBACK);
+        private FILE_SEEK_CALLBACK myseek = new FILE_SEEK_CALLBACK(SEEKCALLBACK);
 
         static MemoryStream memStream;
-        private static FMOD.RESULT OPENCALLBACK(IntPtr name, ref uint filesize, ref IntPtr handle, IntPtr userdata)
+        private static RESULT OPENCALLBACK(IntPtr name, ref uint filesize, ref IntPtr handle, IntPtr userdata)
         {
-            FMOD.StringWrapper stringWrapper = new FMOD.StringWrapper(name);
+            StringWrapper stringWrapper = new StringWrapper(name);
             memStream = AssetManager.Instance.CreateAssetMemoryStreamByName(stringWrapper);
             if (memStream == null) return FMOD.RESULT.ERR_FILE_NOTFOUND;
             memStream = Utils.FixSoundHeader(memStream);
             filesize = (uint)memStream.Length;
 
-            return FMOD.RESULT.OK;
+            return RESULT.OK;
         }
 
-        private static FMOD.RESULT CLOSECALLBACK(IntPtr handle, IntPtr userdata)
+        private static RESULT CLOSECALLBACK(IntPtr handle, IntPtr userdata)
         {
             memStream.Close();
 
-            return FMOD.RESULT.OK;
+            return RESULT.OK;
         }
 
-        private static FMOD.RESULT READCALLBACK(IntPtr handle, IntPtr buffer, uint sizebytes, ref uint bytesread, IntPtr userdata)
+        private static RESULT READCALLBACK(IntPtr handle, IntPtr buffer, uint sizebytes, ref uint bytesread, IntPtr userdata)
         {
             byte[] readbuffer = new byte[sizebytes];
 
             bytesread = (uint)memStream.Read(readbuffer, 0, (int)sizebytes);
             if (bytesread == 0)
             {
-                return FMOD.RESULT.ERR_FILE_EOF;
+                return RESULT.ERR_FILE_EOF;
             }
 
             Marshal.Copy(readbuffer, 0, buffer, (int)sizebytes);
 
-            return FMOD.RESULT.OK;
+            return RESULT.OK;
         }
 
-        private static FMOD.RESULT SEEKCALLBACK(IntPtr handle, uint pos, IntPtr userdata)
+        private static RESULT SEEKCALLBACK(IntPtr handle, uint pos, IntPtr userdata)
         {
             memStream.Seek(pos, SeekOrigin.Begin);
-            return FMOD.RESULT.OK;
+            return RESULT.OK;
         }
 
 
 
         private void initFmod()
         {
-            FMOD.RESULT res = FMOD.Factory.System_Create(out system);
+            RESULT res = Factory.System_Create(out system);
 
-            system.init(32, FMOD.INITFLAGS.NORMAL, (IntPtr)null);
+            system.init(32, INITFLAGS.NORMAL, (IntPtr)null);
 
             system.setFileSystem(myopen, myclose, myread, myseek, null, null, 2048);
 
-            system.setOutput(FMOD.OUTPUTTYPE.AUTODETECT);
+            system.setOutput(OUTPUTTYPE.AUTODETECT);
 
             system.createChannelGroup("MyGroup", out channelGroup);
 
@@ -149,36 +150,67 @@ namespace ps2ls.Forms
 
         private void loadSound(string name)
         {
+            resetTrackStatus();
             stopPlaying();
             fsb.release();
 
-            FMOD.RESULT res = system.createSound(name, FMOD.MODE._2D, out fsb);//FMOD.MODE.DEFAULT | FMOD.MODE.CREATESTREAM
+            RESULT res = system.createSound(name, MODE._2D | MODE.DEFAULT | MODE.CREATESAMPLE, out fsb);
 
-            /* AMB_EMIT_SMOKESTACK_03.fsb broke, others fine
-             * AMB_EMIT_TERMINAL_COMPUTER_03/04 broke, 01/02 fine
-             * all PSBR file broken, not surprising
-             * all DX files broken, to do with translations
-             * 
-             * 
-             */
-
-            if (res != FMOD.RESULT.OK)
+            if (res != RESULT.OK)
             {
                 MessageBox.Show("Cannot load " + name + ".  Reason: " + res.ToString(), "FMOD Load Error", MessageBoxButtons.OK);
+                return;
             }
 
+            fsb.getSubSound(0, out sound);
+            res = sound.getLength(out uint len, TIMEUNIT.MS);
+            if (res != RESULT.OK)
+            {
+                MessageBox.Show("Cannot Get Track Data.  Reason: " + res.ToString(), "FMOD Load Error", MessageBoxButtons.OK);
+                return;
+            }
+
+            trackName = name;
+            trackLength = len;
+            refreshTrackStatus();
+
+            createVisualization(IO.SoundExporterStatic.SoundToFloatArray(sound)[0]);
         }
 
         private void stopPlaying()
         {
-            channel.isPlaying(out bool playing);
+            channel.isPlaying(out playing);
             if (playing) channel.stop();
-            sound.release();
+            playing = false;
+
+            progressTimer.Stop();
+            paused = false;
+            progress = 0;
+            refreshProgressStatus();
+        }
+
+        bool paused;
+        private void togglePause()
+        {
+            channel.isPlaying(out playing);
+            if (!playing) return;
+
+            paused = !paused;
+            if (paused)
+            {
+                progressTimer.Stop();
+            }
+            else
+            {
+                progressTimer.Start();
+            }
+            channel.setPaused(paused);
         }
 
         public void onEnter(object sender, EventArgs e)
         {
             soundListBox.LoadAndSortAssets();
+            resetTrackStatus();
             refreshListBox();
         }
 
@@ -198,6 +230,8 @@ namespace ps2ls.Forms
 
             filesListedLabel.Text = "Page " + (pageNumber + 1)
                 + ": " + populateStart + " - " + populateEnd + " / " + filtered;
+
+            createVisualization(new float[64]);
         }
 
         private void nextPageButton_Click(object sender, EventArgs e)
@@ -224,13 +258,13 @@ namespace ps2ls.Forms
         {
             if (searchBox.Text.Length > 0)
             {
-                searchBox.BackColor = Color.Yellow;
+                searchBox.BackColor = SD.Color.Yellow;
                 SearchBoxClear.Enabled = true;
 
             }
             else
             {
-                searchBox.BackColor = Color.White;
+                searchBox.BackColor = SD.Color.White;
                 SearchBoxClear.Enabled = false;
             }
 
@@ -250,18 +284,69 @@ namespace ps2ls.Forms
         }
 
         FMOD.Sound sound;
-
         private void PlayPause_Click(object sender, EventArgs e)
         {
+            if (playing)
+            {
+                togglePause();
+                return;
+            }
+
             fsb.getSubSound(0, out sound);
             FMOD.RESULT res = system.playSound(sound, channelGroup, false, out channel);
 
             if (res != FMOD.RESULT.OK)
             {
                 MessageBox.Show("Cannot Play file.  Reason: " + res.ToString(), "FMOD Load Error", MessageBoxButtons.OK);
+                return;
             }
 
+            playing = true;
+            progress = 0;
+            refreshProgressStatus();
+            progressTimer.Start();
+        }
 
+        private string timeSpanToString(TimeSpan timeSpan)
+        {
+            return timeSpan.ToString(@"mm\:ss\:fff");
+        }
+
+        bool playing;
+        uint trackLength;
+        uint progress;
+        string trackName;
+        private void resetTrackStatus()
+        {
+            trackLength = 0;
+            progress = 0;
+            trackName = "No Track";
+            refreshTrackStatus();
+        }
+
+        private void refreshTrackStatus()
+        {
+            TrackNameLabel.Text = trackName;
+            refreshProgressStatus();
+        }
+
+        private void refreshProgressStatus()
+        {
+            TrackProgressBar.Value = trackLength == 0 ? 0 : (int)(100 * progress / trackLength);
+            TrackProgressLabel.Text = timeSpanToString(TimeSpan.FromMilliseconds(progress)) + " / " + timeSpanToString(TimeSpan.FromMilliseconds(trackLength));
+
+        }
+
+        private void progressTimer_Tick(object sender, EventArgs e)
+        {
+            progress += Convert.ToUInt32(progressTimer.Interval);
+            if (progress >= trackLength)
+            {
+                progress = trackLength;
+                progressTimer.Stop();
+                playing = false;
+            }
+            refreshProgressStatus();
         }
 
 
@@ -311,6 +396,27 @@ namespace ps2ls.Forms
             modelExportForm.ShowDialog();
         }
 
-
+        private void createVisualization(float[] array)
+        {
+            SD.Rectangle imageSize = new SD.Rectangle(0, 0, VisualizationBox.Width, VisualizationBox.Height);
+            int sampleRate = array.Length > imageSize.Width ? (int)Math.Ceiling(array.Length / (double)imageSize.Width) : 1;
+            int halfHeight = imageSize.Height / 2;
+            SD.Bitmap newMap = new SD.Bitmap(imageSize.Width, imageSize.Height);
+            using (SD.Graphics g = SD.Graphics.FromImage(newMap))
+            {
+                int lastOffset = 0;
+                g.FillRectangle(SD.Brushes.Navy, imageSize);
+                int x = 0;
+                for (int i = 0; i < array.Length; i += sampleRate)
+                {
+                    int newX = x + 1;
+                    int newOffset = (int)(array[i] * halfHeight);
+                    g.DrawLine(SD.Pens.LightGray, x, halfHeight + lastOffset, newX, halfHeight + newOffset);
+                    lastOffset = newOffset;
+                    x = newX;
+                }
+            }
+            VisualizationBox.BackgroundImage = newMap;
+        }
     }
 }

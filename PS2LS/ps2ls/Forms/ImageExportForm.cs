@@ -29,7 +29,7 @@ namespace ps2ls.Forms
 
         private void exportDoWork(object sender, DoWorkEventArgs e)
         {
-            e.Result = exportTexture(sender, e.Argument);
+            e.Result = exportTextures(sender, e.Argument);
         }
 
         private void exportRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -50,15 +50,13 @@ namespace ps2ls.Forms
             }
         }
 
-        private Int32 exportTexture(object sender, object argument)
+        private int exportTextures(object sender, object argument)
         {
             List<object> arguments = (List<object>)argument;
 
             string directory = (string)arguments[0];
             List<string> fileNames = (List<string>)arguments[1];
             ImageExportOptions exportOptions = (ImageExportOptions)arguments[2];
-
-            // BackgroundWorker backgroundWorker = (BackgroundWorker)sender;
 
             int result = 0;
 
@@ -101,6 +99,10 @@ namespace ps2ls.Forms
                 exportBackgroundWorker.RunWorkerAsync(argument);
             }
         }
+        private void applyCurrentStateToExportOptions()
+        {
+            imageExportOptions.textureFormat = (TextureExporterStatic.TextureFormatInfo)textureFormatComboBox.SelectedItem;
+        }
 
         private void ImageExportForm_Load(object sender, EventArgs e)
         {
@@ -113,12 +115,6 @@ namespace ps2ls.Forms
             exportBackgroundWorker.DoWork += new DoWorkEventHandler(exportDoWork);
 
             loadTextureFormatComboBox();
-        }
-
-
-        private void applyCurrentStateToExportOptions()
-        {
-            imageExportOptions.textureFormat = (TextureExporterStatic.TextureFormatInfo)textureFormatComboBox.SelectedItem;
         }
 
         private void textureFormatComboBox_SelectedIndexChanged(object sender, EventArgs e)

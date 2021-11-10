@@ -541,13 +541,44 @@ void main()
         private int pageSize = 1000;
         private void refreshModelsListBox()
         {
-
             modelsListBox.FilterBySearch(searchModelsText.Text ?? "");
             if (!showAutoLODModelsButton.Checked) modelsListBox.excludeFromFilter("Auto.dme");
             if (!showCollisionModelsButton.Checked)
             {
                 modelsListBox.excludeFromFilter("Collision");
                 modelsListBox.excludeFromFilter("Occluder");
+            }
+
+            if (!showMultipleLODButton.Checked)//for names that contain LOD's, keep only the largest
+            {
+                Dictionary<string, ImageBrowser.AssetSearchParam> nameToAsset = new Dictionary<string, ImageBrowser.AssetSearchParam>();
+                for (int i = modelsListBox.filteredAssets.Count - 1; i >= 0; i--)
+                {
+                    Asset a = modelsListBox.filteredAssets[i];
+                    int LODLevel = doesNameContainLOD(a.Name);
+                    if (LODLevel == -1) continue;
+                    string safeName = a.Name.Replace("LOD" + LODLevel, "N");
+                    if (nameToAsset.ContainsKey(safeName))//if a pair. remove the lower and save the higher
+                    {
+                        ImageBrowser.AssetSearchParam searchParam = nameToAsset[safeName];
+                        if (LODLevel < searchParam.value)//if new is lower, keep it discard old
+                        {
+                            searchParam.value = LODLevel;
+
+                            modelsListBox.filteredAssets.Remove(searchParam.asset);
+                            searchParam.asset = a;
+                        }
+                        else//if new is higher, discard it
+                        {
+                            modelsListBox.filteredAssets.RemoveAt(i);
+                        }
+                    }
+                    else
+                    {
+                        nameToAsset.Add(safeName, new ImageBrowser.AssetSearchParam(LODLevel, a));
+                    }
+                }
+                modelsListBox.updateFilteredCount();
             }
 
             int filtered = modelsListBox.MaxFilteredCount;
@@ -559,6 +590,17 @@ void main()
 
             filesListedLabel.Text = "Page " + (pageNumber + 1)
                 + ": " + populateStart + " - " + populateEnd + " / " + filtered;
+        }
+
+        //returns -1 if no LOD, else the LOD
+        private int doesNameContainLOD(string name)
+        {
+            if (!name.Contains("LOD")) return -1;
+            if (name.Contains("Auto.dme")) return -1;
+            string[] temp = name.Split('D');
+            temp = temp[temp.Length - 1].Split('.');//isolate what is after d and before . should be the LOD number
+            if (int.TryParse(temp[0], out int result)) return result;
+            return -1;
         }
 
         private void nextPageButton_Click(object sender, EventArgs e)
@@ -771,6 +813,11 @@ void main()
         }
 
         private void showAutoLODModelsButton_CheckedChanged(object sender, EventArgs e)
+        {
+            refreshModelsListBox();
+        }
+
+        private void showMultipleLODsButton_CheckedChanged(object sender, EventArgs e)
         {
             refreshModelsListBox();
         }

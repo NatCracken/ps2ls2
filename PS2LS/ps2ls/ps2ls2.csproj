@@ -209,6 +209,7 @@
     <Compile Include="Forms\MaterialBrowserGLControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="IO\SoundExporterStatic.cs" />
     <Compile Include="IO\TextureExporterStatic.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -388,9 +389,7 @@
     <Content Include="FMOD\fmod.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="FMOD\fmodL.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="FMOD\fmodL.dll" />
     <Content Include="ps2ls.ico" />
     <None Include="Resources\Image-scaled.png" />
     <None Include="Resources\FMOD Logo Black - White Background.png" />
@@ -433,8 +432,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(SolutionDir)devil-net\Libs\$(Platform)\DevIL.dll .
-xcopy /Y $(SolutionDir)devil-net\Libs\$(Platform)\ILU.dll .</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

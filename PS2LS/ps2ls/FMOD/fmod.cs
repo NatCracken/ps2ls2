@@ -20,7 +20,7 @@ namespace FMOD
     public partial class VERSION
     {
         public const int    number = 0x00020203;
-        public const string dll    = "FMOD/fmodL.dll";
+        public const string dll    = "FMOD/fmod.dll";
     }
 
     public class CONSTANTS

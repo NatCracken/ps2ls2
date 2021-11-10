@@ -47,7 +47,6 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.ImageStrechButton = new System.Windows.Forms.ToolStripButton();
-            this.ImageCenterButton = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureWindow)).BeginInit();
             this.statusStrip2.SuspendLayout();
@@ -129,12 +128,12 @@
             this.showMultipleResolutionsButton.Name = "showMultipleResolutionsButton";
             this.showMultipleResolutionsButton.Size = new System.Drawing.Size(23, 22);
             this.showMultipleResolutionsButton.Text = "Show All Resolutions";
-            this.showMultipleResolutionsButton.CheckedChanged += new System.EventHandler(this.showCollisionModelsButton_CheckedChanged);
+            this.showMultipleResolutionsButton.CheckedChanged += new System.EventHandler(this.showMultipleResolutionsButton_CheckedChanged);
             // 
             // pictureWindow
             // 
             this.pictureWindow.BackColor = System.Drawing.Color.Black;
-            this.pictureWindow.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.pictureWindow.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.pictureWindow.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureWindow.InitialImage = null;
             this.pictureWindow.Location = new System.Drawing.Point(0, 0);
@@ -221,8 +220,7 @@
             // toolStrip2
             // 
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ImageStrechButton,
-            this.ImageCenterButton});
+            this.ImageStrechButton,});
             this.toolStrip2.Location = new System.Drawing.Point(0, 0);
             this.toolStrip2.Name = "toolStrip2";
             this.toolStrip2.Size = new System.Drawing.Size(546, 25);
@@ -231,23 +229,14 @@
             // 
             // ImageStrechButton
             // 
+            this.ImageStrechButton.CheckOnClick = true;
             this.ImageStrechButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.ImageStrechButton.Image = global::ps2ls.Properties.Resources.axes;
+            this.ImageStrechButton.Image = global::ps2ls.Properties.Resources.Image_scaled;
             this.ImageStrechButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.ImageStrechButton.Name = "ImageStrechButton";
             this.ImageStrechButton.Size = new System.Drawing.Size(23, 22);
-            this.ImageStrechButton.Text = "toolStripButton4";
-            this.ImageStrechButton.ToolTipText = "Stretch";
-            // 
-            // ImageCenterButton
-            // 
-            this.ImageCenterButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.ImageCenterButton.Image = global::ps2ls.Properties.Resources.box_small;
-            this.ImageCenterButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.ImageCenterButton.Name = "ImageCenterButton";
-            this.ImageCenterButton.Size = new System.Drawing.Size(23, 22);
-            this.ImageCenterButton.Text = "toolStripButton5";
-            this.ImageCenterButton.ToolTipText = "Center";
+            this.ImageStrechButton.Text = "Stretch Image";
+            this.ImageStrechButton.CheckedChanged += new System.EventHandler(this.ImageStrechButton_CheckedChanged);
             // 
             // ImageBrowser
             // 
@@ -292,7 +281,6 @@
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ToolStrip toolStrip2;
         private System.Windows.Forms.ToolStripButton ImageStrechButton;
-        private System.Windows.Forms.ToolStripButton ImageCenterButton;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton showMultipleResolutionsButton;
     }
