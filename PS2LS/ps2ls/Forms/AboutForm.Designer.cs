@@ -108,7 +108,7 @@
             this.labelSourceName.Name = "labelSourceName";
             this.labelSourceName.Size = new System.Drawing.Size(303, 30);
             this.labelSourceName.TabIndex = 19;
-            this.labelSourceName.Text = "Built on ps2ls by Colin Basnett ";
+            this.labelSourceName.Text = "Built on ps2ls by Colin Basnett, Roy Awesome";
             this.labelSourceName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // labelVersion

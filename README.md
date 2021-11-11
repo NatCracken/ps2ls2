@@ -13,7 +13,7 @@ Building
 =====
 Project was created with Visual Studio 2012. I am working on this iteration in VS 2019
 
-Dependant on OpenTK 3.3.2 and OpenTK.GLControl 3.1.0, Zlib Portable 1.11.0, and Pfim 0.10.1 (NuGet)
+Dependant on OpenTK 3.3.2 and OpenTK.GLControl 3.1.0, Zlib Portable 1.11.0, and Pfim 0.10.1. (NuGet)
 
 
 Using
@@ -26,4 +26,7 @@ Once a NameList in the right format has been provided, this program will work as
 Credits
 =====
 
-Colin Basnett - Original Author
+Colin Basnett - Original Author of ps2ls
+https://github.com/RoyAwesome - Currently Maintains ps2ls
+https://github.com/brhumphe - DBG-Pack
+https://github.com/RhettVX - Forgelight-Toolbox
