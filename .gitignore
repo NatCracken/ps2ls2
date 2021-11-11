@@ -43,9 +43,13 @@ Thumbs.db
 bin
 obj
 *.suo
+*.v2
 *.user
 _ReSharper.*
 
 # Directories #
 #################
 **/packages/**/*
+**/vs/**/*
+**/Publish/**/*
+**/Extracts/**/*

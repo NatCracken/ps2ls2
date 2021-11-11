@@ -76,7 +76,7 @@
             this.exitToolStripMenuItem.Image = global::ps2ls.Properties.Resources.door_open;
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -117,7 +117,7 @@
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.analysisToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
             // 
             // analysisToolStripMenuItem
@@ -128,31 +128,31 @@
             this.toolStripSeparator2,
             this.compareVersionsToolStripMenuItem});
             this.analysisToolStripMenuItem.Name = "analysisToolStripMenuItem";
-            this.analysisToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.analysisToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.analysisToolStripMenuItem.Text = "Analysis";
             // 
             // backupToolStripMenuItem
             // 
             this.backupToolStripMenuItem.Name = "backupToolStripMenuItem";
-            this.backupToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+            this.backupToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.backupToolStripMenuItem.Text = "Back-up";
             // 
             // compareToolStripMenuItem
             // 
             this.compareToolStripMenuItem.Name = "compareToolStripMenuItem";
-            this.compareToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+            this.compareToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.compareToolStripMenuItem.Text = "Filelist";
             this.compareToolStripMenuItem.Click += new System.EventHandler(this.compareToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(167, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(166, 6);
             // 
             // compareVersionsToolStripMenuItem
             // 
             this.compareVersionsToolStripMenuItem.Name = "compareVersionsToolStripMenuItem";
-            this.compareVersionsToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+            this.compareVersionsToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.compareVersionsToolStripMenuItem.Text = "Compare Versions";
             // 
             // searchAssetsTimer
@@ -182,7 +182,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
-            this.Text = "ps2ls";
+            this.Text = "ps2ls2";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

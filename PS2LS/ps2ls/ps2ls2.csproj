@@ -391,6 +391,7 @@
     </Content>
     <Content Include="FMOD\fmodL.dll" />
     <Content Include="ps2ls.ico" />
+    <None Include="Resources\BastionAtDawn.png" />
     <None Include="Resources\Image-scaled.png" />
     <None Include="Resources\FMOD Logo Black - White Background.png" />
     <None Include="Resources\sphere-wire-occluder.png" />
