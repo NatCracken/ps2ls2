@@ -27,6 +27,9 @@ Credits
 =====
 
 Colin Basnett - Original Author of ps2ls
+
 https://github.com/RoyAwesome - Currently Maintains ps2ls
+
 https://github.com/brhumphe - DBG-Pack
+
 https://github.com/RhettVX - Forgelight-Toolbox
