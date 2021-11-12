@@ -60,8 +60,8 @@ namespace ps2ls.Assets.Dme
             mesh.boneTransformCount = binaryReader.ReadUInt32();
             mesh.Unknown3 = binaryReader.ReadUInt32();//is usually max value
             vertexStreamCount = binaryReader.ReadUInt32();
-            mesh.IndexSize = binaryReader.ReadUInt16();//byte length of each index (2 if half, 4 if float, usually 2)
-            binaryReader.ReadUInt16();//On new models this is way to large. just read it as 2 uints to mask out the offending bytes
+            mesh.IndexSize = binaryReader.ReadUInt16();//byte length of each index (2 if ushort, 4 if uint)
+            binaryReader.ReadUInt16();//On new models this is way to large. just read it as 2 ushorts to mask out the offending bytes
             mesh.IndexCount = binaryReader.ReadUInt32();
             mesh.VertexCount = binaryReader.ReadUInt32();
 

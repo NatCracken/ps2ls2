@@ -95,7 +95,7 @@
     <Compile Include="Assets\Adr\ActorDefinition.cs" />
     <Compile Include="Assets\Adr\TextureAlias.cs" />
     <Compile Include="Assets\Dma\Material.cs" />
-    <Compile Include="Assets\Dme\BoneMap.cs" />
+    <Compile Include="Assets\Dme\BoneDrawCall.cs" />
     <Compile Include="FMOD\fmod.cs" />
     <Compile Include="FMOD\fmod_dsp.cs" />
     <Compile Include="FMOD\fmod_errors.cs" />

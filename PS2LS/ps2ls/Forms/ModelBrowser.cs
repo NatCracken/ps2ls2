@@ -333,8 +333,6 @@ void main()
                 GL.CullFace(CullFaceMode.Back);
                 GL.FrontFace(FrontFaceDirection.Cw);
 
-
-
                 for (Int32 i = 0; i < model.Meshes.Length; ++i)
                 {
                     Mesh mesh = model.Meshes[i];
@@ -443,8 +441,19 @@ void main()
                     //indices
                     GCHandle indexDataHandle = GCHandle.Alloc(mesh.IndexData, GCHandleType.Pinned);
                     IntPtr indexData = indexDataHandle.AddrOfPinnedObject();
+                    DrawElementsType drawElementsType;
 
-                    GL.DrawElements(PrimitiveType.Triangles, (Int32)mesh.IndexCount, DrawElementsType.UnsignedShort, indexData);
+                    switch (mesh.IndexSize)
+                    {
+                        default:
+                        case 2:
+                            drawElementsType = DrawElementsType.UnsignedShort;
+                            break;
+                        case 4:
+                            drawElementsType = DrawElementsType.UnsignedInt;
+                            break;
+                    }
+                    GL.DrawElements(PrimitiveType.Triangles, (Int32)mesh.IndexCount, drawElementsType, indexData);
 
                     indexDataHandle.Free();
 

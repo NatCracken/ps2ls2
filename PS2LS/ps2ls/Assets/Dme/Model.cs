@@ -25,7 +25,8 @@ namespace ps2ls.Assets.Dme
         public List<Material> Materials { get; private set; }
         public Mesh[] Meshes { get; private set; }
         public List<string> TextureStrings { get; private set; }
-        public BoneMap[] BoneMaps { get; private set; }
+        public BoneDrawCall[] BoneDrawCalls { get; private set; }
+        public BoneMapEntry[] BoneMapEntries { get; private set; }
 
         #region Attributes
         public UInt32 VertexCount
@@ -114,30 +115,29 @@ namespace ps2ls.Assets.Dme
             }
 
             //bone maps
-            uint boneMapCount = binaryReader.ReadUInt32();
+            uint boneDrawCallCount = binaryReader.ReadUInt32();
+            model.BoneDrawCalls = new BoneDrawCall[boneDrawCallCount];
 
-            model.BoneMaps = new BoneMap[boneMapCount];
-
-            for (int i = 0; i < boneMapCount; ++i)
+            for (int i = 0; i < boneDrawCallCount; ++i)
             {
-                BoneMap boneMap = BoneMap.LoadFromStream(binaryReader.BaseStream);
+                BoneDrawCall boneMap = BoneDrawCall.LoadFromStream(binaryReader.BaseStream);
 
                 if (boneMap != null)
                 {
-                    model.BoneMaps[i] = boneMap;
+                    model.BoneDrawCalls[i] = boneMap;
                 }
             }
 
             //bone map entries
             uint boneMapEntryCount = binaryReader.ReadUInt32();
 
-            BoneMapEntry[] boneMapEntries = new BoneMapEntry[boneMapEntryCount];
+            model.BoneMapEntries = new BoneMapEntry[boneMapEntryCount];
 
             for (int i = 0; i < boneMapEntryCount; ++i)
             {
                 BoneMapEntry boneMapEntry = BoneMapEntry.LoadFromStream(binaryReader.BaseStream);
 
-                boneMapEntries[i] = boneMapEntry;
+                model.BoneMapEntries[i] = boneMapEntry;
             }
 
             return model;

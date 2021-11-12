@@ -117,7 +117,7 @@ namespace ps2ls.IO
 
         public static void ExportModelToDirectory(Model model, string directory, ExportOptions exportOptions)
         {
-            
+
             try
             {
                 exportModelAsOBJToDirectory(model, directory, exportOptions);
@@ -169,10 +169,12 @@ namespace ps2ls.IO
                 }
             }
 
+            exportBonesAsTextToDirectory(model, directory);
+
             String path = directory + @"\" + Path.GetFileNameWithoutExtension(model.Name) + ".obj";
 
             FileStream fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Write);
-            StreamWriter streamWriter = new StreamWriter(fileStream);
+            StreamWriter sw = new StreamWriter(fileStream);
 
             for (Int32 i = 0; i < model.Meshes.Length; ++i)
             {
@@ -184,7 +186,8 @@ namespace ps2ls.IO
                 {
                     MaterialDefinition materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[materialHash];
                     vertexLayout = MaterialDefinitionManager.Instance.VertexLayouts[materialDefinition.DrawStyles[0].VertexLayoutNameHash];
-                } else
+                }
+                else
                 {
                     Console.WriteLine("Missing Material: " + materialHash.ToString("X"));
                 }
@@ -206,7 +209,7 @@ namespace ps2ls.IO
                     position.Y *= options.Scale.Y;
                     position.Z *= options.Scale.Z;
 
-                    streamWriter.WriteLine("v " + position.X.ToString(format) + " " + position.Y.ToString(format) + " " + position.Z.ToString(format));
+                    sw.WriteLine("v " + position.X.ToString(format) + " " + position.Y.ToString(format) + " " + position.Z.ToString(format));
                 }
 
                 //texture coordinates
@@ -242,7 +245,7 @@ namespace ps2ls.IO
                                     break;
                             }
 
-                            streamWriter.WriteLine("vt " + texCoord.X.ToString(format) + " " + texCoord.Y.ToString(format));
+                            sw.WriteLine("vt " + texCoord.X.ToString(format) + " " + texCoord.Y.ToString(format));
                         }
                     }
                 }
@@ -255,7 +258,7 @@ namespace ps2ls.IO
             {
                 Mesh mesh = model.Meshes[i];
 
-                streamWriter.WriteLine("g Mesh" + i);
+                sw.WriteLine("g Mesh" + i);
 
                 for (Int32 j = 0; j < mesh.IndexCount; j += 3)
                 {
@@ -282,26 +285,27 @@ namespace ps2ls.IO
 
                     if (options.Normals && options.TextureCoordinates)
                     {
-                        streamWriter.WriteLine("f " + index2 + "/" + index2 + "/" + index2 + " " + index1 + "/" + index1 + "/" + index1 + " " + index0 + "/" + index0 + "/" + index0);
+                        sw.WriteLine("f " + index2 + "/" + index2 + "/" + index2 + " " + index1 + "/" + index1 + "/" + index1 + " " + index0 + "/" + index0 + "/" + index0);
                     }
                     else if (options.Normals)
                     {
-                        streamWriter.WriteLine("f " + index2 + "//" + index2 + " " + index1 + "//" + index1 + " " + index0 + "//" + index0);
+                        sw.WriteLine("f " + index2 + "//" + index2 + " " + index1 + "//" + index1 + " " + index0 + "//" + index0);
                     }
                     else if (options.TextureCoordinates)
                     {
-                        streamWriter.WriteLine("f " + index2 + "/" + index2 + " " + index1 + "/" + index1 + " " + index0 + "/" + index0);
+                        sw.WriteLine("f " + index2 + "/" + index2 + " " + index1 + "/" + index1 + " " + index0 + "/" + index0);
                     }
                     else
                     {
-                        streamWriter.WriteLine("f " + index2 + " " + index1 + " " + index0);
+                        sw.WriteLine("f " + index2 + " " + index1 + " " + index0);
                     }
                 }
 
                 vertexCount += (UInt32)mesh.VertexCount;
             }
 
-            streamWriter.Close();
+            sw.Close();
+
         }
 
         private static Vector3 readVector3(ExportOptions exportOptions, Int32 offset, Mesh.VertexStream vertexStream, Int32 index)
@@ -392,6 +396,35 @@ namespace ps2ls.IO
             //}
 
             //streamWriter.Close();
+        }
+
+        private static void exportBonesAsTextToDirectory(Model model, string directory)
+        {
+            String path = directory + @"\" + Path.GetFileNameWithoutExtension(model.Name) + ".txt";
+
+            FileStream fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Write);
+            StreamWriter sw = new StreamWriter(fileStream);
+
+            sw.WriteLine("-------------------------------------------------");
+            sw.WriteLine("--------------####BoneDrawCalls###---------------");
+            sw.WriteLine("-------------------------------------------------");
+            foreach (BoneDrawCall bm in model.BoneDrawCalls)
+            {
+                sw.WriteLine(bm.Unknown0
+                + ", " + bm.BoneStart
+                + ", " + bm.BoneCount
+                + ", " + bm.Delta
+                + ", " + bm.Unknown1
+                + ", " + bm.VertexOffset
+                + ", " + bm.VertexCount
+                + ", " + bm.IndexOffset
+                + ", " + bm.IndexCount);
+            }
+            sw.WriteLine("-------------------------------------------------");
+            sw.WriteLine("----------------####MapEntries###----------------");
+            sw.WriteLine("-------------------------------------------------");
+            foreach (BoneMapEntry bme in model.BoneMapEntries) sw.WriteLine(bme.BoneIndex + ", " + bme.GlobalIndex);
+            sw.Close();
         }
     }
 }
