@@ -87,13 +87,19 @@ namespace ps2ls.Forms
             return result;
         }
 
-        private void applyExportFormatInfo(ModelExporterStatic.ExportFormatInfo exportFormat)
+        private void applyExportFormatInfo()
         {
-            normalsCheckBox.Checked = exportFormat.CanExportNormals;
-            normalsCheckBox.Enabled = exportFormat.CanExportNormals;
+            normalsCheckBox.Checked = exportOptions.ExportFormatInfo.CanExportNormals;
+            normalsCheckBox.Enabled = exportOptions.ExportFormatInfo.CanExportNormals;
 
-            textureCoordinatesCheckBox.Checked = exportFormat.CanExportTextureCoordinates;
-            textureCoordinatesCheckBox.Enabled = exportFormat.CanExportTextureCoordinates;
+            textureCoordinatesCheckBox.Checked = exportOptions.ExportFormatInfo.CanExportTextureCoordinates;
+            textureCoordinatesCheckBox.Enabled = exportOptions.ExportFormatInfo.CanExportTextureCoordinates;
+
+            bonesCheckbox.Checked = exportOptions.ExportFormatInfo.CanExportBones;
+            bonesCheckbox.Enabled = exportOptions.ExportFormatInfo.CanExportBones;
+
+            materialsCheckbox.Checked = exportOptions.ExportFormatInfo.CanExportMaterials;
+            materialsCheckbox.Enabled = exportOptions.ExportFormatInfo.CanExportMaterials;
         }
 
         private void loadModelFormatComboBox()
@@ -106,6 +112,7 @@ namespace ps2ls.Forms
             }
 
             modelFormatComboBox.SelectedIndex = modelFormatComboBox.Items.Count > 0 ? 0 : -1;
+            exportOptions.ExportFormatInfo = (ModelExporterStatic.ExportFormatInfo)modelFormatComboBox.SelectedItem;
         }
 
         private void loadModelAxesPresetComboBox()
@@ -170,10 +177,8 @@ namespace ps2ls.Forms
             if (modelFormatComboBox.SelectedItem == null)
                 return;
 
-            ModelExporterStatic.ExportFormatInfo exportFormatInfo = (ModelExporterStatic.ExportFormatInfo)modelFormatComboBox.SelectedItem;
-
-            applyExportFormatInfo(exportFormatInfo);
-
+            exportOptions.ExportFormatInfo = (ModelExporterStatic.ExportFormatInfo)modelFormatComboBox.SelectedItem;
+            applyExportFormatInfo();
         }
 
         private void ModelExportForm_Load(object sender, EventArgs e)
@@ -187,6 +192,7 @@ namespace ps2ls.Forms
             exportBackgroundWorker.DoWork += new DoWorkEventHandler(exportDoWork);
 
             loadModelFormatComboBox();
+            applyExportFormatInfo();
             loadModelAxesPresetComboBox();
             loadTextureFormatComboBox();
 
@@ -210,6 +216,16 @@ namespace ps2ls.Forms
         private void textureCoordinatesCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             exportOptions.TextureCoordinates = textureCoordinatesCheckBox.Checked;
+        }
+
+        private void bonesCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            exportOptions.Bones = bonesCheckbox.Checked;
+        }
+
+        private void materialsCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            exportOptions.Materials = materialsCheckbox.Checked;
         }
 
         private void upAxisComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -264,12 +280,15 @@ namespace ps2ls.Forms
         private void applyCurrentStateToExportOptions()
         {
             exportOptions.LeftAxis = (ModelExporterStatic.Axes)leftAxisComboBox.SelectedIndex;
+            exportOptions.ExportFormatInfo = (ModelExporterStatic.ExportFormatInfo)modelFormatComboBox.SelectedItem;
             exportOptions.Normals = normalsCheckBox.Checked;
+            exportOptions.TextureCoordinates = textureCoordinatesCheckBox.Checked;
+            exportOptions.Bones = bonesCheckbox.Checked;
+            exportOptions.Materials = materialsCheckbox.Checked;
             exportOptions.Package = packageCheckBox.Checked;
             exportOptions.Scale.X = (Single)xScaleNumericUpDown.Value;
             exportOptions.Scale.Y = (Single)yScaleNumericUpDown.Value;
             exportOptions.Scale.Z = (Single)zScaleNumericUpDown.Value;
-            exportOptions.TextureCoordinates = textureCoordinatesCheckBox.Checked;
             exportOptions.Textures = texturesCheckBox.Checked;
             exportOptions.UpAxis = (ModelExporterStatic.Axes)upAxisComboBox.SelectedIndex;
             exportOptions.TextureFormat = (TextureExporterStatic.TextureFormatInfo)textureFormatComboBox.SelectedItem;

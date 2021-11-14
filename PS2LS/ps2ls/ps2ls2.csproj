@@ -130,6 +130,8 @@
       <DependentUpon>SoundExportForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Graphics\Materials\ParameterGroup.cs" />
+    <Compile Include="IO\ColladaBuilderStatic.cs" />
+    <Compile Include="IO\collada_schema_1_4.cs" />
     <Compile Include="IO\ModelExporterStatic.cs" />
     <Compile Include="Assets\Pack\AssetManager.cs" />
     <Compile Include="Forms\Controls\CustomListBox.cs">

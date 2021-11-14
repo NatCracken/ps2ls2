@@ -17,7 +17,7 @@ namespace ps2ls.Assets.Dme
                 BytesPerVertex = getBytesPerVertex;
                 Data = getBytes;
             }
-            public int BytesPerVertex { get; private set; }//if 12, 3 floats. if 6, 3 halves
+            public int BytesPerVertex { get; private set; }//if 12, 3 floats. If 6, 3 halves. If 8, 2 floats. If 4, 2 halves (maybe)
             public byte[] Data { get; private set; }
         }
 

@@ -46,8 +46,11 @@
             this.label1 = new System.Windows.Forms.Label();
             this.xScaleNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.textureCoordinatesCheckBox = new System.Windows.Forms.CheckBox();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.normalsCheckBox = new System.Windows.Forms.CheckBox();
+            this.textureCoordinatesCheckBox = new System.Windows.Forms.CheckBox();
+            this.bonesCheckbox = new System.Windows.Forms.CheckBox();
+            this.materialsCheckbox = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
             this.modelFormatComboBox = new System.Windows.Forms.ComboBox();
             this.exportButton = new System.Windows.Forms.Button();
@@ -65,6 +68,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.yScaleNumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.xScaleNumericUpDown)).BeginInit();
             this.groupBox3.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -76,7 +80,7 @@
             this.groupBox1.Controls.Add(this.leftAxisComboBox);
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.upAxisComboBox);
-            this.groupBox1.Location = new System.Drawing.Point(12, 189);
+            this.groupBox1.Location = new System.Drawing.Point(13, 190);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(275, 104);
             this.groupBox1.TabIndex = 2;
@@ -169,7 +173,7 @@
             this.groupBox2.Controls.Add(this.yScaleNumericUpDown);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.xScaleNumericUpDown);
-            this.groupBox2.Location = new System.Drawing.Point(12, 299);
+            this.groupBox2.Location = new System.Drawing.Point(13, 300);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(275, 101);
             this.groupBox2.TabIndex = 3;
@@ -279,20 +283,52 @@
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.textureCoordinatesCheckBox);
-            this.groupBox3.Controls.Add(this.normalsCheckBox);
+            this.groupBox3.Controls.Add(this.tableLayoutPanel1);
             this.groupBox3.Location = new System.Drawing.Point(12, 113);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(276, 70);
+            this.groupBox3.Size = new System.Drawing.Size(276, 71);
             this.groupBox3.TabIndex = 1;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Model Components";
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 2;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Controls.Add(this.normalsCheckBox, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.textureCoordinatesCheckBox, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.bonesCheckbox, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.materialsCheckbox, 1, 1);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 16);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(270, 52);
+            this.tableLayoutPanel1.TabIndex = 4;
+            // 
+            // normalsCheckBox
+            // 
+            this.normalsCheckBox.AutoSize = true;
+            this.normalsCheckBox.Checked = true;
+            this.normalsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.normalsCheckBox.Location = new System.Drawing.Point(3, 3);
+            this.normalsCheckBox.Name = "normalsCheckBox";
+            this.normalsCheckBox.Size = new System.Drawing.Size(64, 17);
+            this.normalsCheckBox.TabIndex = 1;
+            this.normalsCheckBox.Text = "Normals";
+            this.normalsCheckBox.UseVisualStyleBackColor = true;
+            this.normalsCheckBox.CheckedChanged += new System.EventHandler(this.normalsCheckBox_CheckedChanged);
             // 
             // textureCoordinatesCheckBox
             // 
             this.textureCoordinatesCheckBox.AutoSize = true;
             this.textureCoordinatesCheckBox.Enabled = false;
-            this.textureCoordinatesCheckBox.Location = new System.Drawing.Point(6, 43);
+            this.textureCoordinatesCheckBox.Location = new System.Drawing.Point(3, 26);
             this.textureCoordinatesCheckBox.Name = "textureCoordinatesCheckBox";
             this.textureCoordinatesCheckBox.Size = new System.Drawing.Size(121, 17);
             this.textureCoordinatesCheckBox.TabIndex = 2;
@@ -300,18 +336,29 @@
             this.textureCoordinatesCheckBox.UseVisualStyleBackColor = true;
             this.textureCoordinatesCheckBox.CheckedChanged += new System.EventHandler(this.textureCoordinatesCheckBox_CheckedChanged);
             // 
-            // normalsCheckBox
+            // bonesCheckbox
             // 
-            this.normalsCheckBox.AutoSize = true;
-            this.normalsCheckBox.Checked = true;
-            this.normalsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.normalsCheckBox.Location = new System.Drawing.Point(6, 19);
-            this.normalsCheckBox.Name = "normalsCheckBox";
-            this.normalsCheckBox.Size = new System.Drawing.Size(64, 17);
-            this.normalsCheckBox.TabIndex = 1;
-            this.normalsCheckBox.Text = "Normals";
-            this.normalsCheckBox.UseVisualStyleBackColor = true;
-            this.normalsCheckBox.CheckedChanged += new System.EventHandler(this.normalsCheckBox_CheckedChanged);
+            this.bonesCheckbox.AutoSize = true;
+            this.bonesCheckbox.Enabled = false;
+            this.bonesCheckbox.Location = new System.Drawing.Point(138, 3);
+            this.bonesCheckbox.Name = "bonesCheckbox";
+            this.bonesCheckbox.Size = new System.Drawing.Size(56, 17);
+            this.bonesCheckbox.TabIndex = 3;
+            this.bonesCheckbox.Text = "Bones";
+            this.bonesCheckbox.UseVisualStyleBackColor = true;
+            this.bonesCheckbox.CheckedChanged += new System.EventHandler(this.bonesCheckBox_CheckedChanged);
+            // 
+            // materialsCheckbox
+            // 
+            this.materialsCheckbox.AutoSize = true;
+            this.materialsCheckbox.Enabled = false;
+            this.materialsCheckbox.Location = new System.Drawing.Point(138, 26);
+            this.materialsCheckbox.Name = "materialsCheckbox";
+            this.materialsCheckbox.Size = new System.Drawing.Size(68, 17);
+            this.materialsCheckbox.TabIndex = 4;
+            this.materialsCheckbox.Text = "Materials";
+            this.materialsCheckbox.UseVisualStyleBackColor = true;
+            this.materialsCheckbox.CheckedChanged += new System.EventHandler(this.materialsCheckBox_CheckedChanged);
             // 
             // label6
             // 
@@ -334,7 +381,7 @@
             // 
             // exportButton
             // 
-            this.exportButton.Location = new System.Drawing.Point(212, 406);
+            this.exportButton.Location = new System.Drawing.Point(213, 407);
             this.exportButton.Name = "exportButton";
             this.exportButton.Size = new System.Drawing.Size(75, 23);
             this.exportButton.TabIndex = 5;
@@ -407,7 +454,7 @@
             this.packageCheckBox.AutoSize = true;
             this.packageCheckBox.Checked = true;
             this.packageCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.packageCheckBox.Location = new System.Drawing.Point(12, 410);
+            this.packageCheckBox.Location = new System.Drawing.Point(13, 411);
             this.packageCheckBox.Name = "packageCheckBox";
             this.packageCheckBox.Size = new System.Drawing.Size(69, 17);
             this.packageCheckBox.TabIndex = 8;
@@ -446,7 +493,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.yScaleNumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.xScaleNumericUpDown)).EndInit();
             this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
@@ -485,5 +533,8 @@
         private System.Windows.Forms.ComboBox modelAxesPresetComboBox;
         private System.Windows.Forms.CheckBox packageCheckBox;
         private System.Windows.Forms.ToolTip packageToolTip;
+        private System.Windows.Forms.CheckBox bonesCheckbox;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.CheckBox materialsCheckbox;
     }
 }

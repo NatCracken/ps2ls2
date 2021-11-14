@@ -385,7 +385,7 @@ void main()
                     int positionOffset = 0;
                     bool positionExists = vertexLayout == null ? false : vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Position, 0, out positionDataType, out positionStream, out positionOffset);
 
-                    //assume position exsists, and that 0,0 are the right values for stream and offset
+                    //assume position exsists, and that 0,0 are the right values for stream and offset if material/layout not found
                     IntPtr positionData = streamDataGCHandles[positionStream].AddrOfPinnedObject();
 
                     GL.EnableClientState(ArrayCap.VertexArray);
@@ -441,8 +441,8 @@ void main()
                     //indices
                     GCHandle indexDataHandle = GCHandle.Alloc(mesh.IndexData, GCHandleType.Pinned);
                     IntPtr indexData = indexDataHandle.AddrOfPinnedObject();
-                    DrawElementsType drawElementsType;
 
+                    DrawElementsType drawElementsType;
                     switch (mesh.IndexSize)
                     {
                         default:
