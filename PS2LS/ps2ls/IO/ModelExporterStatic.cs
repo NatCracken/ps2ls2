@@ -109,11 +109,11 @@ namespace ps2ls.IO
             ExportFormatInfo daeFormat = new ExportFormatInfo();
             daeFormat.ExportFormat = ExportFormats.Dae;
             daeFormat.Name = "Collada";
-            daeFormat.CanExportNormals = false;
+            daeFormat.CanExportNormals = true;
             daeFormat.CanExportTextureCoordinates = true;
-            daeFormat.CanExportBones = true;
-            daeFormat.CanExportMaterials = true;
-            daeFormat.CanExportTexutres = true;
+            daeFormat.CanExportBones = false;
+            daeFormat.CanExportMaterials = false;
+            daeFormat.CanExportTexutres = false;
 
             ExportFormatInfos.Add(ExportFormats.Dae, daeFormat);
 
@@ -204,7 +204,8 @@ namespace ps2ls.IO
                 Mesh mesh = model.Meshes[i];
 
                 //positions
-                VertexLayout vertexLayout = getVertexLayoutFromMesh(model.Materials, mesh.drawCallOffset);
+
+                VertexLayout vertexLayout = getVertexLayoutFromMaterialHash(model.Materials[(int)mesh.drawCallOffset].MaterialDefinitionHash);
                 Vector3[] positionBuffer = getPositionBuffer(mesh, vertexLayout, options, out bool _, out _);
 
                 foreach (Vector3 v3 in positionBuffer)
@@ -239,7 +240,7 @@ namespace ps2ls.IO
 
                 UIntSet[] indexBuffer = getIndexBuffer(mesh);
 
-                foreach(UIntSet uis in indexBuffer)
+                foreach (UIntSet uis in indexBuffer)
                 {
                     uint index0 = uis.x + vertexCount + 1;
                     uint index1 = uis.y + vertexCount + 1;
@@ -269,9 +270,8 @@ namespace ps2ls.IO
 
         }
 
-        public static VertexLayout getVertexLayoutFromMesh(List<Assets.Dma.Material> Materials, uint meshDrawCallOffset)
+        public static VertexLayout getVertexLayoutFromMaterialHash(uint materialHash)
         {
-            uint materialHash = Materials[(Int32)meshDrawCallOffset].MaterialDefinitionHash;
             if (MaterialDefinitionManager.Instance.MaterialDefinitions.ContainsKey(materialHash))
             {
                 MaterialDefinition materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[materialHash];
@@ -308,12 +308,12 @@ namespace ps2ls.IO
             return buffer;
         }
 
-        static Vector3 readVector3(ExportOptions exportOptions, Int32 offset, Mesh.VertexStream vertexStream, Int32 index)
+        static Vector3 readVector3(ExportOptions exportOptions, int offset, Mesh.VertexStream vertexStream, int index)
         {
             Vector3 vector3 = new Vector3();
 
-            int baseOffset = (vertexStream.BytesPerVertex * index) + offset;
-            float value = BitConverter.ToSingle(vertexStream.Data, baseOffset);
+            int readOffset = offset + (vertexStream.BytesPerVertex * index);
+            float value = BitConverter.ToSingle(vertexStream.Data, readOffset);
             switch (exportOptions.LeftAxis)
             {
                 case Axes.X:
@@ -327,7 +327,7 @@ namespace ps2ls.IO
                     break;
             }
 
-            value = BitConverter.ToSingle(vertexStream.Data, baseOffset + 4);
+            value = BitConverter.ToSingle(vertexStream.Data, readOffset + 4);
             switch (exportOptions.UpAxis)
             {
                 case Axes.X:
@@ -342,7 +342,7 @@ namespace ps2ls.IO
             }
 
             Axes forwardAxis = getForwardAxis(exportOptions.LeftAxis, exportOptions.UpAxis);
-            value = BitConverter.ToSingle(vertexStream.Data, baseOffset + 8);
+            value = BitConverter.ToSingle(vertexStream.Data, readOffset + 8);
             switch (forwardAxis)
             {
                 case Axes.X:
@@ -357,6 +357,132 @@ namespace ps2ls.IO
             }
 
             return vector3;
+        }
+
+        public static Vector3[] getNormalBuffer(Mesh mesh, VertexLayout vertexLayout, ExportOptions options, out bool hasNormals, out int bytesPerVertex)
+        {
+            bytesPerVertex = 0;
+            hasNormals = vertexLayout != null;
+            if (!hasNormals) return new Vector3[0];
+            hasNormals = vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Normal, 0, out VertexLayout.Entry.DataTypes dataType, out int streamIndex, out int streamOffset);
+            if (!hasNormals) return GetNormalBufferFromCross(mesh, vertexLayout, out hasNormals, out bytesPerVertex);
+            Mesh.VertexStream positionStream = mesh.VertexStreams[streamIndex];
+            bytesPerVertex = positionStream.BytesPerVertex;
+            Vector3[] buffer = new Vector3[mesh.VertexCount];
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                buffer[i] = readVector3(options, streamOffset, positionStream, i);
+
+                buffer[i].X *= options.Scale.X;
+                buffer[i].Y *= options.Scale.Y;
+                buffer[i].Z *= options.Scale.Z;
+
+            }
+
+            return buffer;
+        }
+
+        public static Vector3[] GetNormalBufferFromCross(Mesh mesh, VertexLayout vertexLayout, out bool hasNormals, out int bytesPerVertex)
+        {
+            bytesPerVertex = 0;
+            hasNormals = vertexLayout != null;
+            if (!hasNormals) return new Vector3[0];
+            Vector4[] tangentBuffer = getTangentBuffer(mesh, vertexLayout, out bool hasTangents, out int bytesPerTangent);
+            Vector4[] biNormalBuffer = getBiNormalBuffer(mesh, vertexLayout, out bool hasBiNormals, out int bytesPerBiNormals);
+            hasNormals = hasTangents && hasBiNormals;
+            if (!hasNormals) return new Vector3[0];
+
+            bytesPerVertex = 12;//since they're being converted to vector3 floats, 3 x 4
+            Vector3[] buffer = new Vector3[mesh.VertexCount];
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                buffer[i] = Vector3.Cross(biNormalBuffer[i].Xyz, tangentBuffer[i].Xyz); //T x B = -N, so B x T should be N
+            }
+
+            return buffer;
+        }
+
+        public static readonly ExportOptions sampleOptions = new ExportOptions()
+        {
+            Scale = new Vector3(1, 1, 1),
+            UpAxis = IO.ModelExporterStatic.Axes.Y,
+            LeftAxis = IO.ModelExporterStatic.Axes.X,
+        };
+
+        public static Vector4[] getTangentBuffer(Mesh mesh, VertexLayout vertexLayout, out bool hasBiNormals, out int bytesPerVertex)
+        {
+            bytesPerVertex = 0;
+            hasBiNormals = vertexLayout != null;
+            if (!hasBiNormals) return new Vector4[0];
+            hasBiNormals = vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Tangent, 0, out VertexLayout.Entry.DataTypes dataType, out int streamIndex, out int streamOffset);
+            if (!hasBiNormals) return new Vector4[0];
+
+            Mesh.VertexStream positionStream = mesh.VertexStreams[streamIndex];
+            bytesPerVertex = positionStream.BytesPerVertex;
+            Vector4[] buffer = new Vector4[mesh.VertexCount];
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                if (dataType == VertexLayout.Entry.DataTypes.Float3)
+                {
+                    Vector3 value = readVector3(sampleOptions, streamOffset, positionStream, i);
+                    buffer[i] = new Vector4
+                    {
+                        X = value.X,
+                        Y = value.Y,
+                        Z = value.Z,
+                        W = 0,
+                    };
+                }
+                else
+                {
+                    buffer[i] = readByteVector4(streamOffset, positionStream, i);
+                }
+            }
+            return buffer;
+        }
+
+        public static Vector4[] getBiNormalBuffer(Mesh mesh, VertexLayout vertexLayout, out bool hasBiNormals, out int bytesPerVertex)
+        {
+            bytesPerVertex = 0;
+            hasBiNormals = vertexLayout != null;
+            if (!hasBiNormals) return new Vector4[0];
+            hasBiNormals = vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Binormal, 0, out VertexLayout.Entry.DataTypes dataType, out int streamIndex, out int streamOffset);
+            if (!hasBiNormals) return new Vector4[0];
+
+            Mesh.VertexStream positionStream = mesh.VertexStreams[streamIndex];
+            bytesPerVertex = positionStream.BytesPerVertex;
+            Vector4[] buffer = new Vector4[mesh.VertexCount];
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                if (dataType == VertexLayout.Entry.DataTypes.Float3)
+                {
+                    Vector3 value = readVector3(sampleOptions, streamOffset, positionStream, i);
+                    buffer[i] = new Vector4
+                    {
+                        X = value.X,
+                        Y = value.Y,
+                        Z = value.Z,
+                        W = 0,
+                    };
+                }
+                else
+                {
+                    buffer[i] = readByteVector4(streamOffset, positionStream, i);
+                }
+            }
+            return buffer;
+        }
+
+        static Vector4 readByteVector4(int offset, Mesh.VertexStream vertexStream, int index)
+        {
+            Vector4 vector4 = new Vector4();
+
+            int readOffset = offset + (vertexStream.BytesPerVertex * index);
+            vector4.X = vertexStream.Data[readOffset] / 255f;
+            vector4.Y = vertexStream.Data[readOffset + 1] / 255f;
+            vector4.Z = vertexStream.Data[readOffset + 2] / 255f;
+            vector4.W = vertexStream.Data[readOffset + 3] / 255f;
+            return vector4;
         }
 
         public static Vector2[] getTextureCoords0Buffer(Mesh mesh, VertexLayout vertexLayout, ExportOptions options, out bool hasTexCoords0, out int bytesPerVertex)
@@ -426,6 +552,31 @@ namespace ps2ls.IO
             return buffer;
         }
 
+        public static Vector3[] getBoneBuffer(Mesh mesh, BoneDrawCall bdc, VertexLayout vertexLayout, ExportOptions options)
+        {
+            //bytesPerVertex = 0;
+            //hasPositions = vertexLayout != null;
+            //if (!hasPositions) return new Vector3[0];
+            bool hasPositions = vertexLayout.GetEntryInfoFromDataUsageAndUsageIndex(VertexLayout.Entry.DataUsages.Position, 0, out VertexLayout.Entry.DataTypes dataType, out int streamIndex, out int streamOffset);
+            if (!hasPositions) return new Vector3[0];
+
+
+            Mesh.VertexStream positionStream = mesh.VertexStreams[streamIndex];
+            //bytesPerVertex = positionStream.BytesPerVertex;
+            streamOffset += Convert.ToInt32(bdc.VertexOffset);
+            Vector3[] buffer = new Vector3[bdc.BoneCount];
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                buffer[i] = readVector3(options, streamOffset, positionStream, i);
+
+                buffer[i].X *= options.Scale.X;
+                buffer[i].Y *= options.Scale.Y;
+                buffer[i].Z *= options.Scale.Z;
+
+            }
+
+            return buffer;
+        }
         private static void exportModelAsSTLToDirectory(Model model, string directory, ExportOptions options)
         {
             //NumberFormatInfo format = new NumberFormatInfo();
@@ -521,7 +672,7 @@ namespace ps2ls.IO
             List<node> nodeList = new List<node>();
             foreach (Mesh mesh in model.Meshes)
             {
-                VertexLayout vertexLayout = getVertexLayoutFromMesh(model.Materials, mesh.drawCallOffset);
+                VertexLayout vertexLayout = getVertexLayoutFromMaterialHash(model.Materials[(int)mesh.drawCallOffset].MaterialDefinitionHash);
 
                 string meshName = cleanName + "_" + mesh.drawCallOffset;
                 geometryList.Add(ColladaBuilderStatic.createGeometryFromMesh(mesh, meshName, vertexLayout, options));

@@ -63,7 +63,9 @@ namespace ps2ls.Forms
             imageList.Images.Add(Resources.tree_small);
             imageList.Images.Add(Resources.image);
             imageList.Images.Add(Resources.music);
+#if DEBUG
             imageList.Images.Add(Resources.robot);
+#endif
             tabControl1.ImageList = imageList;
 
             TabPage assetBrowserTabPage = new TabPage("Asset Browser");
@@ -89,10 +91,13 @@ namespace ps2ls.Forms
             soundBrowser.Enter += SoundBrowser.Instance.onEnter;
             tabControl1.TabPages.Add(soundBrowser);
 
+#if DEBUG
             TabPage materialBrowserTabPage = new TabPage("Actor Browser");
             materialBrowserTabPage.Controls.Add(ActorForm.Instance);
             materialBrowserTabPage.ImageIndex = 4;
             tabControl1.TabPages.Add(materialBrowserTabPage);
+#endif
+
         }
 
         private void reportIssueToolStripMenuItem_Click(object sender, EventArgs e)

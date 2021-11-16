@@ -85,17 +85,73 @@ namespace ps2ls.IO
             #endregion
 
             #region normals
+            bool hasNormals = false;
             if (options.Normals)
             {
+                Vector3[] normalsBuffer = ModelExporterStatic.getNormalBuffer(mesh, vertexLayout, options, out hasNormals, out bytesPerVertex);
+                if (hasNormals)
+                {
+                    source normalSource = new source()
+                    {
+                        id = geom.id + "-normals"
+                    };
+                    float_array normalArray = new float_array()
+                    {
+                        id = normalSource.id + "-array",
+                        count = mesh.VertexCount * 3,
+                    };
 
+                    //normals
+                    double[] normals = new double[normalArray.count];
+                    for (int i = 0; i < normalsBuffer.Length; i++)
+                    {
+                        Vector3 normal = normalsBuffer[i];
+                        int offset = i * 3;
+                        normals[offset] = normal.X;
+                        normals[offset + 1] = normal.Y;
+                        normals[offset + 2] = normal.Z;
+                    }
+
+                    normalArray.Values = normals;
+                    normalSource.Item = normalArray;
+                    sourceTechnique_common normTechCommon = new sourceTechnique_common();
+                    accessor normAccessor = new accessor()
+                    {
+                        source = "#" + normalArray.id,
+                        count = mesh.VertexCount,
+                    };
+                    normAccessor.param = new param[]
+                    {
+                new param()
+                {
+                    name = "X",
+                    type = "float",
+                },
+                new param()
+                {
+                    name = "Y",
+                    type = "float",
+                },
+                new param()
+                {
+                    name = "Z",
+                    type = "float",
+                },
+                    };
+                    normAccessor.stride = Convert.ToUInt64(normAccessor.param.Length);
+                    normTechCommon.accessor = normAccessor;
+                    normalSource.technique_common = normTechCommon;
+
+                    sourceList.Add(normalSource);
+                }
             }
-            //TODO
             #endregion
 
             #region texCoords
+            bool hasTexCoords = false;
             if (options.TextureCoordinates)
             {
-                Vector2[] texCoordsBuffer = ModelExporterStatic.getTextureCoords0Buffer(mesh, vertexLayout, options, out bool hasTexCoords, out bytesPerVertex);
+                Vector2[] texCoordsBuffer = ModelExporterStatic.getTextureCoords0Buffer(mesh, vertexLayout, options, out hasTexCoords, out bytesPerVertex);
                 if (hasTexCoords)
                 {
                     source textureSource = new source()
@@ -181,13 +237,13 @@ namespace ps2ls.IO
                     offset = triOffset++,
                 },
             };
-            if (options.Normals) triangleInputList.Add(new InputLocalOffset()
+            if (hasNormals) triangleInputList.Add(new InputLocalOffset()
             {
                 semantic = "NORMAL",
                 source = "#" + geom.id + "-normals",
                 offset = triOffset++,
             });
-            if (options.TextureCoordinates) triangleInputList.Add(new InputLocalOffset()
+            if (hasTexCoords) triangleInputList.Add(new InputLocalOffset()
             {
                 semantic = "TEXCOORD",
                 source = "#" + geom.id + "-map-0",
@@ -197,7 +253,7 @@ namespace ps2ls.IO
             triangles.input = triangleInputList.ToArray();
 
             StringBuilder sb = new StringBuilder();
-            foreach( UIntSet uis in indexBuffer)
+            foreach (UIntSet uis in indexBuffer)
             {
                 uint index0 = uis.x;
                 uint index1 = uis.y;

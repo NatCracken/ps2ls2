@@ -91,9 +91,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Adr\ActorSocket.cs" />
     <Compile Include="Assets\Adr\ActorDefinition.cs" />
-    <Compile Include="Assets\Adr\TextureAlias.cs" />
     <Compile Include="Assets\Dma\Material.cs" />
     <Compile Include="Assets\Dme\BoneDrawCall.cs" />
     <Compile Include="FMOD\fmod.cs" />

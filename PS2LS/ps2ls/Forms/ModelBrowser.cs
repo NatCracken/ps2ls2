@@ -271,6 +271,48 @@ void main()
             glControl1.Camera.Update();
         }
 
+
+        Vector3[] bonePositions = new Vector3[] {
+            new Vector3(0f,0f,0f),
+            new Vector3(0f,1f,0f),
+            new Vector3(1f,1.5f,1f),
+            new Vector3(-1f,1.5f,1f),
+            new Vector3(0,2,0f),
+        };
+
+        int[] boneIndices = new int[]
+        {
+            0,1,
+            1,4,
+            1,2,
+            1,3,
+            3,4
+        };
+        public static Color ColorFromHSV(double hue, double saturation, double value)
+        {
+            int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+            double f = hue / 60 - Math.Floor(hue / 60);
+
+            value = value * 255;
+            int v = Convert.ToInt32(value);
+            int p = Convert.ToInt32(value * (1 - saturation));
+            int q = Convert.ToInt32(value * (1 - f * saturation));
+            int t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
+
+            if (hi == 0)
+                return Color.FromArgb(255, v, t, p);
+            else if (hi == 1)
+                return Color.FromArgb(255, q, v, p);
+            else if (hi == 2)
+                return Color.FromArgb(255, p, v, t);
+            else if (hi == 3)
+                return Color.FromArgb(255, p, q, v);
+            else if (hi == 4)
+                return Color.FromArgb(255, t, p, v);
+            else
+                return Color.FromArgb(255, v, p, q);
+        }
+
         private void render()
         {
             glControl1.MakeCurrent();
@@ -290,6 +332,7 @@ void main()
             Matrix4 view = glControl1.Camera.View;
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadMatrix(ref view);
+
 
             if (showAxesButton.Checked)
             {
@@ -315,6 +358,8 @@ void main()
 
                 GL.End();
             }
+
+
 
             //TODO: Decide what to do with non-version 4 models.
             if (model != null && model.Version == 4)
@@ -356,18 +401,9 @@ void main()
                     }
 
                     //fetch material definition and vertex layout
-                    uint materialHash = model.Materials[(Int32)mesh.drawCallOffset].MaterialDefinitionHash;
-                    VertexLayout vertexLayout = null;
-                    if (MaterialDefinitionManager.Instance.MaterialDefinitions.ContainsKey(materialHash))
-                    {
-                        MaterialDefinition materialDefinition = MaterialDefinitionManager.Instance.MaterialDefinitions[materialHash];
-                        vertexLayout = MaterialDefinitionManager.Instance.VertexLayouts[materialDefinition.DrawStyles[0].VertexLayoutNameHash];
-                    }
-                    else
-                    {
-                        Console.WriteLine("Missing Material: " + materialHash.ToString("X"));
-                    }
+                    VertexLayout vertexLayout = IO.ModelExporterStatic.getVertexLayoutFromMaterialHash(model.Materials[(int)mesh.drawCallOffset].MaterialDefinitionHash);
 
+                  //  Console.WriteLine("Mesh:" + mesh.drawCallOffset + " / " + model.Materials.Count + " = " + vertexLayout.Name);
                     GL.Color3(meshColors[i % meshColors.Length]);
 
                     if (renderModeWireframeButton.Checked)
@@ -471,7 +507,7 @@ void main()
                 GL.UseProgram(0);
 
                 GL.PopAttrib();
-
+                #region boundingBox
                 ////bounding box
                 //if (showBoundingBoxButton.Checked)
                 //{
@@ -501,7 +537,39 @@ void main()
 
                 //    GL.PopAttrib();
                 //}
+                #endregion
+
+
+                GL.Clear(ClearBufferMask.DepthBufferBit);//clear depth buffer to draw lines on top
+
+                if (false)//TODO "show bones" button
+                {
+                    for (int i = 0; i < model.BoneDrawCalls.Length; i++)
+                    {
+                        BoneDrawCall bdc = model.BoneDrawCalls[i];
+                        VertexLayout vertexLayout = IO.ModelExporterStatic.getVertexLayoutFromMaterialHash(model.Materials[i].MaterialDefinitionHash);
+                      //  Console.WriteLine("Bone:" + i + " / " + model.Materials.Count + " = " + vertexLayout.Name);
+                       // Vector3[] boneBuffer = IO.ModelExporterStatic.getBoneBuffer(model.Meshes[i], bdc, vertexLayout, sampleOptions);
+                        //for(int j = 
+                    }
+
+                    GL.Begin(PrimitiveType.Lines);
+                    int boneCount = boneIndices.Length / 2;
+                    for (int i = 0; i < boneCount; i++)
+                    {
+                        GL.Color3(ColorFromHSV(360f * i / boneCount, 0.8, 0.8));
+                        int readIndex = i * 2;
+                        GL.Vertex3(bonePositions[boneIndices[readIndex]]);
+                        GL.Vertex3(bonePositions[boneIndices[readIndex + 1]]);
+                    }
+
+                    GL.End();
+                }
             }
+
+
+
+
 
             glControl1.SwapBuffers();
         }
