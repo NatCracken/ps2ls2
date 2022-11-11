@@ -93,20 +93,25 @@ namespace ps2ls.Assets.Pack
             }
 
             // Set the type of the asset based on the extension
+
+            // First, check for an extension. Some pack file names don't,
+            // have one, such as {NAMELIST}
+            string extension = System.IO.Path.GetExtension(asset.Name);
+            if (string.IsNullOrEmpty(extension))
             {
-                // First get the extension without the leading '.'
-                string extension = System.IO.Path.GetExtension(asset.Name).Substring(1);
-                if (extension.Equals("jpeg")) extension = "jpg";
-                try
-                {
-                    asset.Type = (Asset.Types)Enum.Parse(typeof(Types), extension, true);
-                }
-                catch (System.ArgumentException exception)
-                {
-                    // This extension isn't mapped in the enum
-                    System.Diagnostics.Debug.Write(exception.ToString());
-                    asset.Type = Types.Unknown;
-                }
+                asset.Type = Types.Unknown;
+            }
+            else
+            {
+                // Remove the leading '.' and normalise any names that have
+                // alternative spellings
+                extension = extension.Substring(1);
+                if (extension.Equals("jpeg"))
+                    extension = "jpg";
+
+                asset.Type = Enum.TryParse(extension, true, out Types parsedType)
+                    ? parsedType
+                    : Types.Unknown;
             }
 
             return asset;
