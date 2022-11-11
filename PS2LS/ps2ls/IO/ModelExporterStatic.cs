@@ -95,28 +95,27 @@ namespace ps2ls.IO
 
         private static void createExportFormatOptions()
         {
-            ExportFormatInfo objFormat = new ExportFormatInfo();
+            ExportFormatInfos.Add(ExportFormats.Obj, new ExportFormatInfo
+            {
+                ExportFormat = ExportFormats.Obj,
+                Name = "Wavefront OBJ",
+                CanExportNormals = false,
+                CanExportTextureCoordinates = true,
+                CanExportBones = false,
+                CanExportMaterials = false,
+                CanExportTexutres = false
+            });
 
-            objFormat.ExportFormat = ExportFormats.Obj;
-            objFormat.Name = "Wavefront OBJ";
-            objFormat.CanExportNormals = false;
-            objFormat.CanExportTextureCoordinates = true;
-            objFormat.CanExportBones = false;
-            objFormat.CanExportMaterials = false;
-            objFormat.CanExportTexutres = false;
-            ExportFormatInfos.Add(ExportFormats.Obj, objFormat);
-
-            ExportFormatInfo daeFormat = new ExportFormatInfo();
-            daeFormat.ExportFormat = ExportFormats.Dae;
-            daeFormat.Name = "Collada";
-            daeFormat.CanExportNormals = true;
-            daeFormat.CanExportTextureCoordinates = true;
-            daeFormat.CanExportBones = false;
-            daeFormat.CanExportMaterials = false;
-            daeFormat.CanExportTexutres = false;
-
-            ExportFormatInfos.Add(ExportFormats.Dae, daeFormat);
-
+            ExportFormatInfos.Add(ExportFormats.Dae, new ExportFormatInfo
+            {
+                ExportFormat = ExportFormats.Dae,
+                Name = "Collada",
+                CanExportNormals = true,
+                CanExportTextureCoordinates = true,
+                CanExportBones = false,
+                CanExportMaterials = false,
+                CanExportTexutres = false
+            });
         }
 
         private static void createModelAxesPresets()
@@ -138,6 +137,11 @@ namespace ps2ls.IO
 
         public static void ExportModelToDirectory(Model model, string directory, ExportOptions exportOptions)
         {
+            //TODO: Figure out what to do with non-version 4 models.
+            if (model != null && model.Version != 4)
+            {
+                return;
+            }
 
             //try
             //{
@@ -168,33 +172,13 @@ namespace ps2ls.IO
 
         private static void exportModelAsOBJToDirectory(Model model, string directory, ExportOptions options)
         {
-            //TODO: Figure out what to do with non-version 4 models.
-            if (model != null && model.Version != 4)
-            {
-                return;
-            }
+            packageDirectory(model.Name, ref directory, options);
 
-            if (options.Package)
-            {
-                try
-                {
-                    DirectoryInfo directoryInfo = Directory.CreateDirectory(directory + @"\" + Path.GetFileNameWithoutExtension(model.Name));
-                    directory = directoryInfo.FullName;
-                }
-                catch (Exception) { }
-            }
-
-            if (options.Textures)
-            {
-                foreach (string textureString in model.TextureStrings)
-                {
-                    TextureExporterStatic.exportTexture(textureString, directory, options.TextureFormat);
-                }
-            }
-
+            exportLinkedTextures(model, directory, options);
+#if DEBUG
             exportBonesAsTextToDirectory(model, directory);
-
-            String path = directory + @"\" + Path.GetFileNameWithoutExtension(model.Name) + ".obj";
+#endif
+            string path = directory + @"\" + Path.GetFileNameWithoutExtension(model.Name) + ".obj";
 
             FileStream fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Write);
             StreamWriter sw = new StreamWriter(fileStream);
@@ -294,6 +278,7 @@ namespace ps2ls.IO
 
             Mesh.VertexStream positionStream = mesh.VertexStreams[streamIndex];
             bytesPerVertex = positionStream.BytesPerVertex;
+            Console.WriteLine(positionStream.VertexCount + " - " + mesh.VertexCount + " = " + (positionStream.VertexCount - mesh.VertexCount));
             Vector3[] buffer = new Vector3[mesh.VertexCount];
             for (int i = 0; i < buffer.Length; i++)
             {
@@ -646,24 +631,56 @@ namespace ps2ls.IO
             sw.Close();
         }
 
+        private static void packageDirectory(string modelName, ref string directory, ExportOptions options)
+        {
+            if (options.Package)
+            {
+                try
+                {
+                    DirectoryInfo directoryInfo = Directory.CreateDirectory(directory + @"\" + Path.GetFileNameWithoutExtension(modelName));
+                    directory = directoryInfo.FullName;
+                }
+                catch (Exception) { }
+            }
+        }
+
+        private static void exportLinkedTextures(Model model, string directory, ExportOptions options)
+        {
+            if (options.Textures)
+            {
+                foreach (string textureString in model.TextureStrings)
+                {
+                    TextureExporterStatic.exportTexture(textureString, directory, options.TextureFormat);
+                }
+            }
+        }
+
         private static void exportModelAsDAEToDirectory(Model model, string directory, ExportOptions options)
         {
+            packageDirectory(model.Name, ref directory, options);
+
+            exportLinkedTextures(model, directory, options);
+
+            string path = directory + @"\" + Path.GetFileNameWithoutExtension(model.Name) + ".dae";
+
             // Load the Collada model
             COLLADA coll = new COLLADA();
 
-            asset collAsset = new asset();
-            collAsset.contributor = new assetContributor[]
+            asset collAsset = new asset
             {
-                new assetContributor()
+                contributor = new assetContributor[]
                 {
-                    author = "ps2ls2 user",
-                    authoring_tool ="ps2ls2"
-                }
+                    new assetContributor()
+                    {
+                        author = "ps2ls2 user",
+                        authoring_tool ="ps2ls2"
+                    }
+                },
+                created = DateTime.Now,
+                modified = DateTime.Now,
+                unit = new assetUnit(),
+                up_axis = UpAxisType.Y_UP
             };
-            collAsset.created = DateTime.Now;
-            collAsset.modified = DateTime.Now;
-            collAsset.unit = new assetUnit();
-            collAsset.up_axis = UpAxisType.Y_UP;
             coll.asset = collAsset;
 
             string cleanName = Path.GetFileNameWithoutExtension(model.Name);
@@ -714,14 +731,15 @@ namespace ps2ls.IO
 
             coll.Items = new object[] { libGeometries, libVisualScenes };
 
-            COLLADAScene cScene = new COLLADAScene();
-            cScene.instance_visual_scene = new InstanceWithExtra
+            COLLADAScene cScene = new COLLADAScene
             {
-                url = "#" + libVisualScenes.visual_scene[0].id,
+                instance_visual_scene = new InstanceWithExtra
+                {
+                    url = "#" + libVisualScenes.visual_scene[0].id,
+                }
             };
             coll.scene = cScene;
 
-            string path = directory + @"\" + Path.GetFileNameWithoutExtension(model.Name) + ".dae";
             // Save the model
             Console.WriteLine("collada structure built, saving at" + path);
             coll.Save(path);

@@ -271,7 +271,7 @@ void main()
             glControl1.Camera.Update();
         }
 
-
+        /*
         Vector3[] bonePositions = new Vector3[] {
             new Vector3(0f,0f,0f),
             new Vector3(0f,1f,0f),
@@ -287,7 +287,8 @@ void main()
             1,2,
             1,3,
             3,4
-        };
+        };*/
+
         public static Color ColorFromHSV(double hue, double saturation, double value)
         {
             int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
@@ -403,7 +404,7 @@ void main()
                     //fetch material definition and vertex layout
                     VertexLayout vertexLayout = IO.ModelExporterStatic.getVertexLayoutFromMaterialHash(model.Materials[(int)mesh.drawCallOffset].MaterialDefinitionHash);
 
-                  //  Console.WriteLine("Mesh:" + mesh.drawCallOffset + " / " + model.Materials.Count + " = " + vertexLayout.Name);
+                    //Console.WriteLine("Mesh:" + mesh.drawCallOffset + " / " + model.Materials.Count + " = " + vertexLayout.Name);
                     GL.Color3(meshColors[i % meshColors.Length]);
 
                     if (renderModeWireframeButton.Checked)
@@ -414,6 +415,8 @@ void main()
                     {
                         GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                     }
+
+                    // IO.ModelExporterStatic.getPositionBuffer(mesh, vertexLayout, IO.ModelExporterStatic.sampleOptions, out bool _, out int _);
 
                     //position
                     VertexLayout.Entry.DataTypes positionDataType = VertexLayout.Entry.DataTypes.None;
@@ -544,25 +547,29 @@ void main()
 
                 if (false)//TODO "show bones" button
                 {
+
+                    /*
+                     * This entire section straight up doesn't work, Its not the code here,
+                     * model.bonePositions just contains completely the wrong data
+                     */
+
+                    GL.Begin(PrimitiveType.Lines);
                     for (int i = 0; i < model.BoneDrawCalls.Length; i++)
                     {
                         BoneDrawCall bdc = model.BoneDrawCalls[i];
-                        VertexLayout vertexLayout = IO.ModelExporterStatic.getVertexLayoutFromMaterialHash(model.Materials[i].MaterialDefinitionHash);
-                      //  Console.WriteLine("Bone:" + i + " / " + model.Materials.Count + " = " + vertexLayout.Name);
-                       // Vector3[] boneBuffer = IO.ModelExporterStatic.getBoneBuffer(model.Meshes[i], bdc, vertexLayout, sampleOptions);
+                        //VertexLayout vertexLayout = IO.ModelExporterStatic.getVertexLayoutFromMaterialHash(model.Materials[i].MaterialDefinitionHash);
+
+                        for (int j = 0; j < bdc.BoneCount; j++)
+                        {
+                            GL.Color3(ColorFromHSV(360f * j / bdc.BoneCount, 0.8, 0.8));
+                            BoneMapEntry bme = model.BoneMapEntries[j + bdc.BoneStart];
+                            GL.Vertex3(model.bonePositions[bme.BoneIndex]);
+                            GL.Vertex3(model.bonePositions[bme.BoneIndex + 1]);
+                        }
+                        //  Console.WriteLine("Bone:" + i + " / " + model.Materials.Count + " = " + vertexLayout.Name);
+                        // Vector3[] boneBuffer = IO.ModelExporterStatic.getBoneBuffer(model.Meshes[i], bdc, vertexLayout, sampleOptions);
                         //for(int j = 
                     }
-
-                    GL.Begin(PrimitiveType.Lines);
-                    int boneCount = boneIndices.Length / 2;
-                    for (int i = 0; i < boneCount; i++)
-                    {
-                        GL.Color3(ColorFromHSV(360f * i / boneCount, 0.8, 0.8));
-                        int readIndex = i * 2;
-                        GL.Vertex3(bonePositions[boneIndices[readIndex]]);
-                        GL.Vertex3(bonePositions[boneIndices[readIndex + 1]]);
-                    }
-
                     GL.End();
                 }
             }

@@ -8,33 +8,32 @@ namespace ps2ls.Assets.Dme
 {
     public struct BoneMapEntry
     {
-        public UInt16 BoneIndex;
-        public UInt16 GlobalIndex;
+        public ushort BoneIndex;
+        public ushort GlobalIndex;
 
         public static BoneMapEntry LoadFromStream(Stream stream)
         {
             BinaryReader binaryReader = new BinaryReader(stream);
 
-            BoneMapEntry boneMapEntry = new BoneMapEntry();
-
-            boneMapEntry.BoneIndex = binaryReader.ReadUInt16();
-            boneMapEntry.GlobalIndex = binaryReader.ReadUInt16();
-
-            return boneMapEntry;
+            return new BoneMapEntry
+            {
+                BoneIndex = binaryReader.ReadUInt16(),
+                GlobalIndex = binaryReader.ReadUInt16(),
+            };
         }
     }
 
     public class BoneDrawCall
     {
-        public UInt32 Unknown0 { get; private set; }
-        public UInt32 BoneStart { get; private set; }
-        public UInt32 BoneCount { get; private set; }
-        public UInt32 Delta { get; private set; }
-        public UInt32 Unknown1 { get; private set; }
-        public UInt32 VertexOffset { get; private set; }
-        public UInt32 VertexCount { get; private set; }
-        public UInt32 IndexOffset { get; private set; }
-        public UInt32 IndexCount { get; private set; }
+        public uint Unknown0 { get; private set; }
+        public uint BoneStart { get; private set; }
+        public uint BoneCount { get; private set; }
+        public uint Delta { get; private set; }
+        public uint Unknown1 { get; private set; }
+        public uint VertexOffset { get; private set; }
+        public uint VertexCount { get; private set; }
+        public uint IndexOffset { get; private set; }
+        public uint IndexCount { get; private set; }
 
         private BoneDrawCall()
         {
@@ -47,19 +46,18 @@ namespace ps2ls.Assets.Dme
 
             BinaryReader binaryReader = new BinaryReader(stream);
 
-            BoneDrawCall boneMap = new BoneDrawCall();
-
-            boneMap.Unknown0 = binaryReader.ReadUInt32();//max value
-            boneMap.BoneStart = binaryReader.ReadUInt32();
-            boneMap.BoneCount = binaryReader.ReadUInt32();
-            boneMap.Delta = binaryReader.ReadUInt32();
-            boneMap.Unknown1 = binaryReader.ReadUInt32();//seems to match boneCount?
-            boneMap.VertexOffset = binaryReader.ReadUInt32();
-            boneMap.VertexCount = binaryReader.ReadUInt32();
-            boneMap.IndexOffset = binaryReader.ReadUInt32();
-            boneMap.IndexCount = binaryReader.ReadUInt32();
-
-            return boneMap;
+            return new BoneDrawCall
+            {
+                Unknown0 = binaryReader.ReadUInt32(),//max value
+                BoneStart = binaryReader.ReadUInt32(),
+                BoneCount = binaryReader.ReadUInt32(),
+                Delta = binaryReader.ReadUInt32(),
+                Unknown1 = binaryReader.ReadUInt32(),//seems to match boneCount for first draw call?
+                VertexOffset = binaryReader.ReadUInt32(),
+                VertexCount = binaryReader.ReadUInt32(),
+                IndexOffset = binaryReader.ReadUInt32(),
+                IndexCount = binaryReader.ReadUInt32(),
+            };
         }
     }
 }

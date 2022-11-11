@@ -74,10 +74,14 @@
             this.label16 = new System.Windows.Forms.Label();
             this.modelVersionLabel = new System.Windows.Forms.Label();
             this.TexturesTabPage = new System.Windows.Forms.TabPage();
-            this.textureComboBox1 = new System.Windows.Forms.ComboBox();
-            this.texturesComboBox2 = new System.Windows.Forms.ComboBox();
-            this.label17 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.texturesComboBox2 = new System.Windows.Forms.ComboBox();
+            this.textureComboBox1 = new System.Windows.Forms.ComboBox();
+            this.BoneDrawCallsLabel = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.BoneMapCountLabel = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -250,6 +254,10 @@
             this.tableLayoutPanel3.ColumnCount = 2;
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.Controls.Add(this.label21, 0, 4);
+            this.tableLayoutPanel3.Controls.Add(this.BoneMapCountLabel, 0, 4);
+            this.tableLayoutPanel3.Controls.Add(this.label20, 0, 3);
+            this.tableLayoutPanel3.Controls.Add(this.BoneDrawCallsLabel, 0, 3);
             this.tableLayoutPanel3.Controls.Add(this.label2, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.label4, 0, 1);
             this.tableLayoutPanel3.Controls.Add(this.label7, 0, 2);
@@ -259,7 +267,8 @@
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(238, 3);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-            this.tableLayoutPanel3.RowCount = 4;
+            this.tableLayoutPanel3.RowCount = 5;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
@@ -590,15 +599,23 @@
             this.TexturesTabPage.Text = "Textures";
             this.TexturesTabPage.UseVisualStyleBackColor = true;
             // 
-            // textureComboBox1
+            // label18
             // 
-            this.textureComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.textureComboBox1.FormattingEnabled = true;
-            this.textureComboBox1.Location = new System.Drawing.Point(57, 6);
-            this.textureComboBox1.Name = "textureComboBox1";
-            this.textureComboBox1.Size = new System.Drawing.Size(36, 21);
-            this.textureComboBox1.TabIndex = 0;
-            this.textureComboBox1.SelectedIndexChanged += new System.EventHandler(this.textureComboBox1_SelectedIndexChanged);
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(99, 9);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(46, 13);
+            this.label18.TabIndex = 3;
+            this.label18.Text = "Texture:";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(10, 9);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(36, 13);
+            this.label17.TabIndex = 2;
+            this.label17.Text = "Mesh:";
             // 
             // texturesComboBox2
             // 
@@ -610,23 +627,51 @@
             this.texturesComboBox2.TabIndex = 1;
             this.texturesComboBox2.SelectedIndexChanged += new System.EventHandler(this.texturesComboBox2_SelectedIndexChanged);
             // 
-            // label17
+            // textureComboBox1
             // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(10, 9);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(36, 13);
-            this.label17.TabIndex = 2;
-            this.label17.Text = "Mesh:";
+            this.textureComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.textureComboBox1.FormattingEnabled = true;
+            this.textureComboBox1.Location = new System.Drawing.Point(57, 6);
+            this.textureComboBox1.Name = "textureComboBox1";
+            this.textureComboBox1.Size = new System.Drawing.Size(36, 21);
+            this.textureComboBox1.TabIndex = 0;
+            this.textureComboBox1.SelectedIndexChanged += new System.EventHandler(this.textureComboBox1_SelectedIndexChanged);
             // 
-            // label18
+            // BoneDrawCallsLabel
             // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(99, 9);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(46, 13);
-            this.label18.TabIndex = 3;
-            this.label18.Text = "Texture:";
+            this.BoneDrawCallsLabel.AutoSize = true;
+            this.BoneDrawCallsLabel.Location = new System.Drawing.Point(117, 60);
+            this.BoneDrawCallsLabel.Name = "BoneDrawCallsLabel";
+            this.BoneDrawCallsLabel.Size = new System.Drawing.Size(13, 13);
+            this.BoneDrawCallsLabel.TabIndex = 6;
+            this.BoneDrawCallsLabel.Text = "0";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(3, 60);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(85, 13);
+            this.label20.TabIndex = 7;
+            this.label20.Text = "Bone Draw Calls";
+            // 
+            // BoneMapCountLabel
+            // 
+            this.BoneMapCountLabel.AutoSize = true;
+            this.BoneMapCountLabel.Location = new System.Drawing.Point(117, 80);
+            this.BoneMapCountLabel.Name = "BoneMapCountLabel";
+            this.BoneMapCountLabel.Size = new System.Drawing.Size(13, 13);
+            this.BoneMapCountLabel.TabIndex = 8;
+            this.BoneMapCountLabel.Text = "0";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(3, 80);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(87, 13);
+            this.label21.TabIndex = 9;
+            this.label21.Text = "Bone Map Count";
             // 
             // ModelBrowserModelStats
             // 
@@ -704,6 +749,9 @@
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.ComboBox texturesComboBox2;
         private System.Windows.Forms.ComboBox textureComboBox1;
-
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label BoneDrawCallsLabel;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.Label BoneMapCountLabel;
     }
 }

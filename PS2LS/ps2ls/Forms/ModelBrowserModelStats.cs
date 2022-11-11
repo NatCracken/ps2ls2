@@ -34,8 +34,11 @@ namespace ps2ls.Forms
                 modelUnknown0Label.Text = model != null ? model.Unknown0.ToString() : "0";
                 modelUnknown1Label.Text = model != null ? model.Unknown1.ToString() : "0";
                 mdoelUnknown2Label.Text = model != null ? model.Unknown2.ToString() : "0";
-                modelVersionLabel.Text = model != null ? model.Version.ToString() : "0";
+                BoneDrawCallsLabel.Text = model != null ? model.BoneDrawCalls.Length.ToString() : "0";
+                BoneMapCountLabel.Text = model != null ? model.BoneMapEntries.Length.ToString() : "0";
 
+
+                modelVersionLabel.Text = model != null ? model.Version.ToString() : "0";
                 meshesComboBox.Items.Clear();
                 textureComboBox1.Items.Clear();
                 texturesComboBox2.Items.Clear();

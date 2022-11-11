@@ -27,7 +27,8 @@ namespace ps2ls.Assets.Dme
         public List<string> TextureStrings { get; private set; }
         public BoneDrawCall[] BoneDrawCalls { get; private set; }
         public BoneMapEntry[] BoneMapEntries { get; private set; }
-
+        public uint BonePositionCount { get; private set; }
+        public Vector3[] bonePositions { get; private set; }
         #region Attributes
         public UInt32 VertexCount
         {
@@ -114,6 +115,10 @@ namespace ps2ls.Assets.Dme
                 if (mesh != null) model.Meshes[i] = mesh;
             }
 
+#if DEBUG
+            Console.WriteLine("~~~~~~~~Bones~~~~~~~");
+            Console.WriteLine("Bone Draw Calls Positions: " + stream.Position);
+#endif
             //bone maps
             uint boneDrawCallCount = binaryReader.ReadUInt32();
             model.BoneDrawCalls = new BoneDrawCall[boneDrawCallCount];
@@ -128,6 +133,10 @@ namespace ps2ls.Assets.Dme
                 }
             }
 
+
+#if DEBUG
+            Console.WriteLine("Bone Map Entries Positions: " + stream.Position);
+#endif
             //bone map entries
             uint boneMapEntryCount = binaryReader.ReadUInt32();
 
@@ -139,6 +148,23 @@ namespace ps2ls.Assets.Dme
 
                 model.BoneMapEntries[i] = boneMapEntry;
             }
+
+#if DEBUG
+            Console.WriteLine("Post Bone Maps: " + stream.Position);
+#endif
+
+            /*Up next we have a series of floats
+             */
+            model.BonePositionCount = binaryReader.ReadUInt32();
+            model.bonePositions = new Vector3[model.BonePositionCount];
+            for (int i = 0; i < model.BonePositionCount; i++)
+            {
+                model.bonePositions[i] = new Vector3(binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+            }
+            //Console.WriteLine();//unknown
+#if DEBUG
+            Console.WriteLine("Post Bone Verts: " + stream.Position);
+#endif
 
             return model;
         }

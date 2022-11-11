@@ -97,11 +97,11 @@
     <Compile Include="FMOD\fmod.cs" />
     <Compile Include="FMOD\fmod_dsp.cs" />
     <Compile Include="FMOD\fmod_errors.cs" />
-    <Compile Include="Forms\ActorForm.cs">
+    <Compile Include="Forms\ActorBrowser.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Forms\ActorForm.Designer.cs">
-      <DependentUpon>ActorForm.cs</DependentUpon>
+    <Compile Include="Forms\ActorBrowser.Designer.cs">
+      <DependentUpon>ActorBrowser.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ImageBrowser.cs">
       <SubType>UserControl</SubType>
@@ -220,8 +220,8 @@
     </Compile>
     <Compile Include="TextureManager.cs" />
     <Compile Include="Utils.cs" />
-    <EmbeddedResource Include="Forms\ActorForm.resx">
-      <DependentUpon>ActorForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\ActorBrowser.resx">
+      <DependentUpon>ActorBrowser.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Controls\CustomListBox.resx">
       <DependentUpon>CustomListBox.cs</DependentUpon>
