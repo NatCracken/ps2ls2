@@ -39,16 +39,27 @@ namespace ps2ls.Forms
 
             Dock = DockStyle.Fill;
         }
+
+
+        private void generateNameListButton_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("This process may take a while.", "Generate Namelist", MessageBoxButtons.OKCancel);
+            if (result != DialogResult.OK) return;
+
+            result = packOpenFileDialog.ShowDialog();
+            if (result != DialogResult.OK) return;
+
+            NamelistGenerator.GenerateNameList(packOpenFileDialog.FileNames);
+        }
+
         private void addNameListButton_Click(object sender, EventArgs e)
         {
             DialogResult result = namelistOpenFileDialog.ShowDialog();
+            if (result != DialogResult.OK) return;
 
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                AssetManager.Instance.LoadNameListFromPath(namelistOpenFileDialog.FileName);
+            AssetManager.Instance.LoadNameListFromPath(namelistOpenFileDialog.FileName);
                 hasNamelist = true;
                 addPacksButton.Enabled = hasNamelist;
-            }
         }
 
         bool hasNamelist;
@@ -58,11 +69,9 @@ namespace ps2ls.Forms
             if (!hasNamelist) return;
 
             DialogResult result = packOpenFileDialog.ShowDialog();
+            if (result != DialogResult.OK) return;
 
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                AssetManager.Instance.LoadBinaryFromPaths(packOpenFileDialog.FileNames);
-            }
+            AssetManager.Instance.LoadBinaryFromPaths(packOpenFileDialog.FileNames);
         }
 
         private void extractSelectedPacksButton_Click(object sender, EventArgs e)
@@ -289,5 +298,6 @@ namespace ps2ls.Forms
                 packsListBox.Items.Add(pack);
             }
         }
+
     }
 }

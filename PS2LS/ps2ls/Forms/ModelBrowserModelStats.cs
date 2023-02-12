@@ -48,7 +48,7 @@ namespace ps2ls.Forms
 
                 if (model != null)
                 {
-                    for (Int32 i = 0; i < model.Meshes.Length; ++i)
+                    for (int i = 0; i < model.Meshes.Length; ++i)
                     {
                         meshesComboBox.Items.Add("Mesh " + i);
                         textureComboBox1.Items.Add("" + i);

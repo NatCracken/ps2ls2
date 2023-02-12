@@ -75,6 +75,7 @@ namespace ps2ls.Assets.Pack
         public void LoadBinaryFromPaths(IEnumerable<string> paths)
         {
             loadingForm = new GenericLoadingForm();
+            loadingForm.SetWindowTitle("Loading Assets...");
             loadingForm.Show();
 
             loadBackgroundWorker.RunWorkerAsync(paths);
@@ -145,6 +146,13 @@ namespace ps2ls.Assets.Pack
                 float percent = (i + 1) / (float)paths.Count();
                 backgroundWorker.ReportProgress((int)(percent * 100.0f), System.IO.Path.GetFileName(path));
             }
+        }
+
+        public Asset GetAssetByName(Asset.Types type, string search)
+        {
+            List<Asset> toSearch = AssetsByType[type];
+            foreach (Asset asset in toSearch) if (asset.Name.Equals(search)) return asset;
+            return null;
         }
 
         public bool LoadNameListFromPath(string paths)

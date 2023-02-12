@@ -16,6 +16,7 @@ using ps2ls.Graphics.Materials;
 using System.IO;
 using System.Xml;
 using System.Runtime.InteropServices;
+using ps2ls.Assets.Mrn;
 
 namespace ps2ls.Forms
 {
@@ -37,6 +38,7 @@ namespace ps2ls.Forms
         public static ModelBrowser Instance { get { return instance; } }
         #endregion
 
+        private MrnData morphemeData = null;
         private Model model = null;
         private ColorDialog backgroundColorDialog = new ColorDialog();
         private Int32 texturedShader = 0;
@@ -639,9 +641,9 @@ void main()
                 for (int i = modelsListBox.filteredAssets.Count - 1; i >= 0; i--)
                 {
                     Asset a = modelsListBox.filteredAssets[i];
-                    int LODLevel = doesNameContainLOD(a.Name);
+                    int LODLevel = GetLODIndex(a.Name);
                     if (LODLevel == -1) continue;
-                    string safeName = a.Name.Replace("LOD" + LODLevel, "N");
+                    string safeName = a.Name.Replace("LOD" + LODLevel, "N").Replace("Lod" + LODLevel, "N");
                     if (nameToAsset.ContainsKey(safeName))//if a pair. remove the lower and save the higher
                     {
                         ImageBrowser.AssetSearchParam searchParam = nameToAsset[safeName];
@@ -677,13 +679,14 @@ void main()
         }
 
         //returns -1 if no LOD, else the LOD
-        private int doesNameContainLOD(string name)
+        private int GetLODIndex(string name)
         {
+            name = name.ToUpper();
+            if (name.Contains("AUTO.DME")) return -1;
             if (!name.Contains("LOD")) return -1;
-            if (name.Contains("Auto.dme")) return -1;
-            string[] temp = name.Split('D');
-            temp = temp[temp.Length - 1].Split('.');//isolate what is after d and before . should be the LOD number
-            if (int.TryParse(temp[0], out int result)) return result;
+            int indexIndex = name.IndexOf("_LOD") + 4;
+            Console.WriteLine(name[indexIndex]);
+            if (int.TryParse(name[indexIndex] + "", out int result)) return result;
             return -1;
         }
 
@@ -755,7 +758,7 @@ void main()
                 Console.WriteLine("Unable to load " + asset.Name + " from memorystream.");
                 return;
             }
-
+            memoryStream.Dispose();
 
 
             ModelBrowserModelStats1.Model = model;
@@ -781,6 +784,55 @@ void main()
                 currentShader = texturedShader;
             }
             materialSelectionComboBox.SelectedIndex = materialSelectionComboBox.Items.Count > 0 ? 0 : -1; //if no material found
+
+            /*TODO bones... someday
+            morphemeData = null;
+            string definitionName = asset.Name;
+            int removeCount = 4;
+            string definitionNameUpper = definitionName.ToUpper();
+            if (definitionNameUpper.Contains("LOD")) removeCount = definitionNameUpper.Length - definitionNameUpper.IndexOf("_LOD");
+            definitionName = definitionName.Remove(definitionName.Length - removeCount, removeCount) + ".adr";
+
+            Asset actorAsset = AssetManager.Instance.GetAssetByName(Asset.Types.ADR, definitionName);
+            memoryStream = actorAsset.Pack.CreateAssetMemoryStreamByName(definitionName);
+            XmlDocument actorXML = new XmlDocument();
+            try
+            {
+                actorXML.Load(memoryStream);
+            }
+            catch (Exception) { actorXML = null; }
+            memoryStream.Dispose();
+
+            if (actorXML == null) Console.WriteLine(definitionName + " was not found; no bones will be available.");
+            else
+            {
+                  Console.WriteLine(actorXML.ChildNodes[0].ChildNodes[0].Name);
+                  Console.WriteLine(actorXML.ChildNodes[0].ChildNodes[0].InnerText);
+
+
+                  string morphemeName = actorXML.Name;//todo pull mrn from actor xml
+                  Asset morphemeAsset = AssetManager.Instance.GetAssetByName(Asset.Types.MRN, morphemeName);
+                  memoryStream = morphemeAsset.Pack.CreateAssetMemoryStreamByName(morphemeAsset.Name);
+
+                  try
+                  {
+                      morphemeData = MrnData.LoadFromStream(actorAsset.Name, memoryStream);
+                  }
+                  catch (Exception ex)
+                  {
+                      Console.WriteLine(ex.StackTrace);
+                  }
+                  if (morphemeData == null)
+                  {
+                      Console.WriteLine("Unable to load " + actorAsset.Name + " from memorystream.");
+                  }
+                  else
+                  {
+
+                  }
+
+                  memoryStream.Dispose();
+              }*/
 
 
             snapCameraToModel();

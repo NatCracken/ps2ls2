@@ -69,6 +69,7 @@ namespace ps2ls.Forms
                 }
 
                 Model model = Model.LoadFromStream(fileName, memoryStream);
+                memoryStream.Dispose();
 
                 if (model == null)
                 {

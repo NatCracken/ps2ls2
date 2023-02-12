@@ -119,7 +119,7 @@ namespace ps2ls.Assets.Pack
 
         byte[] pngHeader = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
         byte[] jpgHeader = new byte[] { 0xFF, 0xD8, 0xFF, 0xE1, 0x11, 0xBF, 0x45, 0x78 };
-        private byte[] createBufferFromAsset(FileStream fileStream, Asset asset)
+        public byte[] CreateBufferFromAsset(FileStream fileStream, Asset asset)
         {
             byte[] buffer = new byte[(int)asset.DataLength];
 
@@ -150,7 +150,7 @@ namespace ps2ls.Assets.Pack
 
             foreach (Asset asset in Assets)
             {
-                byte[] buffer = createBufferFromAsset(fileStream, asset);
+                byte[] buffer = CreateBufferFromAsset(fileStream, asset);
 
                 FileStream file = new FileStream(directory + @"\" + asset.Name, FileMode.Create, FileAccess.Write, FileShare.Write);
                 file.Write(buffer, 0, buffer.Length);
@@ -187,7 +187,7 @@ namespace ps2ls.Assets.Pack
                     continue;
                 }
 
-                byte[] buffer = createBufferFromAsset(fileStream, asset);
+                byte[] buffer = CreateBufferFromAsset(fileStream, asset);
 
                 FileStream file = new FileStream(directory + @"\" + asset.Name, FileMode.Create, FileAccess.Write, FileShare.Write);
                 file.Write(buffer, 0, buffer.Length);
@@ -223,7 +223,7 @@ namespace ps2ls.Assets.Pack
                 return false;
             }
 
-            byte[] buffer = createBufferFromAsset(fileStream, asset);
+            byte[] buffer = CreateBufferFromAsset(fileStream, asset);
             fileStream.Close();
 
             FileStream file = new FileStream(directory + @"\" + asset.Name, FileMode.Create, FileAccess.Write, FileShare.Write);
@@ -260,7 +260,7 @@ namespace ps2ls.Assets.Pack
                 return null;
             }
 
-            byte[] buffer = createBufferFromAsset(fileStream, asset);
+            byte[] buffer = CreateBufferFromAsset(fileStream, asset);
 
             return new MemoryStream(buffer);
         }

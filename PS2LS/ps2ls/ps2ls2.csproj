@@ -94,6 +94,8 @@
     <Compile Include="Assets\Adr\ActorDefinition.cs" />
     <Compile Include="Assets\Dma\Material.cs" />
     <Compile Include="Assets\Dme\BoneDrawCall.cs" />
+    <Compile Include="Assets\Mrn\Mrn.cs" />
+    <Compile Include="Assets\Pack\NamelistGenerator.cs" />
     <Compile Include="FMOD\fmod.cs" />
     <Compile Include="FMOD\fmod_dsp.cs" />
     <Compile Include="FMOD\fmod_errors.cs" />
@@ -391,6 +393,7 @@
     </Content>
     <Content Include="FMOD\fmodL.dll" />
     <Content Include="ps2ls.ico" />
+    <None Include="Resources\DocumentWrite.png" />
     <None Include="Resources\BastionAtDawn.png" />
     <None Include="Resources\Image-scaled.png" />
     <None Include="Resources\FMOD Logo Black - White Background.png" />

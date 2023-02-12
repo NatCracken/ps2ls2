@@ -38,6 +38,7 @@
             this.packContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.extractPacksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.generateNameListButton = new System.Windows.Forms.ToolStripButton();
             this.addNameListButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.addPacksButton = new System.Windows.Forms.ToolStripButton();
@@ -45,6 +46,12 @@
             this.extractSelectedPacksButton = new System.Windows.Forms.ToolStripButton();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.assetsDataGridView = new System.Windows.Forms.DataGridView();
+            this.FileIcon = new System.Windows.Forms.DataGridViewImageColumn();
+            this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.FileType = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Offset = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.LengthInKilobytes = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RawLengthInKilobytes = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.toolStrip3 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.searchTextBox = new System.Windows.Forms.ToolStripTextBox();
@@ -65,12 +72,6 @@
             this.extractToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.FileIcon = new System.Windows.Forms.DataGridViewImageColumn();
-            this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.FileType = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Offset = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.LengthInKilobytes = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.RawLengthInKilobytes = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -160,6 +161,7 @@
             // 
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.generateNameListButton,
             this.addNameListButton,
             this.toolStripSeparator4,
             this.addPacksButton,
@@ -170,6 +172,17 @@
             this.toolStrip1.Size = new System.Drawing.Size(170, 25);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
+            // 
+            // generateNameListButton
+            // 
+            this.generateNameListButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.generateNameListButton.Image = global::ps2ls.Properties.Resources.DocumentWrite;
+            this.generateNameListButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.generateNameListButton.Name = "generateNameListButton";
+            this.generateNameListButton.Size = new System.Drawing.Size(23, 22);
+            this.generateNameListButton.Text = "toolStripButton1";
+            this.generateNameListButton.ToolTipText = "Generate Namelist...";
+            this.generateNameListButton.Click += new System.EventHandler(this.generateNameListButton_Click);
             // 
             // addNameListButton
             // 
@@ -273,6 +286,50 @@
             this.assetsDataGridView.TabIndex = 1;
             this.assetsDataGridView.SelectionChanged += new System.EventHandler(this.assetsDataGridView_SelectionChanged);
             // 
+            // FileIcon
+            // 
+            this.FileIcon.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.FileIcon.FillWeight = 20F;
+            this.FileIcon.HeaderText = "";
+            this.FileIcon.Name = "FileIcon";
+            this.FileIcon.ReadOnly = true;
+            this.FileIcon.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.FileIcon.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.FileIcon.Width = 20;
+            // 
+            // FileName
+            // 
+            this.FileName.FillWeight = 96.01353F;
+            this.FileName.HeaderText = "File Name";
+            this.FileName.Name = "FileName";
+            this.FileName.ReadOnly = true;
+            // 
+            // FileType
+            // 
+            this.FileType.FillWeight = 96.01353F;
+            this.FileType.HeaderText = "Type";
+            this.FileType.Name = "FileType";
+            this.FileType.ReadOnly = true;
+            // 
+            // Offset
+            // 
+            this.Offset.HeaderText = "Pack Offset";
+            this.Offset.Name = "Offset";
+            this.Offset.ReadOnly = true;
+            // 
+            // LengthInKilobytes
+            // 
+            this.LengthInKilobytes.FillWeight = 96.01353F;
+            this.LengthInKilobytes.HeaderText = "Length (kb)";
+            this.LengthInKilobytes.Name = "LengthInKilobytes";
+            this.LengthInKilobytes.ReadOnly = true;
+            // 
+            // RawLengthInKilobytes
+            // 
+            this.RawLengthInKilobytes.HeaderText = "Raw Length (KB)";
+            this.RawLengthInKilobytes.Name = "RawLengthInKilobytes";
+            this.RawLengthInKilobytes.ReadOnly = true;
+            // 
             // toolStrip3
             // 
             this.toolStrip3.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
@@ -303,7 +360,6 @@
             // searchTextBox
             // 
             this.searchTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.searchTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(150, 25);
             this.searchTextBox.TextChanged += new System.EventHandler(this.searchTextBox_TextChanged);
@@ -430,50 +486,6 @@
             this.removeToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.removeToolStripMenuItem.Text = "Remove";
             // 
-            // FileIcon
-            // 
-            this.FileIcon.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.FileIcon.FillWeight = 20F;
-            this.FileIcon.HeaderText = "";
-            this.FileIcon.Name = "FileIcon";
-            this.FileIcon.ReadOnly = true;
-            this.FileIcon.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.FileIcon.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.FileIcon.Width = 20;
-            // 
-            // FileName
-            // 
-            this.FileName.FillWeight = 96.01353F;
-            this.FileName.HeaderText = "File Name";
-            this.FileName.Name = "FileName";
-            this.FileName.ReadOnly = true;
-            // 
-            // FileType
-            // 
-            this.FileType.FillWeight = 96.01353F;
-            this.FileType.HeaderText = "Type";
-            this.FileType.Name = "FileType";
-            this.FileType.ReadOnly = true;
-            // 
-            // Offset
-            // 
-            this.Offset.HeaderText = "Pack Offset";
-            this.Offset.Name = "Offset";
-            this.Offset.ReadOnly = true;
-            // 
-            // LengthInKilobytes
-            // 
-            this.LengthInKilobytes.FillWeight = 96.01353F;
-            this.LengthInKilobytes.HeaderText = "Length (kb)";
-            this.LengthInKilobytes.Name = "LengthInKilobytes";
-            this.LengthInKilobytes.ReadOnly = true;
-            // 
-            // RawLengthInKilobytes
-            // 
-            this.RawLengthInKilobytes.HeaderText = "Raw Length (KB)";
-            this.RawLengthInKilobytes.Name = "RawLengthInKilobytes";
-            this.RawLengthInKilobytes.ReadOnly = true;
-            // 
             // AssetBrowser
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -546,5 +558,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Offset;
         private System.Windows.Forms.DataGridViewTextBoxColumn LengthInKilobytes;
         private System.Windows.Forms.DataGridViewTextBoxColumn RawLengthInKilobytes;
+        private System.Windows.Forms.ToolStripButton generateNameListButton;
     }
 }

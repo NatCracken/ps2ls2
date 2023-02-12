@@ -14,14 +14,12 @@ Dependant on OpenTK 3.3.2 and OpenTK.GLControl 3.1.0, Zlib Portable 1.11.0, and 
 
 Using
 =====
-.pack2 files do not contain the names of assets anymore. Thus this program requires a NameList. You can build one with my fork of dbg-pack here: https://github.com/NatCracken/dbg-pack
+.pack2 files do not contain the names of assets anymore. Thus you will first have to build a namelist using the Build Namelist button in the Asset Browser
 
-Once a NameList in the right format has been provided, this program will work as just as it did with the old .pack1 files
-
+Once completed, point ps2ls2 to the namelist using the Add Namelist button and add .pack2 files using the Add Packs button.
 
 Credits
 =====
-
 Colin Basnett - Original Author of ps2ls
 
 https://github.com/RoyAwesome - Currently Maintains ps2ls

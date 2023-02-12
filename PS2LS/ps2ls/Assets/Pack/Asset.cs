@@ -38,6 +38,7 @@ namespace ps2ls.Assets.Pack
             ZONE,
             PNG,
             JPG,
+            MRN,
             Unknown
         };
 
@@ -56,7 +57,7 @@ namespace ps2ls.Assets.Pack
 
         static Asset()
         {
-            createTypeImages();
+            CreateTypeImages();
         }
 
         public static Asset LoadBinary(Pack pack, Stream stream, Dictionary<ulong, string> nameDict)
@@ -135,7 +136,7 @@ namespace ps2ls.Assets.Pack
             return typeImages[type];
         }
 
-        private static void createTypeImages()
+        private static void CreateTypeImages()
         {
             if (typeImages != null)
                 return;
@@ -146,21 +147,22 @@ namespace ps2ls.Assets.Pack
             {
                 switch (type)
                 {
-                    case Asset.Types.DME:
+                    case Types.MRN:
+                    case Types.DME:
                         typeImages[type] = Properties.Resources.tree;
                         break;
-                    case Asset.Types.DDS:
-                    case Asset.Types.PNG:
-                    case Asset.Types.JPG:
+                    case Types.DDS:
+                    case Types.PNG:
+                    case Types.JPG:
                         typeImages[type] = Properties.Resources.image;
                         break;
-                    case Asset.Types.TXT:
+                    case Types.TXT:
                         typeImages[type] = Properties.Resources.document_tex;
                         break;
-                    case Asset.Types.XML:
+                    case Types.XML:
                         typeImages[type] = Properties.Resources.document_xaml;
                         break;
-                    case Asset.Types.FSB:
+                    case Types.FSB:
                         typeImages[type] = Properties.Resources.music;
                         break;
                     default:
