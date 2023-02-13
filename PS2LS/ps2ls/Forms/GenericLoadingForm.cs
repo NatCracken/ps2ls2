@@ -16,17 +16,17 @@ namespace ps2ls
             InitializeComponent();
         }
 
-        public void SetWindowTitle(String title)
+        public void SetWindowTitle(string title)
         {
             Text = title;
         }
 
-        public void SetProgressBarPercent(Int32 percent)
+        public void SetProgressBarPercent(int percent)
         {
             progressBar1.Value = percent;
         }
 
-        public void SetLabelText(String text)
+        public void SetLabelText(string text)
         {
             label1.Text = text;
         }

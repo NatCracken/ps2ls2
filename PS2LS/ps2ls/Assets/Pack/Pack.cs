@@ -106,7 +106,7 @@ namespace ps2ls.Assets.Pack
             return pack;
         }
 
-        static byte[] decompress(byte[] data)
+        public static byte[] Decompress(byte[] data)
         {
             using (var memStream = new MemoryStream(data))
             using (var zLibStream = new ZlibStream(memStream, CompressionMode.Decompress))
@@ -127,8 +127,7 @@ namespace ps2ls.Assets.Pack
             fileStream.Seek(offset, SeekOrigin.Begin);
             fileStream.Read(buffer, 0, (int)asset.DataLength);
 
-            if (asset.isZipped) buffer = decompress(buffer);
-
+            if (asset.isZipped) buffer = Decompress(buffer);
 
             return buffer;
         }

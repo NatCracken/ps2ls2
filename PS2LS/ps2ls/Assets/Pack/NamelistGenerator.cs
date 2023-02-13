@@ -6,6 +6,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace ps2ls.Assets.Pack
 {
@@ -46,17 +48,24 @@ namespace ps2ls.Assets.Pack
             BuildNamelist(sender, args.Argument);
         }
 
+        int threadCount;
+        ConcurrentDictionary<ulong, string> nameDict;
+        ConcurrentDictionary<string, byte> processedNames;
+        BackgroundWorker currentWorker;
+        string packName;
         string nameListDirectory;
+
         private void BuildNamelist(object sender, object arg)
         {
-            BackgroundWorker myWorker = (BackgroundWorker)sender;
+            currentWorker = (BackgroundWorker)sender;
             string[] rawPackDirs = (string[])arg;
 
-            Dictionary<ulong, string> nameDict = new Dictionary<ulong, string>();
-            HashSet<string> processedNames = new HashSet<string>();//names in the game files are case inconsistant, while the crc is not. store a seperate list of uppers to speed up skipping duplicates
+            threadCount = Environment.ProcessorCount;
+            nameDict = new ConcurrentDictionary<ulong, string>(threadCount * 2, 2048);
+            processedNames = new ConcurrentDictionary<string, byte>(threadCount * 2, 2048);
             foreach (string packDir in rawPackDirs)
             {
-                ExtractFromPack(packDir, myWorker, ref nameDict, ref processedNames);
+                ExtractFromPack(packDir);
             }
 
             nameListDirectory = Path.GetDirectoryName(rawPackDirs[0]) + "\\NameList.txt";
@@ -67,7 +76,7 @@ namespace ps2ls.Assets.Pack
             {
                 writer.WriteLine(key + ":" + nameDict[key]);
                 if (i % 50 != 0) continue;
-                myWorker.ReportProgress((int)(100f * (i + 1f) / count), nameDict[key]);
+                currentWorker.ReportProgress((int)(100f * (i + 1f) / count), nameDict[key]);
             }
             writer.Close();
         }
@@ -80,7 +89,6 @@ namespace ps2ls.Assets.Pack
 
         public static void GenerateNameList(string[] rawPackDirs)
         {
-
             if (Instance == null) Instance = new NamelistGenerator();
             Instance.GenerateNameListInternal(rawPackDirs);
         }
@@ -96,20 +104,117 @@ namespace ps2ls.Assets.Pack
             buildNamelistBackgroundWorker.RunWorkerAsync(rawPackDirs);
         }
 
-        private static void ExtractFromPack(string path, BackgroundWorker worker, ref Dictionary<ulong, string> nameDict, ref HashSet<string> processedNames)
+        private struct AssetLite
         {
-            Dictionary<ulong, string> emptyNameDict = new Dictionary<ulong, string>();
-            Pack pack = Pack.LoadBinary(path, emptyNameDict);
-            FileStream fileStream = new FileStream(pack.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            public ulong offset;
+            public ulong dataLength;
+            public bool isZipped;
+        }
 
-            int count = pack.Assets.Count;
-            for (int i = 0; i < pack.Assets.Count; i++)
+        ConcurrentQueue<int> remainingProcess;
+        private void ExtractFromPack(string path)
+        {
+            AssetLite[] assets = IsolateAssets(path);
+            int assetCount = assets.Length;
+
+            remainingProcess = new ConcurrentQueue<int>();
+            for (int i = 0; i < assetCount; i++) remainingProcess.Enqueue(i);
+
+            FileStream[] fileStreams = new FileStream[threadCount];
+            Thread[] threads = new Thread[threadCount];
+            for (int i = 0; i < threadCount; i++)
             {
-                string[] foundNames = ExtractNames(pack.CreateBufferFromAsset(fileStream, pack.Assets[i]));
-                foreach (string name in foundNames) SaveName(name, ref nameDict, ref processedNames);
-                worker.ReportProgress((int)(100f * (i + 1) / count), System.IO.Path.GetFileName(path));
+                int index = i;
+                fileStreams[index] = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                threads[index] = new Thread(() => ExtractNamesThread(assets, fileStreams[index]));
+                threads[index].Start();
+            }
+
+            packName = Path.GetFileName(path);
+            bool cont = true;
+            while (cont)
+            {
+                cont = false;
+                foreach (Thread thread in threads)
+                {
+                    if (!thread.IsAlive) continue;
+                    cont = true;
+                    break;
+                }
+                currentWorker.ReportProgress((int)(100f * (1f - remainingProcess.Count / (float)assetCount)), packName);
+                Thread.Sleep(100);
+            }
+
+            foreach (FileStream fs in fileStreams) fs.Dispose();
+        }
+
+
+        private AssetLite[] IsolateAssets(string path)
+        {
+            FileStream fileStream = File.OpenRead(path);
+            BinaryReader reader = new BinaryReader(fileStream);
+
+            fileStream.Seek(4, SeekOrigin.Begin);
+            uint assetCount = reader.ReadUInt32();
+            fileStream.Seek(8, SeekOrigin.Current);
+            ulong mapOffset = reader.ReadUInt64();
+            fileStream.Seek(Convert.ToInt64(mapOffset), SeekOrigin.Begin);
+
+            AssetLite[] toReturn = new AssetLite[assetCount];
+            for (int i = 0; i < assetCount; i++)
+            {
+                fileStream.Seek(8, SeekOrigin.Current);
+                ulong offset = reader.ReadUInt64();
+                ulong dataLength = reader.ReadUInt64();
+                uint zippedflag = reader.ReadUInt32();
+                fileStream.Seek(4, SeekOrigin.Current);
+
+                toReturn[i] = new AssetLite()
+                {
+                    offset = offset,
+                    dataLength = dataLength,
+                    isZipped = Asset.TestZipped(zippedflag) && dataLength > 0,
+                };
+
+            }
+
+            fileStream.Dispose();
+            /*
+            Pack newPack = Pack.LoadBinary(path, new Dictionary<ulong, string>());
+
+            Console.WriteLine(assetCount + ", " + mapOffset + ", " + toReturn[0].dataLength + ", " + toReturn[0].offset);
+            Console.WriteLine(toReturn[5].dataLength + ", " + toReturn[5].offset + ", " + toReturn[10].dataLength + ", " + toReturn[10].offset);
+            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~");
+            Console.WriteLine(newPack.AssetCount + ", " + newPack.MapOffset + ", " + newPack.Assets[0].DataLength + ", " + newPack.Assets[0].Offset);
+            Console.WriteLine(newPack.Assets[5].DataLength + ", " + newPack.Assets[5].Offset + ", " + newPack.Assets[10].DataLength + ", " + newPack.Assets[10].Offset);
+            */
+            return toReturn;
+        }
+
+        private void ExtractNamesThread(AssetLite[] assets, FileStream fileStream)
+        {
+            while (remainingProcess.TryDequeue(out int todo))
+            {
+                string[] foundNames = ExtractNames(CreateBufferFromAsset(assets[todo], fileStream));
+                foreach (string name in foundNames) SaveName(name);
             }
         }
+
+        private byte[] CreateBufferFromAsset(AssetLite asset, FileStream fileStream)
+        {
+            byte[] buffer = new byte[asset.dataLength];
+
+            long offset = Convert.ToInt64(asset.offset) + (asset.isZipped ? 8 : 0);//zipped assets need another offset of 8 bytes
+            fileStream.Seek(offset, SeekOrigin.Begin);
+            fileStream.Read(buffer, 0, (int)asset.dataLength);
+
+            if (asset.isZipped) buffer = Pack.Decompress(buffer);
+
+            return buffer;
+        }
+
+
+
 
         static readonly Regex filePattern = new Regex(@"([><\w-]+\.(" +
             @"adr|agr|ags|apb|apx|bat|bin|cdt|cnk0|cnk1|cnk2|cnk3|cnk4|cnk5|
@@ -136,12 +241,12 @@ namespace ps2ls.Assets.Pack
             return names.ToArray();
         }
 
-        private static void SaveName(string name, ref Dictionary<ulong, string> nameDict, ref HashSet<string> processedNames)
+        private void SaveName(string name)
         {
             string upperName = name.Trim().ToUpper();
-            if (processedNames.Contains(upperName)) return;//this aught to be faster than processing the key and checking for that
-            processedNames.Add(upperName);
-            nameDict.Add(CRC64Encode(upperName), name);
+            if (processedNames.ContainsKey(upperName)) return;//this aught to be faster than processing the key and checking for that
+            processedNames.TryAdd(upperName, 0);
+            nameDict.TryAdd(CRC64Encode(upperName), name);
         }
 
         #region CRC64

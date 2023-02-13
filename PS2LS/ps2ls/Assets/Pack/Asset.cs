@@ -72,7 +72,7 @@ namespace ps2ls.Assets.Pack
             asset.Offset = BinaryReaderLE.ReadUInt64();
             asset.DataLength = BinaryReaderLE.ReadUInt64();
             uint zippedflag = BinaryReaderLE.ReadUInt32();
-            asset.isZipped = testZipped(zippedflag) && asset.DataLength > 0;
+            asset.isZipped = TestZipped(zippedflag) && asset.DataLength > 0;
             asset.dataHash = BinaryReaderLE.ReadUInt32();
             asset.UnzippedLength = 0;
             if (asset.isZipped)
@@ -118,7 +118,7 @@ namespace ps2ls.Assets.Pack
             return asset;
         }
 
-        private static bool testZipped(uint flag)
+        public static bool TestZipped(uint flag)
         {
             foreach (uint zipped in ZIPPED_FLAGS) if (flag == zipped) return true;
             return false;
