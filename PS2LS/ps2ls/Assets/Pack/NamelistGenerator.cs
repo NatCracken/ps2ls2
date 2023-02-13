@@ -14,7 +14,7 @@ namespace ps2ls.Assets.Pack
 
     class NamelistGenerator
     {
-        //This is a reimplimentation of the work done in https://github.com/brhumphe/dbg-pack
+        //This is a reimplimentation of the work done in https://github.com/brhumphe/dbg-pack and https://github.com/RhettVX/forgelight-toolbox/tree/master/FLUtils
 
         /*static readonly string testString = @"DMOD?????DMAT???0??purple.dds?Shared_Rock_Large_DN.dds?Hossin_Props_TreeStumps_OC.dds?grey.dds?Indar_Flora_Trees_Highlands_Bark_S.dds?Indar_Flora_Trees_Highlands_Bark_N.dds?Indar_Flora_Trees_Highlands_Bark_C.dds?Esamir_Props_TreeBranch_NoSnow_S.dds?Esamir_Props_TreeBranch_NoSnow_N.dds?Esamir_Props_TreeBranch_NoSnow_C.dds?????wQh??]d???????X????????????>?????????????n??????????????????????????????????fNf?????????P_,_?w?[???????????????????????????????@K?????????????|?""?1???????????????%??????????""?|sA?????????9?\%??
                             ??????????????P??????????????j/?????????o?9?!???????????,X?\??[??????????????? t??????????????O????????????????l?6P??EWD??????X?????????????????????????u?c???????????????=???????????????=???=???=????v???????????????????????????V+??????????????????????????A?Y??????????????N?>???????????????????????????????;M???????????????P????????????N?j/??????????w?v!???????????
@@ -58,25 +58,27 @@ namespace ps2ls.Assets.Pack
         private void BuildNamelist(object sender, object arg)
         {
             currentWorker = (BackgroundWorker)sender;
-            string[] rawPackDirs = (string[])arg;
 
             threadCount = Environment.ProcessorCount;
-            nameDict = new ConcurrentDictionary<ulong, string>(threadCount * 2, 2048);
-            processedNames = new ConcurrentDictionary<string, byte>(threadCount * 2, 2048);
-            foreach (string packDir in rawPackDirs)
+            nameDict = new ConcurrentDictionary<ulong, string>(threadCount * 2, 262144);
+            //nameDict.TryAdd(0x4137cc65bd97fd30, @"{NAMELIST}");
+            processedNames = new ConcurrentDictionary<string, byte>(threadCount * 2, 262144);
+            int packCount = targetPacks.Length;
+            for (int i = 0; i < packCount; i++)
             {
-                ExtractFromPack(packDir);
+                ExtractFromPack(targetPacks[i], i + 1 + "/" + packCount);
             }
 
-            nameListDirectory = Path.GetDirectoryName(rawPackDirs[0]) + "\\NameList.txt";
+            nameListDirectory = Path.GetDirectoryName(targetPacks[0]) + @"\NameList" + (knownFilesOnly ? "_Fast" : "") + ".txt";
             StreamWriter writer = new StreamWriter(nameListDirectory, false);
             int count = nameDict.Count;
-            int i = 0;
+            int j = 0;
             foreach (ulong key in nameDict.Keys)
             {
                 writer.WriteLine(key + ":" + nameDict[key]);
-                if (i % 50 != 0) continue;
-                currentWorker.ReportProgress((int)(100f * (i + 1f) / count), nameDict[key]);
+                if (++j % 1000 != 0) continue;
+                currentWorker.ReportProgress((int)(100f * (j + 1f) / count), nameDict[key] + " | " + j + " / " + count);
+                //Thread.Sleep(0);
             }
             writer.Close();
         }
@@ -87,21 +89,26 @@ namespace ps2ls.Assets.Pack
             MessageBox.Show("Completed in: " + DateTime.Now.Subtract(startTime).ToString(@"hh\:mm\:ss") + "\rNamelist created at\r" + nameListDirectory);
         }
 
-        public static void GenerateNameList(string[] rawPackDirs)
+        public static void GenerateNameList(string[] getPacks, bool getKnownFilesOnly)
         {
             if (Instance == null) Instance = new NamelistGenerator();
-            Instance.GenerateNameListInternal(rawPackDirs);
+            Instance.GenerateNameListInternal(getPacks, getKnownFilesOnly);
         }
 
+        string[] targetPacks;
+        bool knownFilesOnly;
         DateTime startTime;
-        private void GenerateNameListInternal(string[] rawPackDirs)
+        private void GenerateNameListInternal(string[] getPacks, bool getKnownFilesOnly)
         {
+            if (buildNamelistBackgroundWorker.IsBusy) return;
+            targetPacks = getPacks;
+            knownFilesOnly = getKnownFilesOnly;
             startTime = DateTime.Now;
             loadingForm = new GenericLoadingForm();
             loadingForm.SetWindowTitle("Generating Namelist...");
             loadingForm.Show();
 
-            buildNamelistBackgroundWorker.RunWorkerAsync(rawPackDirs);
+            buildNamelistBackgroundWorker.RunWorkerAsync();
         }
 
         private struct AssetLite
@@ -112,7 +119,7 @@ namespace ps2ls.Assets.Pack
         }
 
         ConcurrentQueue<int> remainingProcess;
-        private void ExtractFromPack(string path)
+        private void ExtractFromPack(string path, string progress)
         {
             AssetLite[] assets = IsolateAssets(path);
             int assetCount = assets.Length;
@@ -120,17 +127,17 @@ namespace ps2ls.Assets.Pack
             remainingProcess = new ConcurrentQueue<int>();
             for (int i = 0; i < assetCount; i++) remainingProcess.Enqueue(i);
 
+            packName = Path.GetFileName(path);
             FileStream[] fileStreams = new FileStream[threadCount];
             Thread[] threads = new Thread[threadCount];
             for (int i = 0; i < threadCount; i++)
             {
                 int index = i;
                 fileStreams[index] = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-                threads[index] = new Thread(() => ExtractNamesThread(assets, fileStreams[index]));
+                threads[index] = new Thread(() => ExtractNamesThread(assets, fileStreams[index])) { Name = "Search_" + packName + index };
                 threads[index].Start();
             }
 
-            packName = Path.GetFileName(path);
             bool cont = true;
             while (cont)
             {
@@ -141,7 +148,7 @@ namespace ps2ls.Assets.Pack
                     cont = true;
                     break;
                 }
-                currentWorker.ReportProgress((int)(100f * (1f - remainingProcess.Count / (float)assetCount)), packName);
+                currentWorker.ReportProgress((int)(100f * (1f - remainingProcess.Count / (float)assetCount)), packName + " | " + progress + " | " + processedNames.Count + " Names");
                 Thread.Sleep(100);
             }
 
@@ -195,7 +202,9 @@ namespace ps2ls.Assets.Pack
         {
             while (remainingProcess.TryDequeue(out int todo))
             {
-                string[] foundNames = ExtractNames(CreateBufferFromAsset(assets[todo], fileStream));
+                string[] foundNames = ExtractNames(CreateBufferFromAsset(assets[todo], fileStream), knownFilesOnly);
+                if (foundNames.Length == 0) continue;
+                foundNames = ProcessNames(foundNames);
                 foreach (string name in foundNames) SaveName(name);
             }
         }
@@ -213,9 +222,90 @@ namespace ps2ls.Assets.Pack
             return buffer;
         }
 
+        static readonly byte[] bFsb5 = Encoding.UTF8.GetBytes("FSB5"); // new byte[] { Convert.ToByte('F'), Convert.ToByte('S'), Convert.ToByte('B'), Convert.ToByte('5') };
+        static readonly byte[] bActorRuntime = Encoding.UTF8.GetBytes("<ActorRuntime>");
+        private static string[] ExtractNames(byte[] source, bool knownFilesOnly)
+        {
+            if (source.Length == 0) return new string[0];
+            if (MatchBytes(source, bFsb5))
+            {
+                int readHead = (int)BitConverter.ToUInt32(source, 12) + 64;
+                return new string[] { ReadTerminatedString(source, readHead) + ".fsb" };
+            }
+            if (MatchBytes(source, bActorRuntime))
+            {
+                return SearchADR(source);
+            }
 
+            if (knownFilesOnly) return new string[0];
+            return MatchExtractNames(Encoding.UTF8.GetString(source));
+        }
 
+        private static string ReadTerminatedString(byte[] source, int offset = 0, byte terminator = 0x0)
+        {
+            return ReadByteString(source, offset, CountTerminatedString(source, offset, terminator));
+        }
 
+        private static int CountTerminatedString(byte[] source, int offset = 0, byte terminator = 0x0)
+        {
+            int size = 0;
+            while (source[offset + size] != terminator) { size++; }
+            return size;
+        }
+
+        private static string ReadByteString(byte[] source, int offset, int length)
+        {
+            return Encoding.UTF8.GetString(source, offset, length);
+        }
+
+        static readonly byte[] bName = Encoding.UTF8.GetBytes("Name=");
+        static readonly byte[] bModel = Encoding.UTF8.GetBytes("Model=");
+        private static string[] SearchADR(byte[] source)
+        {
+            List<string> names = new List<string>();
+            for (int i = 0; i < source.Length; i++)
+            {
+                if (MatchBytes(source, bName, i))
+                {
+                    i += 6;
+                    int size = CountTerminatedString(source, i, 34);//34 = ` " `
+                    if (size == 0 || source[i + size - 4] != 46) continue;//check for 3 leter filetype, 46 = ' . '
+                    names.Add(ReadByteString(source, i, size));
+                    i += size + 1;
+                    continue;
+                }
+                if (MatchBytes(source, bModel, i))
+                {
+                    i += 7;
+                    int size = CountTerminatedString(source, i, 34);
+                    if (size == 0 || source[i + size - 4] != 46) continue;
+                    names.Add(ReadByteString(source, i, size));
+                    i += size + 1;
+                    continue;
+                }
+            }
+
+            return names.ToArray();
+            /*
+            MatchCollection matches = filePattern.Matches(Encoding.UTF8.GetString(source));
+            foreach (Match m in matches) names.Add(m.Value + ".adr");
+            return names.ToArray();*/
+        }
+
+        private static bool MatchBytes(byte[] source, byte[] match, int sourceOffset = 0)
+        {
+            if (source.Length < match.Length) return false;
+            for (int i = 0; i < match.Length; i++) if (source[sourceOffset + i] != match[i]) return false;
+            return true;
+        }
+
+        private static void SkipLine(byte[] source, ref int offset)
+        {
+            while (source[offset] != 10) { offset++; } //adr definition use 10-13 (newline-carrage return)
+            offset += 2;
+        }
+
+        //static readonly Regex removePattern = new Regex(@"[^\u002D-\u007A]", RegexOptions.Compiled);
         static readonly Regex filePattern = new Regex(@"([><\w-]+\.(" +
             @"adr|agr|ags|apb|apx|bat|bin|cdt|cnk0|cnk1|cnk2|cnk3|cnk4|cnk5|
             crc|crt|cso|cur|dat|db|dds|def|dir|dll|
@@ -223,22 +313,40 @@ namespace ps2ls.Assets.Pack
             fsb|fxd|fxo|gfx|gnf|i64|ini|jpg|lst|lua|mrn|pak|
             pem|playerstudio|png|prsb|psd|pssb|tga|thm|tome|ttf|
             txt|vnfo|wav|xlsx|xml|xrsb|xssb|zone" +
-            @"))", RegexOptions.Compiled);//| RegexOptions.IgnoreCase case might be needed
-
-        //static readonly Regex removePattern = new Regex(@"[^\u002D-\u007A]", RegexOptions.Compiled);
-
-        private static string[] ExtractNames(byte[] source)
+            @"))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static string[] MatchExtractNames(string source)
         {
-            return ExtractNames(Encoding.UTF8.GetString(source));
-        }
-
-        private static string[] ExtractNames(string source)
-        {
-            //source = removePattern.Replace(source, "");//makes it up to 3 times slower fuck
-            MatchCollection matches = filePattern.Matches(source);
             List<string> names = new List<string>();
+            MatchCollection matches = filePattern.Matches(source);
             foreach (Match m in matches) names.Add(m.Value);
             return names.ToArray();
+        }
+
+        private static string[] ProcessNames(string[] foundNames)
+        {
+            List<string> altNames = new List<string>();
+            foreach (string name in foundNames)
+            {
+                if (name.Contains("<gender>"))
+                {
+                    altNames.Add(name.Replace("<gender>", "Male"));
+                    altNames.Add(name.Replace("<gender>", "Female"));
+                    continue;
+                }
+                if (name.Contains(".efb"))
+                {
+                    altNames.Add(name);
+                    altNames.Add(name.Replace(".efb", ".dx11efb"));
+                    continue;
+                }
+                if (name.Contains('<') || name.Contains('>'))
+                {
+                    altNames.Add(name.Replace("<", "").Replace("<", ""));
+                    continue;
+                }
+                altNames.Add(name);
+            }
+            return altNames.ToArray();
         }
 
         private void SaveName(string name)

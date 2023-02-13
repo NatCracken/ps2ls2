@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ps2ls")]
-[assembly: AssemblyDescription("ps2ls is a small program that allows you to browse and extract Planetside 2 pack files and model files.")]
+[assembly: AssemblyTitle("ps2ls2")]
+[assembly: AssemblyDescription("ps2ls2 is a small program that allows you to browse and extract Planetside 2 pack2 files and model files.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Colin Basnett")]
-[assembly: AssemblyProduct("ps2ls")]
-[assembly: AssemblyCopyright("Copyright © 2012-2013 Colin Basnett")]
+[assembly: AssemblyCompany("NatCracken")]
+[assembly: AssemblyProduct("ps2ls2")]
+[assembly: AssemblyCopyright("ps2ls 2012-2013 Colin Basnett, Roy Awesome. ps2ls2 2020-2023 Various Contributors")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.2.0.133")]
-[assembly: AssemblyFileVersion("1.2.0.133")]
+[assembly: AssemblyVersion("2.0.2")]
+[assembly: AssemblyFileVersion("2.0.2")]
