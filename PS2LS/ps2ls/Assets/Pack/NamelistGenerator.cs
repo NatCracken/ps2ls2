@@ -186,15 +186,6 @@ namespace ps2ls.Assets.Pack
             }
 
             fileStream.Dispose();
-            /*
-            Pack newPack = Pack.LoadBinary(path, new Dictionary<ulong, string>());
-
-            Console.WriteLine(assetCount + ", " + mapOffset + ", " + toReturn[0].dataLength + ", " + toReturn[0].offset);
-            Console.WriteLine(toReturn[5].dataLength + ", " + toReturn[5].offset + ", " + toReturn[10].dataLength + ", " + toReturn[10].offset);
-            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~");
-            Console.WriteLine(newPack.AssetCount + ", " + newPack.MapOffset + ", " + newPack.Assets[0].DataLength + ", " + newPack.Assets[0].Offset);
-            Console.WriteLine(newPack.Assets[5].DataLength + ", " + newPack.Assets[5].Offset + ", " + newPack.Assets[10].DataLength + ", " + newPack.Assets[10].Offset);
-            */
             return toReturn;
         }
 
@@ -222,7 +213,7 @@ namespace ps2ls.Assets.Pack
             return buffer;
         }
 
-        static readonly byte[] bFsb5 = Encoding.UTF8.GetBytes("FSB5"); // new byte[] { Convert.ToByte('F'), Convert.ToByte('S'), Convert.ToByte('B'), Convert.ToByte('5') };
+        static readonly byte[] bFsb5 = Encoding.UTF8.GetBytes("FSB5");
         static readonly byte[] bActorRuntime = Encoding.UTF8.GetBytes("<ActorRuntime>");
         private static string[] ExtractNames(byte[] source, bool knownFilesOnly)
         {
@@ -260,6 +251,9 @@ namespace ps2ls.Assets.Pack
 
         static readonly byte[] bName = Encoding.UTF8.GetBytes("Name=");
         static readonly byte[] bModel = Encoding.UTF8.GetBytes("Model=");
+        static readonly byte[] bDmeL = Encoding.UTF8.GetBytes("_LOD0.dme");
+        //static readonly byte[] bDmeU = Encoding.UTF8.GetBytes("_LOD0.DME");
+        static readonly byte[] bAdr = Encoding.UTF8.GetBytes(".adr");
         private static string[] SearchADR(byte[] source)
         {
             List<string> names = new List<string>();
@@ -271,6 +265,14 @@ namespace ps2ls.Assets.Pack
                     int size = CountTerminatedString(source, i, 34);//34 = ` " `
                     if (size == 0 || source[i + size - 4] != 46) continue;//check for 3 leter filetype, 46 = ' . '
                     names.Add(ReadByteString(source, i, size));
+
+                    int extentionIndex = i + size - 9;
+                    if (MatchBytes(source, bDmeL, extentionIndex)) //|| MatchBytes(source, bDmeU, extentionIndex))
+                    {
+                        for (int j = 0; j < bAdr.Length; j++) source[extentionIndex + j] = bAdr[j];
+                        names.Add(ReadByteString(source, i, size - 5));
+                    }
+
                     i += size + 1;
                     continue;
                 }
@@ -284,6 +286,8 @@ namespace ps2ls.Assets.Pack
                     continue;
                 }
             }
+
+            //Console.WriteLine(Encoding.UTF8.GetString(source));
 
             return names.ToArray();
             /*

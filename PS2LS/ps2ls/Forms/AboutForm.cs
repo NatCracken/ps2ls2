@@ -30,7 +30,7 @@ namespace ps2ls
         public AboutBox()
         {
             InitializeComponent();
-            //TODO retrieve version number
+            labelVersion.Text = "Version " + Assembly.GetEntryAssembly().GetName().Version.ToString();
         }
     }
 }
