@@ -69,7 +69,7 @@ namespace ps2ls.Assets.Pack
                 ExtractFromPack(targetPacks[i], i + 1 + "/" + packCount);
             }
 
-            nameListDirectory = Path.GetDirectoryName(targetPacks[0]) + @"\NameList" + (knownFilesOnly ? "_Fast" : "") + ".txt";
+            nameListDirectory = Path.GetDirectoryName(targetPacks[0]) + @"\NameList" + (useRegex ? "_Fast" : "") + ".txt";
             StreamWriter writer = new StreamWriter(nameListDirectory, false);
             int count = nameDict.Count;
             int j = 0;
@@ -86,23 +86,23 @@ namespace ps2ls.Assets.Pack
         private void BuildNamelistWorkerCompleted(object sender, RunWorkerCompletedEventArgs args)
         {
             loadingForm.Close();
-            MessageBox.Show("Completed in: " + DateTime.Now.Subtract(startTime).ToString(@"hh\:mm\:ss") + "\rNamelist created at\r" + nameListDirectory);
+            MessageBox.Show("Found " + processedNames.Count + " names in: " + DateTime.Now.Subtract(startTime).ToString(@"hh\:mm\:ss") + ".\rNamelist created at:\r" + nameListDirectory, "Namelist Created", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        public static void GenerateNameList(string[] getPacks, bool getKnownFilesOnly)
+        public static void GenerateNameList(string[] getPacks, bool useRegex)
         {
             if (Instance == null) Instance = new NamelistGenerator();
-            Instance.GenerateNameListInternal(getPacks, getKnownFilesOnly);
+            Instance.GenerateNameListInternal(getPacks, useRegex);
         }
 
         string[] targetPacks;
-        bool knownFilesOnly;
+        bool useRegex;
         DateTime startTime;
-        private void GenerateNameListInternal(string[] getPacks, bool getKnownFilesOnly)
+        private void GenerateNameListInternal(string[] getPacks, bool useRegex)
         {
             if (buildNamelistBackgroundWorker.IsBusy) return;
             targetPacks = getPacks;
-            knownFilesOnly = getKnownFilesOnly;
+            this.useRegex = useRegex;
             startTime = DateTime.Now;
             loadingForm = new GenericLoadingForm();
             loadingForm.SetWindowTitle("Generating Namelist...");
@@ -193,7 +193,7 @@ namespace ps2ls.Assets.Pack
         {
             while (remainingProcess.TryDequeue(out int todo))
             {
-                string[] foundNames = ExtractNames(CreateBufferFromAsset(assets[todo], fileStream), knownFilesOnly);
+                string[] foundNames = ExtractNames(CreateBufferFromAsset(assets[todo], fileStream), useRegex);
                 if (foundNames.Length == 0) continue;
                 foundNames = ProcessNames(foundNames);
                 foreach (string name in foundNames) SaveName(name);
@@ -215,7 +215,7 @@ namespace ps2ls.Assets.Pack
 
         static readonly byte[] bFsb5 = Encoding.UTF8.GetBytes("FSB5");
         static readonly byte[] bActorRuntime = Encoding.UTF8.GetBytes("<ActorRuntime>");
-        private static string[] ExtractNames(byte[] source, bool knownFilesOnly)
+        private static string[] ExtractNames(byte[] source, bool useRegex)
         {
             if (source.Length == 0) return new string[0];
             if (MatchBytes(source, bFsb5))
@@ -228,8 +228,8 @@ namespace ps2ls.Assets.Pack
                 return SearchADR(source);
             }
 
-            if (knownFilesOnly) return new string[0];
-            return MatchExtractNames(Encoding.UTF8.GetString(source));
+            if (useRegex) return PatternMatchExtractNames(source);
+            return ByteMatchExtractNames(source);
         }
 
         private static string ReadTerminatedString(byte[] source, int offset = 0, byte terminator = 0x0)
@@ -252,7 +252,6 @@ namespace ps2ls.Assets.Pack
         static readonly byte[] bName = Encoding.UTF8.GetBytes("Name=");
         static readonly byte[] bModel = Encoding.UTF8.GetBytes("Model=");
         static readonly byte[] bDmeL = Encoding.UTF8.GetBytes("_LOD0.dme");
-        //static readonly byte[] bDmeU = Encoding.UTF8.GetBytes("_LOD0.DME");
         static readonly byte[] bAdr = Encoding.UTF8.GetBytes(".adr");
         private static string[] SearchADR(byte[] source)
         {
@@ -298,7 +297,7 @@ namespace ps2ls.Assets.Pack
 
         private static bool MatchBytes(byte[] source, byte[] match, int sourceOffset = 0)
         {
-            if (source.Length < match.Length) return false;
+            if (match.Length + sourceOffset > source.Length) return false;
             for (int i = 0; i < match.Length; i++) if (source[sourceOffset + i] != match[i]) return false;
             return true;
         }
@@ -318,12 +317,140 @@ namespace ps2ls.Assets.Pack
             pem|playerstudio|png|prsb|psd|pssb|tga|thm|tome|ttf|
             txt|vnfo|wav|xlsx|xml|xrsb|xssb|zone" +
             @"))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static string[] MatchExtractNames(string source)
+        private static string[] PatternMatchExtractNames(byte[] source)
         {
             List<string> names = new List<string>();
-            MatchCollection matches = filePattern.Matches(source);
+            MatchCollection matches = filePattern.Matches(Encoding.UTF8.GetString(source));
             foreach (Match m in matches) names.Add(m.Value);
             return names.ToArray();
+        }
+
+        static readonly List<byte[]> fileExtnetions = new List<byte[]>() {
+            Encoding.UTF8.GetBytes("adr"),
+            Encoding.UTF8.GetBytes("agr"),
+            Encoding.UTF8.GetBytes("Agr"),
+            Encoding.UTF8.GetBytes("ags"),
+            Encoding.UTF8.GetBytes("apx"),
+            Encoding.UTF8.GetBytes("bat"),
+            Encoding.UTF8.GetBytes("bin"),
+            Encoding.UTF8.GetBytes("cdt"),
+            Encoding.UTF8.GetBytes("cnk0"),
+            Encoding.UTF8.GetBytes("cnk1"),
+            Encoding.UTF8.GetBytes("cnk2"),
+            Encoding.UTF8.GetBytes("cnk3"),
+            Encoding.UTF8.GetBytes("cnk4"),
+            Encoding.UTF8.GetBytes("cnk5"),
+            Encoding.UTF8.GetBytes("crc"),
+            Encoding.UTF8.GetBytes("crt"),
+            Encoding.UTF8.GetBytes("cso"),
+            Encoding.UTF8.GetBytes("cur"),
+            Encoding.UTF8.GetBytes("Cur"),
+            Encoding.UTF8.GetBytes("dat"),
+            Encoding.UTF8.GetBytes("Dat"),
+            Encoding.UTF8.GetBytes("db"),
+            Encoding.UTF8.GetBytes("dds"),
+            Encoding.UTF8.GetBytes("DDS"),
+            Encoding.UTF8.GetBytes("def"),
+            Encoding.UTF8.GetBytes("Def"),
+            Encoding.UTF8.GetBytes("dir"),
+            Encoding.UTF8.GetBytes("Dir"),
+            Encoding.UTF8.GetBytes("dll"),
+            Encoding.UTF8.GetBytes("DLL"),
+            Encoding.UTF8.GetBytes("dma"),
+            Encoding.UTF8.GetBytes("dme"),
+            Encoding.UTF8.GetBytes("DME"),
+            Encoding.UTF8.GetBytes("dmv"),
+            Encoding.UTF8.GetBytes("dsk"),
+            Encoding.UTF8.GetBytes("dx11efb"),
+            Encoding.UTF8.GetBytes("dx11rsb"),
+            Encoding.UTF8.GetBytes("dx11ssb"),
+            Encoding.UTF8.GetBytes("eco"),
+            Encoding.UTF8.GetBytes("efb"),
+            Encoding.UTF8.GetBytes("exe"),
+            Encoding.UTF8.GetBytes("fsb"),
+            Encoding.UTF8.GetBytes("fxd"),
+            Encoding.UTF8.GetBytes("fxo"),
+            Encoding.UTF8.GetBytes("gfx"),
+            Encoding.UTF8.GetBytes("gnf"),
+            Encoding.UTF8.GetBytes("i64"),
+            Encoding.UTF8.GetBytes("ini"),
+            Encoding.UTF8.GetBytes("INI"),
+            Encoding.UTF8.GetBytes("Ini"),
+            Encoding.UTF8.GetBytes("jpg"),
+            Encoding.UTF8.GetBytes("JPG"),
+            Encoding.UTF8.GetBytes("lst"),
+            Encoding.UTF8.GetBytes("lua"),
+            Encoding.UTF8.GetBytes("mfn"),
+            Encoding.UTF8.GetBytes("pak"),
+            Encoding.UTF8.GetBytes("pem"),
+            Encoding.UTF8.GetBytes("playerstudio"),
+            Encoding.UTF8.GetBytes("PlayerStudio"),
+            Encoding.UTF8.GetBytes("png"),
+            Encoding.UTF8.GetBytes("prsb"),
+            Encoding.UTF8.GetBytes("psd"),
+            Encoding.UTF8.GetBytes("pssb"),
+            Encoding.UTF8.GetBytes("tga"),
+            Encoding.UTF8.GetBytes("TGA"),
+            Encoding.UTF8.GetBytes("thm"),
+            Encoding.UTF8.GetBytes("tome"),
+            Encoding.UTF8.GetBytes("ttf"),
+            Encoding.UTF8.GetBytes("txt"),
+            Encoding.UTF8.GetBytes("vnfo"),
+            Encoding.UTF8.GetBytes("wav"),
+            Encoding.UTF8.GetBytes("xlsx"),
+            Encoding.UTF8.GetBytes("xml"),
+            Encoding.UTF8.GetBytes("xrsb"),
+            Encoding.UTF8.GetBytes("xssb"),
+            Encoding.UTF8.GetBytes("zone"),
+            Encoding.UTF8.GetBytes("Zone"),};
+        private static string[] ByteMatchExtractNames(byte[] source)
+        {
+            List<string> names = new List<string>();
+            for (int i = 0; i < source.Length; i++)
+            {
+                if (source[i] != 46) continue;//search for periods
+                if (!MatchBytesList(source, fileExtnetions, out int fileExtentionLength, i + 1)) continue;//match known file extentions
+                if (!FindWordsInverse(source, i - 1, out int nameLength)) continue;
+                int stringLength = nameLength + fileExtentionLength + 1;
+                byte[] substring = new byte[stringLength];
+                Array.Copy(source, i - nameLength, substring, 0, stringLength);
+                names.Add(Encoding.UTF8.GetString(substring));
+            }
+            return names.ToArray();
+        }
+
+        private static bool MatchBytesList(byte[] source, List<byte[]> matches, out int length, int sourceOffset = 0)
+        {
+            foreach (byte[] match in matches)
+            {
+                if (MatchBytes(source, match, sourceOffset))
+                {
+                    length = match.Length;
+                    return true;
+                }
+            }
+            length = 0;
+            return false;
+        }
+
+        private static bool FindWordsInverse(byte[] source, int sourceOffset, out int length)
+        {
+            length = 0;
+            if (!IsWordCharacter(source[sourceOffset - length])) return false;
+            do
+            {
+                length++;
+                if (length > sourceOffset) return true;
+            } while (IsWordCharacter(source[sourceOffset - length]));
+            return true;
+        }
+
+        private static bool IsWordCharacter(byte toTest)
+        {
+            return toTest >= 48 & toTest <= 57 ||//numbers
+                toTest >= 65 & toTest <= 90 ||//uppercase
+                toTest >= 97 & toTest <= 122 ||//lowercase
+                toTest == 95 || toTest == 45 || toTest == 60 || toTest == 62;// matches _, -, <, or >
         }
 
         private static string[] ProcessNames(string[] foundNames)

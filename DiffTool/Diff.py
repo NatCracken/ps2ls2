@@ -1,13 +1,13 @@
 
 
-originalNameList = r"E:\11-23-2021 Ps2Test Resources\NameLookup.txt"
+originalNameList = r"D:\Nathan\Desktop\NameList.txt"
 originalDict = {}
 for line in open(originalNameList, "r").read().splitlines(): #expect data in hashxxxxxxx:name_name_name.name format
     temp = line.split(':')
     originalDict[temp[0]] = temp[1]
 print("Original has " + str(len(originalDict)) + " names.")
 
-newNameList = r"C:\Users\Nathan\Desktop\Projects\dbg-pack\NameLookup.txt"
+newNameList = r"E:\Planetside Backups\11-11-22 Ps2 Live Resources\NameList.txt"
 newDict = {}
 for line in open(newNameList, "r").read().splitlines(): #expect data in hashxxxxxxx:name_name_name.name format
     temp = line.split(':')

@@ -43,15 +43,15 @@ namespace ps2ls.Forms
 
         private void generateNameListButton_Click(object sender, EventArgs e)
         {
-            DialogResult result = MessageBox.Show("Do a complete search? This may take a while.\r`No` will perform a faster search that will miss some assets.", "Generate Namelist", MessageBoxButtons.YesNoCancel);
+            DialogResult result = MessageBox.Show("Use RegEx? It will be much slower, but catch a very small ammount of extra assets", "Generate Namelist", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
 
             if (result == DialogResult.Cancel) return;
-            bool fastSearch = result == DialogResult.No;
+            bool useRegex = result == DialogResult.Yes;
 
             result = packOpenFileDialog.ShowDialog();
             if (result != DialogResult.OK) return;
 
-            NamelistGenerator.GenerateNameList(packOpenFileDialog.FileNames, fastSearch);
+            NamelistGenerator.GenerateNameList(packOpenFileDialog.FileNames, useRegex);
         }
 
         private void addNameListButton_Click(object sender, EventArgs e)
