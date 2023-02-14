@@ -103,9 +103,17 @@ namespace ps2ls.Forms
            // System.Diagnostics.Process.Start(Settings.Default.ProjectNewIssueURL);
         }
 
-        private void compareToolStripMenuItem_Click(object sender, EventArgs e)
+        private void printAssetInfoMenuItem_Click(object sender, EventArgs e)
         {
-            AssetManager.Instance.WriteFileListingToFile("FileListing.txt");
+            AssetManager.Instance.WriteAssetInfoToFile(AppDomain.CurrentDomain.BaseDirectory + "AssetInfo.txt");
+        }
+
+        private void diffNamelistsMenuItem_Click(object sender, EventArgs e)
+        {
+            DialogResult result = namelistOpenFileDialog.ShowDialog();
+            if (result != DialogResult.OK) return;
+
+            NamelistGenerator.DiffNameLists(namelistOpenFileDialog.FileNames);
         }
     }
 }

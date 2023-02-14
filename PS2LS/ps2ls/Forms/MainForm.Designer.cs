@@ -38,15 +38,13 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.reportIssueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.analysisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.backupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.compareToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.compareVersionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.printAssetInfoMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.diffNamelistsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.searchAssetsTimer = new System.Windows.Forms.Timer(this.components);
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.searchModelsTimer = new System.Windows.Forms.Timer(this.components);
+            this.namelistOpenFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -115,45 +113,25 @@
             // toolsToolStripMenuItem
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.analysisToolStripMenuItem});
+            this.printAssetInfoMenuItem,
+            this.diffNamelistsMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
             // 
-            // analysisToolStripMenuItem
+            // printAssetInfoMenuItem
             // 
-            this.analysisToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.backupToolStripMenuItem,
-            this.compareToolStripMenuItem,
-            this.toolStripSeparator2,
-            this.compareVersionsToolStripMenuItem});
-            this.analysisToolStripMenuItem.Name = "analysisToolStripMenuItem";
-            this.analysisToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
-            this.analysisToolStripMenuItem.Text = "Analysis";
+            this.printAssetInfoMenuItem.Name = "printAssetInfoMenuItem";
+            this.printAssetInfoMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.printAssetInfoMenuItem.Text = "Print Asset Info";
+            this.printAssetInfoMenuItem.Click += new System.EventHandler(this.printAssetInfoMenuItem_Click);
             // 
-            // backupToolStripMenuItem
+            // diffNamelistsMenuItem
             // 
-            this.backupToolStripMenuItem.Name = "backupToolStripMenuItem";
-            this.backupToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
-            this.backupToolStripMenuItem.Text = "Back-up";
-            // 
-            // compareToolStripMenuItem
-            // 
-            this.compareToolStripMenuItem.Name = "compareToolStripMenuItem";
-            this.compareToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
-            this.compareToolStripMenuItem.Text = "Filelist";
-            this.compareToolStripMenuItem.Click += new System.EventHandler(this.compareToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(166, 6);
-            // 
-            // compareVersionsToolStripMenuItem
-            // 
-            this.compareVersionsToolStripMenuItem.Name = "compareVersionsToolStripMenuItem";
-            this.compareVersionsToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
-            this.compareVersionsToolStripMenuItem.Text = "Compare Versions";
+            this.diffNamelistsMenuItem.Name = "diffNamelistsMenuItem";
+            this.diffNamelistsMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.diffNamelistsMenuItem.Text = "Diff Namelists";
+            this.diffNamelistsMenuItem.Click += new System.EventHandler(this.diffNamelistsMenuItem_Click);
             // 
             // searchAssetsTimer
             // 
@@ -171,6 +149,12 @@
             // searchModelsTimer
             // 
             this.searchModelsTimer.Interval = 500;
+            // 
+            // namelistOpenFileDialog
+            // 
+            this.namelistOpenFileDialog.DefaultExt = "txt";
+            this.namelistOpenFileDialog.Filter = "NameList file|*.txt|All files|*.*";
+            this.namelistOpenFileDialog.Multiselect = true;
             // 
             // MainForm
             // 
@@ -202,15 +186,13 @@
         private System.Windows.Forms.Timer searchAssetsTimer;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.Timer searchModelsTimer;
+        private System.Windows.Forms.OpenFileDialog namelistOpenFileDialog;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem reportIssueToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem analysisToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem backupToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem compareToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.ToolStripMenuItem compareVersionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem printAssetInfoMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem diffNamelistsMenuItem;
     }
 }
 

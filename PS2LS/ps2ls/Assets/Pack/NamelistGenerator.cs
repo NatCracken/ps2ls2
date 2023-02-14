@@ -69,7 +69,7 @@ namespace ps2ls.Assets.Pack
                 ExtractFromPack(targetPacks[i], i + 1 + "/" + packCount);
             }
 
-            nameListDirectory = Path.GetDirectoryName(targetPacks[0]) + @"\NameList" + (useRegex ? "_Fast" : "") + ".txt";
+            nameListDirectory = Path.GetDirectoryName(targetPacks[0]) + @"\NameList" + (useRegex ? "_RegEx" : "") + ".txt";
             StreamWriter writer = new StreamWriter(nameListDirectory, false);
             int count = nameDict.Count;
             int j = 0;
@@ -325,7 +325,7 @@ namespace ps2ls.Assets.Pack
             return names.ToArray();
         }
 
-        static readonly List<byte[]> fileExtnetions = new List<byte[]>() {
+        static readonly List<byte[]> fileExtentions = new List<byte[]>() {
             Encoding.UTF8.GetBytes("adr"),
             Encoding.UTF8.GetBytes("agr"),
             Encoding.UTF8.GetBytes("Agr"),
@@ -380,7 +380,7 @@ namespace ps2ls.Assets.Pack
             Encoding.UTF8.GetBytes("JPG"),
             Encoding.UTF8.GetBytes("lst"),
             Encoding.UTF8.GetBytes("lua"),
-            Encoding.UTF8.GetBytes("mfn"),
+            Encoding.UTF8.GetBytes("mrn"),
             Encoding.UTF8.GetBytes("pak"),
             Encoding.UTF8.GetBytes("pem"),
             Encoding.UTF8.GetBytes("playerstudio"),
@@ -409,12 +409,9 @@ namespace ps2ls.Assets.Pack
             for (int i = 0; i < source.Length; i++)
             {
                 if (source[i] != 46) continue;//search for periods
-                if (!MatchBytesList(source, fileExtnetions, out int fileExtentionLength, i + 1)) continue;//match known file extentions
+                if (!MatchBytesList(source, fileExtentions, out int fileExtentionLength, i + 1)) continue;//match known file extentions
                 if (!FindWordsInverse(source, i - 1, out int nameLength)) continue;
-                int stringLength = nameLength + fileExtentionLength + 1;
-                byte[] substring = new byte[stringLength];
-                Array.Copy(source, i - nameLength, substring, 0, stringLength);
-                names.Add(Encoding.UTF8.GetString(substring));
+                names.Add(Encoding.UTF8.GetString(source, i - nameLength, nameLength + fileExtentionLength + 1));
             }
             return names.ToArray();
         }
@@ -639,5 +636,51 @@ namespace ps2ls.Assets.Pack
             return value ^ 0xffffffffffffffff;
         }
         #endregion
+
+
+        #region DiffTool
+        public static void DiffNameLists(string[] getNameLists)
+        {
+            if (getNameLists.Length != 2)
+            {
+                MessageBox.Show("You must select 2 files.", "Invalid Selection", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            Dictionary<ulong, string> fileOne = AssetManager.ReadNameList(getNameLists[0]);
+            Dictionary<ulong, string> fileTwo = AssetManager.ReadNameList(getNameLists[1]);
+
+            List<ulong> fileOneOnly = new List<ulong>();
+            foreach (ulong key in fileOne.Keys)
+            {
+                if (fileTwo.ContainsKey(key)) continue;
+                fileOneOnly.Add(key);
+            }
+
+
+            List<ulong> fileTwoOnly = new List<ulong>();
+            foreach (ulong key in fileTwo.Keys)
+            {
+                if (fileOne.ContainsKey(key)) continue;
+                fileTwoOnly.Add(key);
+            }
+
+            string resultsDirectory = Path.GetDirectoryName(getNameLists[0]) + @"\NameListDiff.txt";
+            StreamWriter writer = new StreamWriter(resultsDirectory, false);
+
+            writer.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            writer.WriteLine("~~~~~~~~~~~~~ " + (fileOneOnly.Count > 0 ? "Only in " : "There are no names found only in ") + getNameLists[0]);
+            writer.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            foreach (ulong key in fileOneOnly) writer.WriteLine(key + ":" + fileOne[key]);
+            writer.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            writer.WriteLine("~~~~~~~~~~~~~ " + (fileTwoOnly.Count > 0 ? "Only in " : "There are no names found only in ") + getNameLists[1]);
+            writer.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            foreach (ulong key in fileTwoOnly) writer.WriteLine(key + ":" + fileTwo[key]);
+            writer.Close();
+
+            MessageBox.Show("Diff results created at:\r" + resultsDirectory, "Diff Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        #endregion
+
     }
 }

@@ -6,6 +6,7 @@ using System.IO;
 using System.ComponentModel;
 using ps2ls.Forms;
 using ps2ls.Graphics.Materials;
+using System.Windows.Forms;
 
 namespace ps2ls.Assets.Pack
 {
@@ -133,7 +134,7 @@ namespace ps2ls.Assets.Pack
 
                         foreach (Asset asset in pack.Assets)
                         {
-                            if (false == AssetsByType.ContainsKey(asset.Type))
+                            if (!AssetsByType.ContainsKey(asset.Type))
                             {
                                 AssetsByType.Add(asset.Type, new List<Asset>());
                             }
@@ -155,19 +156,26 @@ namespace ps2ls.Assets.Pack
             return null;
         }
 
-        public bool LoadNameListFromPath(string paths)
+        public bool LoadNameListFromPath(string path)
         {
-            string[] lines = System.IO.File.ReadAllLines(paths);
-
-            nameDict = new Dictionary<ulong, string>();
-            foreach (string line in lines)
-            {
-                string[] temp = line.Split(':');
-                nameDict.Add(ulong.Parse(temp[0]), temp[1]);
-            }
+            nameDict = ReadNameList(path);
 
             Console.WriteLine("NameList Loaded, " + nameDict.Count + " entries");
             return true;
+        }
+
+        public static Dictionary<ulong, string> ReadNameList(string path)
+        {
+            string[] lines = File.ReadAllLines(path);
+            Dictionary<ulong, string> toReturn = new Dictionary<ulong, string>();
+            foreach (string line in lines)
+            {
+                string[] temp = line.Split(':');
+                if (temp.Length != 2) continue;
+                if (!ulong.TryParse(temp[0], out ulong hash)) continue;
+                toReturn.Add(hash, temp[1]);
+            }
+            return toReturn;
         }
 
         public void ExtractAllToDirectory(string directory)
@@ -288,7 +296,7 @@ namespace ps2ls.Assets.Pack
             return memoryStream;
         }
 
-        public void WriteFileListingToFile(string path)
+        public void WriteAssetInfoToFile(string path)
         {
             using (StreamWriter writer = new StreamWriter(path))
             {
@@ -296,11 +304,11 @@ namespace ps2ls.Assets.Pack
                 {
                     foreach (Asset asset in p.Assets)
                     {
-                        writer.WriteLine(string.Format("{0}\t{1}\t{2}", asset.Name, asset.UnzippedLength, asset.Crc32));
+                        writer.WriteLine(p.Name + ", " + asset.Name + ", " + asset.NameHash + ", " + asset.Offset + ", " + asset.DataLength);
                     }
                 }
             }
-
+            MessageBox.Show("Asset information saved to:\r" + path, "Information Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
     }

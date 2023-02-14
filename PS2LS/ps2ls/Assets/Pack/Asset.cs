@@ -182,7 +182,6 @@ namespace ps2ls.Assets.Pack
         public uint UnzippedLength { get; private set; }
         public bool isZipped { get; private set; }
         public uint dataHash { get; private set; }
-        public UInt32 Crc32 { get; private set; }
 
 
         public Asset.Types Type { get; private set; }
