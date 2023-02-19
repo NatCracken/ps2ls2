@@ -271,24 +271,6 @@ void main()
             glControl1.Camera.Update();
         }
 
-        /*
-        Vector3[] bonePositions = new Vector3[] {
-            new Vector3(0f,0f,0f),
-            new Vector3(0f,1f,0f),
-            new Vector3(1f,1.5f,1f),
-            new Vector3(-1f,1.5f,1f),
-            new Vector3(0,2,0f),
-        };
-
-        int[] boneIndices = new int[]
-        {
-            0,1,
-            1,4,
-            1,2,
-            1,3,
-            3,4
-        };*/
-
         public static Color ColorFromHSV(double hue, double saturation, double value)
         {
             int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
@@ -543,34 +525,32 @@ void main()
                 #endregion
 
 
-                GL.Clear(ClearBufferMask.DepthBufferBit);//clear depth buffer to draw lines on top
-
-
-                GL.Begin(PrimitiveType.Lines);
-                for (int i = 0; i < model.boneCount; i++)
+                if (showBonesButton.Checked)
                 {
-                    Bone bone = model.bones[i];
-                    Matrix4 bindPose = bone.inverseBindPose.Inverted();
-                    Vector3 boneStart = bindPose.ExtractTranslation();
-                    Quaternion rotation = bindPose.ExtractRotation();
-                    GL.Color3(1f, 0, 0);
-                    GL.Vertex3(boneStart);
-                    Vector3 boneEnd = boneStart + rotation * new Vector3(0.05f, 0, 0);
-                    GL.Vertex3(boneEnd);
-                    GL.Color3(0f, 1f, 0);
-                    GL.Vertex3(boneStart);
-                    boneEnd = boneStart + rotation * new Vector3(0, 0.05f, 0);
-                    GL.Vertex3(boneEnd);
-                    GL.Color3(0f, 0f, 1f);
-                    GL.Vertex3(boneStart);
-                    boneEnd = boneStart + rotation * new Vector3(0, 0, 0.05f);
-                    GL.Vertex3(boneEnd);
+                    GL.Clear(ClearBufferMask.DepthBufferBit);//clear depth buffer to draw lines on top
+                    GL.Begin(PrimitiveType.Lines);
+                    for (int i = 0; i < model.boneCount; i++)
+                    {
+                        Bone bone = model.bones[i];
+                        Matrix4 bindPose = bone.inverseBindPose.Inverted();
+                        Vector3 boneStart = bindPose.ExtractTranslation();
+                        Quaternion rotation = bindPose.ExtractRotation();
+                        GL.Color3(1f, 0, 0);
+                        GL.Vertex3(boneStart);
+                        Vector3 boneEnd = boneStart + rotation * new Vector3(0.05f, 0, 0);
+                        GL.Vertex3(boneEnd);
+                        GL.Color3(0f, 1f, 0);
+                        GL.Vertex3(boneStart);
+                        boneEnd = boneStart + rotation * new Vector3(0, 0.05f, 0);
+                        GL.Vertex3(boneEnd);
+                        GL.Color3(0f, 0f, 1f);
+                        GL.Vertex3(boneStart);
+                        boneEnd = boneStart + rotation * new Vector3(0, 0, 0.05f);
+                        GL.Vertex3(boneEnd);
+                    }
+                    GL.End();
                 }
-                GL.End();
             }
-
-
-
 
 
             glControl1.SwapBuffers();
@@ -739,7 +719,7 @@ void main()
             model = new Model(asset.Name, memoryStream);
             memoryStream.Dispose();
 
-            ModelBrowserModelStats1.Model = model.isValid? model : null;
+            ModelBrowserModelStats1.Model = model.isValid ? model : null;
             textures.Clear();
             materialSelectionComboBox.Items.Clear();
 

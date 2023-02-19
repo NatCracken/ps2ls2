@@ -429,6 +429,7 @@
     </Content>
     <Content Include="FMOD\fmodL.dll" />
     <Content Include="ps2ls.ico" />
+    <None Include="Resources\bones.png" />
     <None Include="Resources\DocumentWrite.png" />
     <None Include="Resources\BastionAtDawn.png" />
     <None Include="Resources\Image-scaled.png" />

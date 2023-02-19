@@ -43,8 +43,8 @@
             this.clearSearchModelsText = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.showAutoLODModelsButton = new System.Windows.Forms.ToolStripButton();
-            this.showCollisionModelsButton = new System.Windows.Forms.ToolStripButton();
             this.showMultipleLODButton = new System.Windows.Forms.ToolStripButton();
+            this.showCollisionModelsButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exportSelectedModelsToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.ModelBrowserModelStats1 = new ps2ls.Forms.ModelBrowserModelStats();
@@ -54,6 +54,8 @@
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.showBoundingBoxButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.showBonesButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.renderModeWireframeButton = new System.Windows.Forms.ToolStripButton();
             this.renderModeSmoothButton = new System.Windows.Forms.ToolStripButton();
             this.materialSelectionComboBox = new System.Windows.Forms.ToolStripComboBox();
@@ -78,7 +80,7 @@
             this.splitContainer1.Panel1.Controls.Add(this.modelsListBox);
             this.splitContainer1.Panel1.Controls.Add(this.statusStrip2);
             this.splitContainer1.Panel1.Controls.Add(this.toolStrip2);
-            this.splitContainer1.Panel1MinSize = 250;
+            this.splitContainer1.Panel1MinSize = 300;
             // 
             // splitContainer1.Panel2
             // 
@@ -86,11 +88,12 @@
             this.splitContainer1.Panel2.Controls.Add(this.glControl1);
             this.splitContainer1.Panel2.Controls.Add(this.toolStrip1);
             this.splitContainer1.Size = new System.Drawing.Size(800, 600);
-            this.splitContainer1.SplitterDistance = 274;
+            this.splitContainer1.SplitterDistance = 300;
             this.splitContainer1.TabIndex = 1;
             this.splitContainer1.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer1_SplitterMoved);
             // 
             // modelsListBox
+            // 
             //
             this.modelsListBox.AssetType = new ps2ls.Assets.Asset.Types[] { ps2ls.Assets.Asset.Types.DME };
             this.modelsListBox.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -102,7 +105,7 @@
             this.modelsListBox.Location = new System.Drawing.Point(0, 25);
             this.modelsListBox.Name = "modelsListBox";
             this.modelsListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.modelsListBox.Size = new System.Drawing.Size(274, 553);
+            this.modelsListBox.Size = new System.Drawing.Size(300, 553);
             this.modelsListBox.TabIndex = 3;
             this.modelsListBox.SelectedIndexChanged += new System.EventHandler(this.modelsListBox_SelectedIndexChanged);
             // 
@@ -114,7 +117,7 @@
             this.filesListedLabel});
             this.statusStrip2.Location = new System.Drawing.Point(0, 578);
             this.statusStrip2.Name = "statusStrip2";
-            this.statusStrip2.Size = new System.Drawing.Size(274, 22);
+            this.statusStrip2.Size = new System.Drawing.Size(300, 22);
             this.statusStrip2.SizingGrip = false;
             this.statusStrip2.TabIndex = 2;
             this.statusStrip2.Text = "statusStrip2";
@@ -133,10 +136,10 @@
             this.nextPageButton.Size = new System.Drawing.Size(23, 20);
             this.nextPageButton.Click += new System.EventHandler(this.nextPageButton_Click);
             // 
-            // modelCountLabel
+            // filesListedLabel
             // 
             this.filesListedLabel.Image = global::ps2ls.Properties.Resources.document_search_result;
-            this.filesListedLabel.Name = "modelCountLabel";
+            this.filesListedLabel.Name = "filesListedLabel";
             this.filesListedLabel.Size = new System.Drawing.Size(40, 17);
             this.filesListedLabel.Text = "0/0";
             // 
@@ -155,7 +158,7 @@
             this.exportSelectedModelsToolStripButton});
             this.toolStrip2.Location = new System.Drawing.Point(0, 0);
             this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(274, 25);
+            this.toolStrip2.Size = new System.Drawing.Size(300, 25);
             this.toolStrip2.TabIndex = 1;
             this.toolStrip2.Text = "toolStrip2";
             // 
@@ -211,7 +214,7 @@
             this.showMultipleLODButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.showMultipleLODButton.Name = "showMultipleLODButton";
             this.showMultipleLODButton.Size = new System.Drawing.Size(23, 22);
-            this.showMultipleLODButton.Text = "Show All LOD's";
+            this.showMultipleLODButton.Text = "Show All LOD\'s";
             this.showMultipleLODButton.CheckedChanged += new System.EventHandler(this.showMultipleLODsButton_CheckedChanged);
             // 
             // showCollisionModelsButton
@@ -247,7 +250,7 @@
             this.ModelBrowserModelStats1.Location = new System.Drawing.Point(0, 439);
             this.ModelBrowserModelStats1.Model = null;
             this.ModelBrowserModelStats1.Name = "ModelBrowserModelStats1";
-            this.ModelBrowserModelStats1.Size = new System.Drawing.Size(522, 161);
+            this.ModelBrowserModelStats1.Size = new System.Drawing.Size(496, 161);
             this.ModelBrowserModelStats1.TabIndex = 3;
             // 
             // glControl1
@@ -283,12 +286,14 @@
             this.toolStripButton1,
             this.showBoundingBoxButton,
             this.toolStripSeparator3,
+            this.showBonesButton,
+            this.toolStripSeparator4,
             this.renderModeWireframeButton,
             this.renderModeSmoothButton,
             this.materialSelectionComboBox});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(522, 27);
+            this.toolStrip1.Size = new System.Drawing.Size(496, 27);
             this.toolStrip1.TabIndex = 2;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -331,6 +336,21 @@
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(6, 27);
+            // 
+            // showBonesButton
+            // 
+            this.showBonesButton.CheckOnClick = true;
+            this.showBonesButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.showBonesButton.Image = global::ps2ls.Properties.Resources.bones;
+            this.showBonesButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.showBonesButton.Name = "showBonesButton";
+            this.showBonesButton.Size = new System.Drawing.Size(23, 22);
+            this.showBonesButton.Text = "Show Bones";
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 27);
             // 
             // renderModeWireframeButton
             // 
@@ -416,6 +436,8 @@
         private System.Windows.Forms.ToolStripButton renderModeSmoothButton;
         private System.Windows.Forms.ToolStripButton showAxesButton;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripButton showBonesButton;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripButton showBoundingBoxButton;
         private ModelBrowserModelStats ModelBrowserModelStats1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
