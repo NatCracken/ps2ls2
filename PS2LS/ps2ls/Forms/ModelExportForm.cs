@@ -1,5 +1,4 @@
-﻿using ps2ls.Assets.Dme;
-using ps2ls.Assets.Pack;
+﻿using ps2ls.Assets;
 using ps2ls.IO;
 using System;
 using System.Collections.Generic;
@@ -45,21 +44,21 @@ namespace ps2ls.Forms
             }
         }
 
-        private Int32 exportModel(object sender, object argument)
+        private int exportModel(object sender, object argument)
         {
             List<object> arguments = (List<object>)argument;
 
-            String directory = (String)arguments[0];
-            List<String> fileNames = (List<String>)arguments[1];
+            string directory = (string)arguments[0];
+            List<string> fileNames = (List<string>)arguments[1];
             ModelExporterStatic.ExportOptions exportOptions = (ModelExporterStatic.ExportOptions)arguments[2];
 
             BackgroundWorker backgroundWorker = (BackgroundWorker)sender;
 
-            Int32 result = 0;
+            int result = 0;
 
-            for (Int32 i = 0; i < fileNames.Count; ++i)
+            for (int i = 0; i < fileNames.Count; i++)
             {
-                String fileName = fileNames[i];
+                string fileName = fileNames[i];
 
                 MemoryStream memoryStream = AssetManager.Instance.CreateAssetMemoryStreamByName(fileName);
 
@@ -68,21 +67,17 @@ namespace ps2ls.Forms
                     continue;
                 }
 
-                Model model = Model.LoadFromStream(fileName, memoryStream);
+                Model model = new Model(fileName, memoryStream);
                 memoryStream.Dispose();
-
-                if (model == null)
-                {
-                    continue;
-                }
+                if (!model.isValid) continue;
 
                 ModelExporterStatic.ExportModelToDirectory(model, directory, exportOptions);
 
-                Int32 percent = (Int32)(((Single)i / (Single)fileNames.Count) * 100);
+                int percent = (int)((i * 100f) / fileNames.Count);
 
                 backgroundWorker.ReportProgress(percent, fileName);
 
-                ++result;
+                result++;
             }
 
             return result;

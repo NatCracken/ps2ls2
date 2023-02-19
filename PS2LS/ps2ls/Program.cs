@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
-using ps2ls.Assets.Pack;
+using ps2ls.Assets;
 using ps2ls.Forms;
 using ps2ls.Graphics.Materials;
 using Microsoft.Win32;

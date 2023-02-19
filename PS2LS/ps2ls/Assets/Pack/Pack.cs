@@ -9,7 +9,7 @@ using System.Diagnostics;
 using ps2ls.IO;
 using Ionic.Zlib;
 
-namespace ps2ls.Assets.Pack
+namespace ps2ls.Assets
 {
     public class Pack
     {

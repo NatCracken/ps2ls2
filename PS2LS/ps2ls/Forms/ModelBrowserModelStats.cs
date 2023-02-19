@@ -6,7 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using ps2ls.Assets.Dme;
+using ps2ls.Assets;
 
 namespace ps2ls.Forms
 {
@@ -26,19 +26,18 @@ namespace ps2ls.Forms
             {
                 model = value;
 
-                nameLabel.Text = model != null ? model.Name : "";
-                meshCountLabel.Text = model != null ? model.Meshes.Length.ToString() : "0";
-                modelVertexCountLabel.Text = model != null ? model.VertexCount.ToString() : "0";
-                modelTriangleCountLabel.Text = model != null ? (model.IndexCount / 3).ToString() : "0";
-                materialCount.Text = model != null ? model.Materials.Count.ToString() : "0";
-                modelUnknown0Label.Text = model != null ? model.Unknown0.ToString() : "0";
-                modelUnknown1Label.Text = model != null ? model.Unknown1.ToString() : "0";
-                mdoelUnknown2Label.Text = model != null ? model.Unknown2.ToString() : "0";
-                BoneDrawCallsLabel.Text = model != null ? model.BoneDrawCalls.Length.ToString() : "0";
-                BoneMapCountLabel.Text = model != null ? model.BoneMapEntries.Length.ToString() : "0";
+                nameLabel.Text = model != null ? model.name : "";
+                meshCountLabel.Text = model != null ? model.meshes.Length.ToString() : "0";
+                modelVertexCountLabel.Text = model != null ? model.vertexCount.ToString() : "0";
+                modelTriangleCountLabel.Text = model != null ? (model.indexCount / 3).ToString() : "0";
+                materialCount.Text = model != null ? model.dma.materials.Length.ToString() : "0";
+                modelUnknown0Label.Text = model != null ? model.unknown0.ToString() : "0";
+                modelUnknown1Label.Text = model != null ? model.unknown1.ToString() : "0";
+                mdoelUnknown2Label.Text = model != null ? model.unknown2.ToString() : "0";
+                BoneDrawCallsLabel.Text = model != null ? model.boneDrawCalls.Length.ToString() : "0";
+                BoneMapCountLabel.Text = model != null ? model.boneMapEntries.Length.ToString() : "0";
+                modelVersionLabel.Text = model != null ? model.version.ToString() : "0";
 
-
-                modelVersionLabel.Text = model != null ? model.Version.ToString() : "0";
                 meshesComboBox.Items.Clear();
                 textureComboBox1.Items.Clear();
                 texturesComboBox2.Items.Clear();
@@ -48,15 +47,15 @@ namespace ps2ls.Forms
 
                 if (model != null)
                 {
-                    for (int i = 0; i < model.Meshes.Length; ++i)
+                    for (int i = 0; i < model.meshes.Length; ++i)
                     {
                         meshesComboBox.Items.Add("Mesh " + i);
                         textureComboBox1.Items.Add("" + i);
                     }
 
-                    for (int i = 0; i < model.TextureStrings.Count; i++)
+                    foreach(string s in model.dma.textureStrings)
                     {
-                        texturesComboBox2.Items.Add(model.TextureStrings[i]);
+                        texturesComboBox2.Items.Add(s);
                     }
                 }
 
@@ -75,18 +74,17 @@ namespace ps2ls.Forms
 
             if (model != null && meshesComboBox.SelectedIndex >= 0)
             {
-                mesh = model.Meshes[meshesComboBox.SelectedIndex];
+                mesh = model.meshes[meshesComboBox.SelectedIndex];
             }
 
-            meshVertexCountLabel.Text = mesh != null ? mesh.VertexCount.ToString() : "0";
-            meshTriangleCountLabel.Text = mesh != null ? (mesh.IndexCount / 3).ToString() : "0";
+            meshVertexCountLabel.Text = mesh != null ? mesh.vertexCount.ToString() : "0";
+            meshTriangleCountLabel.Text = mesh != null ? (mesh.indexCount / 3).ToString() : "0";
             //meshBytesPerVertexLabel.Text = mesh != null ? mesh.BytesPerVertex.ToString() : "0";
             meshIndexLabel.Text = mesh != null ? mesh.drawCallOffset.ToString() : "0";
             meshUnknown1Label.Text = mesh != null ? mesh.drawCallCount.ToString() : "0";
             meshUnknown2Label.Text = mesh != null ? mesh.boneTransformCount.ToString() : "0";
-            meshUnknown3Label.Text = mesh != null ? mesh.Unknown3.ToString() : "0";
-            meshUnknown4Label.Text = mesh != null ? mesh.Unknown4.ToString() : "0";
-            meshVertexBlockCountLabel.Text = mesh != null ? mesh.VertexStreams.Length.ToString() : "0";
+            meshUnknown3Label.Text = mesh != null ? mesh.unknown3.ToString() : "0";
+            meshVertexBlockCountLabel.Text = mesh != null ? mesh.vertexStreams.Length.ToString() : "0";
         }
 
         private void textureComboBox1_SelectedIndexChanged(object sender, EventArgs e)

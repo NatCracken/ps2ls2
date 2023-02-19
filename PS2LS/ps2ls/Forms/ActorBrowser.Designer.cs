@@ -156,7 +156,7 @@
             // 
             // actorListbox
             // 
-            this.actorListbox.AssetType = new Assets.Pack.Asset.Types[] { Assets.Pack.Asset.Types.ADR };
+            this.actorListbox.AssetType = new Assets.Asset.Types[] { Assets.Asset.Types.ADR };
             this.actorListbox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.actorListbox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.actorListbox.FormattingEnabled = true;

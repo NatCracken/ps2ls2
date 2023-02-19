@@ -8,7 +8,7 @@ using ps2ls.Forms;
 using ps2ls.Graphics.Materials;
 using System.Windows.Forms;
 
-namespace ps2ls.Assets.Pack
+namespace ps2ls.Assets
 {
     class AssetManager
     {

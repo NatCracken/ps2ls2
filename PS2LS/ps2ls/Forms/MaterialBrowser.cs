@@ -11,8 +11,7 @@ using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
 using ps2ls.Cameras;
-using ps2ls.Assets.Dma;
-using ps2ls.Assets.Pack;
+using ps2ls.Assets;
 using System.Diagnostics;
 using System.IO;
 

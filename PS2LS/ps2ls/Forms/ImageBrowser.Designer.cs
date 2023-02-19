@@ -183,7 +183,7 @@
             // 
             // imageListbox
             // 
-            this.imageListbox.AssetType = new ps2ls.Assets.Pack.Asset.Types[] { ps2ls.Assets.Pack.Asset.Types.DDS, Assets.Pack.Asset.Types.PNG, Assets.Pack.Asset.Types.JPG };
+            this.imageListbox.AssetType = new ps2ls.Assets.Asset.Types[] { ps2ls.Assets.Asset.Types.DDS, Assets.Asset.Types.PNG, Assets.Asset.Types.JPG };
             this.imageListbox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.imageListbox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.imageListbox.FormattingEnabled = true;

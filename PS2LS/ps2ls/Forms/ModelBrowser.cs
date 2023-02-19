@@ -9,14 +9,12 @@ using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
 using ps2ls.Cameras;
-using ps2ls.Assets.Dme;
-using ps2ls.Assets.Pack;
+using ps2ls.Assets;
 using System.Diagnostics;
 using ps2ls.Graphics.Materials;
 using System.IO;
 using System.Xml;
 using System.Runtime.InteropServices;
-using ps2ls.Assets.Mrn;
 
 namespace ps2ls.Forms
 {
@@ -365,7 +363,7 @@ void main()
 
 
             //TODO: Decide what to do with non-version 4 models.
-            if (model != null && model.Version == 4)
+            if (model != null && model.version == 4)
             {
                 GL.PushMatrix();
 
@@ -381,9 +379,9 @@ void main()
                 GL.CullFace(CullFaceMode.Back);
                 GL.FrontFace(FrontFaceDirection.Cw);
 
-                for (Int32 i = 0; i < model.Meshes.Length; ++i)
+                for (Int32 i = 0; i < model.meshes.Length; ++i)
                 {
-                    Mesh mesh = model.Meshes[i];
+                    Mesh mesh = model.meshes[i];
 
                     GL.ActiveTexture(TextureUnit.Texture0);
                     GL.BindTexture(TextureTarget.Texture2D, textures[i]);
@@ -396,15 +394,15 @@ void main()
                     }
 
                     //pin handles to stream data
-                    GCHandle[] streamDataGCHandles = new GCHandle[mesh.VertexStreams.Length];
+                    GCHandle[] streamDataGCHandles = new GCHandle[mesh.vertexStreams.Length];
 
                     for (Int32 j = 0; j < streamDataGCHandles.Length; ++j)
                     {
-                        streamDataGCHandles[j] = GCHandle.Alloc(mesh.VertexStreams[j].Data, GCHandleType.Pinned);
+                        streamDataGCHandles[j] = GCHandle.Alloc(mesh.vertexStreams[j].data, GCHandleType.Pinned);
                     }
 
                     //fetch material definition and vertex layout
-                    VertexLayout vertexLayout = IO.ModelExporterStatic.getVertexLayoutFromMaterialHash(model.Materials[(int)mesh.drawCallOffset].MaterialDefinitionHash);
+                    VertexLayout vertexLayout = IO.ModelExporterStatic.GetVertexLayoutFromMaterialHash(model.dma.materials[(int)mesh.drawCallOffset].MaterialDefinitionHash);
 
                     //Console.WriteLine("Mesh:" + mesh.drawCallOffset + " / " + model.Materials.Count + " = " + vertexLayout.Name);
                     GL.Color3(meshColors[i % meshColors.Length]);
@@ -430,7 +428,7 @@ void main()
                     IntPtr positionData = streamDataGCHandles[positionStream].AddrOfPinnedObject();
 
                     GL.EnableClientState(ArrayCap.VertexArray);
-                    GL.VertexPointer(3, VertexPointerType.Float, mesh.VertexStreams[positionStream].BytesPerVertex, positionData + positionOffset);
+                    GL.VertexPointer(3, VertexPointerType.Float, mesh.vertexStreams[positionStream].bytesPerVertex, positionData + positionOffset);
 
 
                     //normal
@@ -444,7 +442,7 @@ void main()
                         IntPtr normalData = streamDataGCHandles[normalStream].AddrOfPinnedObject();
 
                         GL.EnableClientState(ArrayCap.NormalArray);
-                        GL.NormalPointer(NormalPointerType.Float, mesh.VertexStreams[normalStream].BytesPerVertex, normalData + normalOffset);
+                        GL.NormalPointer(NormalPointerType.Float, mesh.vertexStreams[normalStream].bytesPerVertex, normalData + normalOffset);
                     }
 
 
@@ -474,17 +472,17 @@ void main()
                                 break;
                         }
 
-                        GL.TexCoordPointer(2, texCoord0PointerType, mesh.VertexStreams[texCoord0Stream].BytesPerVertex, texCoord0Data + texCoord0Offset);
+                        GL.TexCoordPointer(2, texCoord0PointerType, mesh.vertexStreams[texCoord0Stream].bytesPerVertex, texCoord0Data + texCoord0Offset);
                     }
 
 
 
                     //indices
-                    GCHandle indexDataHandle = GCHandle.Alloc(mesh.IndexData, GCHandleType.Pinned);
+                    GCHandle indexDataHandle = GCHandle.Alloc(mesh.indexData, GCHandleType.Pinned);
                     IntPtr indexData = indexDataHandle.AddrOfPinnedObject();
 
                     DrawElementsType drawElementsType;
-                    switch (mesh.IndexSize)
+                    switch (mesh.indexSize)
                     {
                         default:
                         case 2:
@@ -494,7 +492,7 @@ void main()
                             drawElementsType = DrawElementsType.UnsignedInt;
                             break;
                     }
-                    GL.DrawElements(PrimitiveType.Triangles, (Int32)mesh.IndexCount, drawElementsType, indexData);
+                    GL.DrawElements(PrimitiveType.Triangles, (Int32)mesh.indexCount, drawElementsType, indexData);
 
                     indexDataHandle.Free();
 
@@ -503,7 +501,7 @@ void main()
                     GL.DisableClientState(ArrayCap.TextureCoordArray);
 
                     //free stream data handles
-                    for (Int32 j = 0; j < streamDataGCHandles.Length; ++j)
+                    for (int j = 0; j < streamDataGCHandles.Length; j++)
                     {
                         streamDataGCHandles[j].Free();
                     }
@@ -547,33 +545,28 @@ void main()
 
                 GL.Clear(ClearBufferMask.DepthBufferBit);//clear depth buffer to draw lines on top
 
-                if (false)//TODO "show bones" button
+
+                GL.Begin(PrimitiveType.Lines);
+                for (int i = 0; i < model.boneCount; i++)
                 {
-
-                    /*
-                     * This entire section straight up doesn't work, Its not the code here,
-                     * model.bonePositions just contains completely the wrong data
-                     */
-
-                    GL.Begin(PrimitiveType.Lines);
-                    for (int i = 0; i < model.BoneDrawCalls.Length; i++)
-                    {
-                        BoneDrawCall bdc = model.BoneDrawCalls[i];
-                        //VertexLayout vertexLayout = IO.ModelExporterStatic.getVertexLayoutFromMaterialHash(model.Materials[i].MaterialDefinitionHash);
-
-                        for (int j = 0; j < bdc.BoneCount; j++)
-                        {
-                            GL.Color3(ColorFromHSV(360f * j / bdc.BoneCount, 0.8, 0.8));
-                            BoneMapEntry bme = model.BoneMapEntries[j + bdc.BoneStart];
-                            GL.Vertex3(model.bonePositions[bme.BoneIndex]);
-                            GL.Vertex3(model.bonePositions[bme.BoneIndex + 1]);
-                        }
-                        //  Console.WriteLine("Bone:" + i + " / " + model.Materials.Count + " = " + vertexLayout.Name);
-                        // Vector3[] boneBuffer = IO.ModelExporterStatic.getBoneBuffer(model.Meshes[i], bdc, vertexLayout, sampleOptions);
-                        //for(int j = 
-                    }
-                    GL.End();
+                    Bone bone = model.bones[i];
+                    Matrix4 bindPose = bone.inverseBindPose.Inverted();
+                    Vector3 boneStart = bindPose.ExtractTranslation();
+                    Quaternion rotation = bindPose.ExtractRotation();
+                    GL.Color3(1f, 0, 0);
+                    GL.Vertex3(boneStart);
+                    Vector3 boneEnd = boneStart + rotation * new Vector3(0.05f, 0, 0);
+                    GL.Vertex3(boneEnd);
+                    GL.Color3(0f, 1f, 0);
+                    GL.Vertex3(boneStart);
+                    boneEnd = boneStart + rotation * new Vector3(0, 0.05f, 0);
+                    GL.Vertex3(boneEnd);
+                    GL.Color3(0f, 0f, 1f);
+                    GL.Vertex3(boneStart);
+                    boneEnd = boneStart + rotation * new Vector3(0, 0, 0.05f);
+                    GL.Vertex3(boneEnd);
                 }
+                GL.End();
             }
 
 
@@ -685,7 +678,6 @@ void main()
             if (name.Contains("AUTO.DME")) return -1;
             if (!name.Contains("LOD")) return -1;
             int indexIndex = name.IndexOf("_LOD") + 4;
-            Console.WriteLine(name[indexIndex]);
             if (int.TryParse(name[indexIndex] + "", out int result)) return result;
             return -1;
         }
@@ -743,41 +735,29 @@ void main()
             }
             catch (InvalidCastException) { return; }
 
-            System.IO.MemoryStream memoryStream = asset.Pack.CreateAssetMemoryStreamByName(asset.Name);
-
-            try
-            {
-                model = Model.LoadFromStream(asset.Name, memoryStream);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.StackTrace);
-            }
-            if (model == null)
-            {
-                Console.WriteLine("Unable to load " + asset.Name + " from memorystream.");
-                return;
-            }
+            MemoryStream memoryStream = asset.Pack.CreateAssetMemoryStreamByName(asset.Name);
+            model = new Model(asset.Name, memoryStream);
             memoryStream.Dispose();
 
-
-            ModelBrowserModelStats1.Model = model;
+            ModelBrowserModelStats1.Model = model.isValid? model : null;
             textures.Clear();
+            materialSelectionComboBox.Items.Clear();
 
-            for (int i = 0; i < model.Meshes.Length; i++)
+            if (!model.isValid) return;
+
+            for (int i = 0; i < model.meshes.Length; i++)
             {
                 textures.Add(gray);
             }
 
-            materialSelectionComboBox.Items.Clear();
-            if (model.TextureStrings.Count == 0)
+            if (model.dma.textureStrings.Length == 0)
             {
                 currentShader = untexturedShader;
             }
             else
             {
 
-                foreach (string textureName in model.TextureStrings)
+                foreach (string textureName in model.dma.textureStrings)
                 {
                     materialSelectionComboBox.Items.Add(textureName);
                 }
@@ -867,8 +847,8 @@ void main()
                 return;
             }
 
-            Vector3 center = (model.Max + model.Min) / 2.0f;
-            Vector3 extents = (model.Max - model.Min) / 2.0f;
+            Vector3 center = (model.max + model.min) / 2.0f;
+            Vector3 extents = (model.max - model.min) / 2.0f;
 
             glControl1.Camera.DesiredTarget = center;
             glControl1.Camera.DesiredDistance = extents.Length * 1.75f;

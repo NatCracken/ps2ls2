@@ -6,7 +6,7 @@ using SD = System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using ps2ls.Assets.Pack;
+using ps2ls.Assets;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;

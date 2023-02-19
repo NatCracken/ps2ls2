@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ps2ls.Assets.Mrn
+namespace ps2ls.Assets
 {
     public class MrnData
     {

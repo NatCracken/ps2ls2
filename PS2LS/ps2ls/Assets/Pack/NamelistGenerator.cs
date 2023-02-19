@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace ps2ls.Assets.Pack
+namespace ps2ls.Assets
 {
 
     class NamelistGenerator
@@ -469,7 +469,7 @@ namespace ps2ls.Assets.Pack
                 }
                 if (name.Contains('<') || name.Contains('>'))
                 {
-                    altNames.Add(name.Replace("<", "").Replace("<", ""));
+                    altNames.Add(name.Replace("<", "").Replace(">", ""));
                     continue;
                 }
                 altNames.Add(name);
@@ -629,8 +629,7 @@ namespace ps2ls.Assets.Pack
 
             foreach (char c in buffer)
             {
-                int tableIndex = ((int)(value & 0xff) ^ c) & 0xFF;
-                value = crc_table[tableIndex] ^ (value >> 8);
+                value = crc_table[(byte)(value ^ c)] ^ (value >> 8);
             }
 
             return value ^ 0xffffffffffffffff;

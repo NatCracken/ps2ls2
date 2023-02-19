@@ -92,7 +92,7 @@
             // 
             // modelsListBox
             //
-            this.modelsListBox.AssetType = new ps2ls.Assets.Pack.Asset.Types[] { ps2ls.Assets.Pack.Asset.Types.DME };
+            this.modelsListBox.AssetType = new ps2ls.Assets.Asset.Types[] { ps2ls.Assets.Asset.Types.DME };
             this.modelsListBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.modelsListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.modelsListBox.FormattingEnabled = true;

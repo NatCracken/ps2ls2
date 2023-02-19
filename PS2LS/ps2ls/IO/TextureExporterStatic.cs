@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SDI = System.Drawing.Imaging;
-using ps2ls.Assets.Dme;
-using ps2ls.Assets.Pack;
+using ps2ls.Assets;
 using ps2ls.IO;
 using System.ComponentModel;
 using System.IO;
@@ -97,8 +96,9 @@ namespace ps2ls.IO
 
             if (image == null)
                 return false;
-
-            image.Save(directory + @"\" + Path.GetFileNameWithoutExtension(textureString) + @"." + textureFormat.Extension, textureFormat.ImageFormat);
+            string path = directory + @"\" + Path.GetFileNameWithoutExtension(textureString) + '.' + textureFormat.Extension;
+            Console.WriteLine(path);
+            image.Save(path, textureFormat.ImageFormat);
 
             return true;
         }

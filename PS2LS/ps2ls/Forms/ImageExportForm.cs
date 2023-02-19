@@ -1,5 +1,4 @@
-﻿using ps2ls.Assets.Dme;
-using ps2ls.Assets.Pack;
+﻿using ps2ls.Assets;
 using ps2ls.IO;
 using System;
 using System.Collections.Generic;

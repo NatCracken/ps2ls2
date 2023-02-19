@@ -6,7 +6,7 @@ using System.IO;
 using System.ComponentModel;
 using ps2ls.IO;
 
-namespace ps2ls.Assets.Pack
+namespace ps2ls.Assets
 {
     public class Asset
     {

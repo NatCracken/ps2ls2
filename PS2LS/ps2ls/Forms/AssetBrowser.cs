@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Threading;
-using ps2ls.Assets.Pack;
+using ps2ls.Assets;
 
 namespace ps2ls.Forms
 {

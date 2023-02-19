@@ -12,7 +12,6 @@ using OpenTK;
 using OpenTK.Input;
 using OpenTK.Graphics.OpenGL;
 using ps2ls.Assets;
-using ps2ls.Assets.Pack;
 
 namespace ps2ls.Forms
 {

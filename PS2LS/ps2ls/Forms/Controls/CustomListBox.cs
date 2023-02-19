@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Drawing;
-using ps2ls.Assets.Pack;
+using ps2ls.Assets;
 
 namespace ps2ls.Forms.Controls
 {

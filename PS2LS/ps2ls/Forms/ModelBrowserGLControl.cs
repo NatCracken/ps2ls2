@@ -91,7 +91,7 @@ namespace ps2ls.Forms
             }
             else if (zooming)
             {
-                Camera.DesiredDistance -= deltaY * 0.015625f;
+                Camera.DesiredDistance += deltaY * 0.015625f;
             }
 
             location = e.Location;

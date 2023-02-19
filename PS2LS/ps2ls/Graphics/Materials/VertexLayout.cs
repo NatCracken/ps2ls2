@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml;
 using ps2ls.Cryptography;
 using System.Xml.XPath;
+using System.IO;
 
 namespace ps2ls.Graphics.Materials
 {
@@ -193,14 +194,13 @@ namespace ps2ls.Graphics.Materials
 
             return count;
         }
-
-        public Boolean GetEntryInfoFromDataUsageAndUsageIndex(Entry.DataUsages dataUsage, Int32 usageIndex, out Entry.DataTypes dataType, out Int32 stream, out Int32 offset)
+        public bool GetEntryInfoFromDataUsageAndUsageIndex(Entry.DataUsages dataUsage, int usageIndex, out Entry.DataTypes dataType, out int stream, out int offset)
         {
             dataType = Entry.DataTypes.None;
             stream = 0;
             offset = 0;
 
-            UInt32 previousStream = 0;
+            uint previousStream = 0;
 
             foreach (Entry entry in Entries)
             {
@@ -209,11 +209,11 @@ namespace ps2ls.Graphics.Materials
                     offset = 0;
                 }
 
-                stream = (Int32)entry.Stream;
 
                 if (entry.DataUsage == dataUsage && entry.DataUsageIndex == usageIndex)
                 {
                     dataType = entry.DataType;
+                    stream = Convert.ToInt32(entry.Stream);
                     return true;
                 }
 

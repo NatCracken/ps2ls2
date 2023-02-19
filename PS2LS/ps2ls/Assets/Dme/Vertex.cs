@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using OpenTK;
 
-namespace ps2ls.Assets.Dme
+namespace ps2ls.Assets
 {
     public class Vertex
     {

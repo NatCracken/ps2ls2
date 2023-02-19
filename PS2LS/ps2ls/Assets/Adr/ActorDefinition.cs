@@ -4,7 +4,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.XPath;
 
-namespace ps2ls.Assets.Adr
+namespace ps2ls.Assets
 {
     public class ActorDefinition
     {

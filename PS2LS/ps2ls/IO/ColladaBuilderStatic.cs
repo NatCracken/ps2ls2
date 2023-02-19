@@ -1,6 +1,5 @@
 ﻿using OpenTK;
-using ps2ls.Assets.Dme;
-using ps2ls.Assets.Pack;
+using ps2ls.Assets;
 using ps2ls.Graphics.Materials;
 using System;
 using System.Collections.Generic;
@@ -34,11 +33,11 @@ namespace ps2ls.IO
             float_array positionArray = new float_array()
             {
                 id = positionSource.id + "-array",
-                count = mesh.VertexCount * 3,
+                count = mesh.vertexCount * 3,
             };
 
             //positions
-            Vector3[] positionBuffer = ModelExporterStatic.getPositionBuffer(mesh, vertexLayout, options, out bool _, out int bytesPerVertex);
+            Vector3[] positionBuffer = ModelExporterStatic.GetPositionBuffer(mesh, vertexLayout, options, out bool _, out int bytesPerVertex);
 
             double[] positions = new double[positionArray.count];
             for (int i = 0; i < positionBuffer.Length; i++)
@@ -56,7 +55,7 @@ namespace ps2ls.IO
             accessor posAccessor = new accessor()
             {
                 source = "#" + positionArray.id,
-                count = mesh.VertexCount,
+                count = mesh.vertexCount,
             };
             string paramType = bytesPerVertex == 12 ? "float" : "half";
             posAccessor.param = new param[]
@@ -88,7 +87,7 @@ namespace ps2ls.IO
             bool hasNormals = false;
             if (options.Normals)
             {
-                Vector3[] normalsBuffer = ModelExporterStatic.getNormalBuffer(mesh, vertexLayout, options, out hasNormals, out bytesPerVertex);
+                Vector3[] normalsBuffer = ModelExporterStatic.GetNormalBuffer(mesh, vertexLayout, out hasNormals, out bytesPerVertex);
                 if (hasNormals)
                 {
                     source normalSource = new source()
@@ -98,7 +97,7 @@ namespace ps2ls.IO
                     float_array normalArray = new float_array()
                     {
                         id = normalSource.id + "-array",
-                        count = mesh.VertexCount * 3,
+                        count = mesh.vertexCount * 3,
                     };
 
                     //normals
@@ -118,7 +117,7 @@ namespace ps2ls.IO
                     accessor normAccessor = new accessor()
                     {
                         source = "#" + normalArray.id,
-                        count = mesh.VertexCount,
+                        count = mesh.vertexCount,
                     };
                     normAccessor.param = new param[]
                     {
@@ -151,7 +150,7 @@ namespace ps2ls.IO
             bool hasTexCoords = false;
             if (options.TextureCoordinates)
             {
-                Vector2[] texCoordsBuffer = ModelExporterStatic.getTextureCoords0Buffer(mesh, vertexLayout, options, out hasTexCoords, out bytesPerVertex);
+                Vector2[] texCoordsBuffer = ModelExporterStatic.GetTextureCoords0Buffer(mesh, vertexLayout, options, out hasTexCoords, out bytesPerVertex);
                 if (hasTexCoords)
                 {
                     source textureSource = new source()
@@ -161,7 +160,7 @@ namespace ps2ls.IO
                     float_array textureArray = new float_array
                     {
                         id = textureSource.id + "-array",
-                        count = mesh.VertexCount * 3
+                        count = mesh.vertexCount * 3
                     };
 
                     double[] coordinates = new double[textureArray.count];
@@ -180,7 +179,7 @@ namespace ps2ls.IO
                     accessor texAccessor = new accessor
                     {
                         source = "#" + textureArray.id,
-                        count = mesh.VertexCount,
+                        count = mesh.vertexCount,
 
                     };
                     paramType = bytesPerVertex == 8 ? "float" : "half";
@@ -223,7 +222,7 @@ namespace ps2ls.IO
 
             #region triangles
 
-            UIntSet[] indexBuffer = ModelExporterStatic.getIndexBuffer(mesh);
+            UIntSet[] indexBuffer = ModelExporterStatic.GetIndexBuffer(mesh);
             triangles triangles = new triangles()
             {
                 count = Convert.ToUInt64(indexBuffer.Length),

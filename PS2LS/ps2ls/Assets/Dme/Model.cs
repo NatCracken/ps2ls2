@@ -5,64 +5,35 @@ using System.Text;
 using System.IO;
 using System.Globalization;
 using OpenTK;
-using ps2ls.Assets.Dma;
 using ps2ls.Graphics.Materials;
 using ps2ls.Cryptography;
 
-namespace ps2ls.Assets.Dme
+namespace ps2ls.Assets
 {
     public class Model
     {
-        public uint Version { get; private set; }
-        public string Name { get; private set; }
-        public uint Unknown0 { get; private set; }
-        public uint Unknown1 { get; private set; }
-        public uint Unknown2 { get; private set; }
-        private Vector3 min;
-        public Vector3 Min { get { return min; } }
-        private Vector3 max;
-        public Vector3 Max { get { return max; } }
-        public List<Material> Materials { get; private set; }
-        public Mesh[] Meshes { get; private set; }
-        public List<string> TextureStrings { get; private set; }
-        public BoneDrawCall[] BoneDrawCalls { get; private set; }
-        public BoneMapEntry[] BoneMapEntries { get; private set; }
-        public uint BonePositionCount { get; private set; }
-        public Vector3[] bonePositions { get; private set; }
-        #region Attributes
-        public UInt32 VertexCount
+        public string name { get; private set; }
+        public uint version { get; private set; }
+        public Dma dma;
+        public uint unknown0 { get; private set; }
+        public uint unknown1 { get; private set; }
+        public uint unknown2 { get; private set; }
+        public Vector3 min { get; private set; }
+        public Vector3 max { get; private set; }
+        public Mesh[] meshes { get; private set; }
+        public uint boneDrawCallCount { get; private set; }
+        public BoneDrawCall[] boneDrawCalls { get; private set; }
+        public uint boneMapEntryCount { get; private set; }
+        public BoneMapEntry[] boneMapEntries { get; private set; }
+        public Dictionary<int, int> boneMap1 = new Dictionary<int, int>();
+        public Dictionary<int, int> boneMap2 = new Dictionary<int, int>();
+        public uint boneCount { get; private set; }
+        public Bone[] bones { get; private set; }
+        public uint vertexCount;
+        public uint indexCount;
+        public readonly bool isValid;
+        public Model(string getName, Stream stream)
         {
-            get
-            {
-                UInt32 vertexCount = 0;
-
-                for (Int32 i = 0; i < Meshes.Length; ++i)
-                {
-                    vertexCount += Meshes[i].VertexCount;
-                }
-
-                return vertexCount;
-            }
-        }
-        public UInt32 IndexCount
-        {
-            get
-            {
-                UInt32 indexCount = 0;
-
-                for (Int32 i = 0; i < Meshes.Length; ++i)
-                {
-                    indexCount += Meshes[i].IndexCount;
-                }
-
-                return indexCount;
-            }
-        }
-        #endregion
-
-        public static Model LoadFromStream(String name, Stream stream)
-        {
-
             BinaryReader binaryReader = new BinaryReader(stream);
 
             //header
@@ -73,100 +44,104 @@ namespace ps2ls.Assets.Dme
                 magic[2] != 'O' ||
                 magic[3] != 'D')
             {
-                return null;
-            }
-            Model model = new Model();
-            model.Name = name;
-            model.Version = binaryReader.ReadUInt32();
 
-            if (model.Version != 4)
+                Console.WriteLine("Magic Missmatch:" + Encoding.UTF8.GetString(magic));
+                return;
+            }
+
+            name = getName;
+
+#if DEBUG
+            Console.WriteLine("~~~~~~~~Model~~~~~~~");
+            Console.WriteLine(getName);
+#endif
+            version = binaryReader.ReadUInt32();
+
+            if (version != 4)
             {
-                Console.WriteLine(name + " is an unsupported dmod file. v." + model.Version);
-                return null;
+                Console.WriteLine(name + " is an unsupported dmod file. v." + version);
+                return;
             }
 
             //materials
-            uint dmatLength = binaryReader.ReadUInt32();
-            byte[] dmatData = binaryReader.ReadBytes(Convert.ToInt32(dmatLength));
-            List<string> texStringList = new List<string>();
-            List<Material> matList = new List<Material>();
-            Dma.Dma.LoadFromStream(dmatData, ref texStringList, ref matList);
-            model.TextureStrings = texStringList;
-            model.Materials = matList;
+            dma = new Dma(stream);
+            if (!dma.isValid) return;
 
             //bounding box
-            model.min.X = binaryReader.ReadSingle();
-            model.min.Y = binaryReader.ReadSingle();
-            model.min.Z = binaryReader.ReadSingle();
-
-            model.max.X = binaryReader.ReadSingle();
-            model.max.Y = binaryReader.ReadSingle();
-            model.max.Z = binaryReader.ReadSingle();
+            min = new Vector3(binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+            max = new Vector3(binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
 
             //meshes
             uint meshCount = binaryReader.ReadUInt32();
 
-            model.Meshes = new Mesh[meshCount];
-
-            for (int i = 0; i < meshCount; ++i)
+            meshes = new Mesh[meshCount];
+            vertexCount = 0;
+            indexCount = 0;
+            for (int i = 0; i < meshCount; i++)
             {
-                Mesh mesh = Mesh.LoadFromStream(binaryReader.BaseStream);
-
-                if (mesh != null) model.Meshes[i] = mesh;
+                meshes[i] = new Mesh(binaryReader.BaseStream);
+                vertexCount += meshes[i].vertexCount;
+                indexCount += meshes[i].indexCount;
             }
 
-#if DEBUG
-            Console.WriteLine("~~~~~~~~Bones~~~~~~~");
-            Console.WriteLine("Bone Draw Calls Positions: " + stream.Position);
-#endif
             //bone maps
-            uint boneDrawCallCount = binaryReader.ReadUInt32();
-            model.BoneDrawCalls = new BoneDrawCall[boneDrawCallCount];
+            boneDrawCallCount = binaryReader.ReadUInt32();
+            boneDrawCalls = new BoneDrawCall[boneDrawCallCount];
 
-            for (int i = 0; i < boneDrawCallCount; ++i)
+            for (int i = 0; i < boneDrawCallCount; i++)
             {
-                BoneDrawCall boneMap = BoneDrawCall.LoadFromStream(binaryReader.BaseStream);
-
-                if (boneMap != null)
-                {
-                    model.BoneDrawCalls[i] = boneMap;
-                }
+                boneDrawCalls[i] = new BoneDrawCall(binaryReader.BaseStream);
             }
 
 
-#if DEBUG
-            Console.WriteLine("Bone Map Entries Positions: " + stream.Position);
-#endif
             //bone map entries
-            uint boneMapEntryCount = binaryReader.ReadUInt32();
-
-            model.BoneMapEntries = new BoneMapEntry[boneMapEntryCount];
+            boneMapEntryCount = binaryReader.ReadUInt32();
+            boneMapEntries = new BoneMapEntry[boneMapEntryCount];
 
             for (int i = 0; i < boneMapEntryCount; ++i)
             {
-                BoneMapEntry boneMapEntry = BoneMapEntry.LoadFromStream(binaryReader.BaseStream);
-
-                model.BoneMapEntries[i] = boneMapEntry;
+                boneMapEntries[i] = new BoneMapEntry(binaryReader.BaseStream);
+                if (boneMap1.ContainsKey(boneMapEntries[i].globalIndex))
+                {
+                    boneMap1.Add(boneMapEntries[i].globalIndex + 64, boneMapEntries[i].boneIndex);
+                    boneMap2.Add(boneMapEntries[i].globalIndex, boneMapEntries[i].boneIndex);
+                }
+                else
+                {
+                    boneMap1.Add(boneMapEntries[i].globalIndex, boneMapEntries[i].boneIndex);
+                }
             }
 
-#if DEBUG
-            Console.WriteLine("Post Bone Maps: " + stream.Position);
-#endif
-
-            /*Up next we have a series of floats
-             */
-            model.BonePositionCount = binaryReader.ReadUInt32();
-            model.bonePositions = new Vector3[model.BonePositionCount];
-            for (int i = 0; i < model.BonePositionCount; i++)
+            //return;
+            boneCount = binaryReader.ReadUInt32();
+            bones = new Bone[boneCount];
+            for (int i = 0; i < boneCount; i++)
             {
-                model.bonePositions[i] = new Vector3(binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-            }
-            //Console.WriteLine();//unknown
-#if DEBUG
-            Console.WriteLine("Post Bone Verts: " + stream.Position);
-#endif
+                float[] matrix = new float[12];
+                for (int j = 0; j < 12; j++) matrix[j] = binaryReader.ReadSingle();
 
-            return model;
+                bones[i] = new Bone()
+                {
+                    inverseBindPose = new Matrix4(
+                        new Vector4(matrix[0], matrix[1], matrix[2], 0),
+                        new Vector4(matrix[3], matrix[4], matrix[5], 0),
+                        new Vector4(matrix[6], matrix[7], matrix[8], 0),
+                        new Vector4(matrix[9], matrix[10], matrix[11], 1))
+                };
+            }
+
+            for (int i = 0; i < boneCount; i++)
+            {
+                bones[i].min = new Vector3(binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+                bones[i].max = new Vector3(binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+            }
+
+            for (int i = 0; i < boneCount; i++)
+            {
+                bones[i].nameHash = binaryReader.ReadUInt32();
+            }
+
+            isValid = true;
         }
     }
 }

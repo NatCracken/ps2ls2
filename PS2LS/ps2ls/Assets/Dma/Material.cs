@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using ps2ls.Graphics.Materials;
 
-namespace ps2ls.Assets.Dma
+namespace ps2ls.Assets
 {
     public class Material
     {
@@ -14,32 +14,22 @@ namespace ps2ls.Assets.Dma
         public uint MaterialDefinitionHash { get; private set; }
         public string DefinitionName { get; private set; }
         public List<Parameter> Parameters { get; private set; }
-
-        public Material(uint getName, uint getDataLength)
+        public Material(Stream stream)
         {
-            NameHash = getName;
-            DataLength = getDataLength;
-        }
-
-        public void ParseFromBlock(byte[] matBlock)
-        {
-            MemoryStream stream = new MemoryStream(matBlock);
             BinaryReader binaryReader = new BinaryReader(stream);
 
+            NameHash = binaryReader.ReadUInt32();
+            DataLength = binaryReader.ReadUInt32();
             MaterialDefinitionHash = binaryReader.ReadUInt32();
+            uint parameterCount = binaryReader.ReadUInt32();
 
             if (MaterialDefinitionManager.Instance.hasMaterialHash(MaterialDefinitionHash))
             {
                 DefinitionName = MaterialDefinitionManager.Instance.MaterialDefinitions[MaterialDefinitionHash].Name;
             }
 
-            uint parameterCount = binaryReader.ReadUInt32();
             Parameters = new List<Parameter>(Convert.ToInt32(parameterCount));
-
             for (uint j = 0; j < parameterCount; ++j) Parameters.Add(Parameter.LoadFromStream(stream));
-
-            binaryReader.Dispose();
-            stream.Dispose();
         }
 
         public class Parameter
@@ -82,62 +72,23 @@ namespace ps2ls.Assets.Dma
                 ForceDword = 0x7fffffff
             }
 
-            private Parameter()
-            {
-            }
-
-            public object parseData(out Type type)
-            {
-                switch (Type)
-                {
-                    case D3DXParameterType.Void:
-                        type = null;
-                        return null;
-                    case D3DXParameterType.Bool:
-                        type = typeof(bool);
-                        return BitConverter.ToBoolean(Data, 0);
-                    case D3DXParameterType.Int:
-                    case D3DXParameterType.Texture:
-                        type = typeof(uint);
-                        return BitConverter.ToUInt32(Data, 0);
-                    case D3DXParameterType.Float:
-                        type = typeof(float);
-                        return BitConverter.ToSingle(Data, 0);
-                    case D3DXParameterType.String:
-                        type = typeof(string);
-                        return BitConverter.ToString(Data, 0);
-                    default:
-                        //Console.WriteLine("Unhandled parameter type:" + Type);
-                        type = null;
-                        return null;
-                }
-            }
-
             public static Parameter LoadFromStream(Stream stream)
             {
                 Parameter parameter = new Parameter();
-
                 BinaryReader binaryReader = new BinaryReader(stream);
 
                 parameter.NameHash = binaryReader.ReadUInt32();
-                /*if (MaterialDefinitionManager.Instance.hasParameterHash(parameter.NameHash))
-                {
-                    parameter.DefinitionName = MaterialDefinitionManager.Instance.ParameterDefinitions[parameter.NameHash].Name;
-                }*/
                 parameter.Class = (D3DXParameterClass)binaryReader.ReadUInt32();
                 parameter.Type = (D3DXParameterType)binaryReader.ReadUInt32();
-
-                uint dataLength = binaryReader.ReadUInt32();
-
-                parameter.Data = binaryReader.ReadBytes(Convert.ToInt32(dataLength));
-
+                parameter.dataLength = binaryReader.ReadUInt32();
+                parameter.Data = binaryReader.ReadBytes(Convert.ToInt32(parameter.dataLength));
                 return parameter;
             }
 
             public uint NameHash { get; private set; }
-            public string DefinitionName { get; private set; }
             public D3DXParameterClass Class { get; private set; }
             public D3DXParameterType Type { get; private set; }
+            public uint dataLength;
             public byte[] Data { get; private set; }
         }
     }
