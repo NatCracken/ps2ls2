@@ -10,10 +10,9 @@ using System.Text;
 
 namespace ps2ls.IO
 {
-    class ColladaBuilderStatic
+    static class ColladaBuilderStatic
     {
-
-        public static geometry createGeometryFromMesh(Mesh mesh, string meshName, VertexLayout vertexLayout, ModelExporterStatic.ExportOptions options)
+        public static geometry CreateGeometryFromMesh(Mesh mesh, string meshName, VertexLayout vertexLayout, ModelExporterStatic.ExportOptions options)
         {
 
             geometry geom = new geometry()
@@ -22,7 +21,7 @@ namespace ps2ls.IO
                 id = meshName + "-mesh",
             };
 
-            Collada141.mesh cMesh = new mesh();
+            mesh cMesh = new mesh();
             List<source> sourceList = new List<source>();
 
             #region positions
@@ -54,8 +53,9 @@ namespace ps2ls.IO
             sourceTechnique_common posTechCommon = new sourceTechnique_common();
             accessor posAccessor = new accessor()
             {
-                source = "#" + positionArray.id,
+                source = '#' + positionArray.id,
                 count = mesh.vertexCount,
+                stride = 3
             };
             string paramType = bytesPerVertex == 12 ? "float" : "half";
             posAccessor.param = new param[]
@@ -76,7 +76,6 @@ namespace ps2ls.IO
                     type = paramType,
                 },
             };
-            posAccessor.stride = Convert.ToUInt64(posAccessor.param.Length);
             posTechCommon.accessor = posAccessor;
             positionSource.technique_common = posTechCommon;
 
@@ -116,28 +115,28 @@ namespace ps2ls.IO
                     sourceTechnique_common normTechCommon = new sourceTechnique_common();
                     accessor normAccessor = new accessor()
                     {
-                        source = "#" + normalArray.id,
+                        source = '#' + normalArray.id,
                         count = mesh.vertexCount,
+                        stride = 3
                     };
                     normAccessor.param = new param[]
                     {
-                new param()
-                {
-                    name = "X",
-                    type = "float",
-                },
-                new param()
-                {
-                    name = "Y",
-                    type = "float",
-                },
-                new param()
-                {
-                    name = "Z",
-                    type = "float",
-                },
+                        new param()
+                        {
+                            name = "X",
+                            type = "float",
+                        },
+                        new param()
+                        {
+                            name = "Y",
+                            type = "float",
+                        },
+                        new param()
+                        {
+                            name = "Z",
+                            type = "float",
+                        },
                     };
-                    normAccessor.stride = Convert.ToUInt64(normAccessor.param.Length);
                     normTechCommon.accessor = normAccessor;
                     normalSource.technique_common = normTechCommon;
 
@@ -178,9 +177,9 @@ namespace ps2ls.IO
                     sourceTechnique_common texTechCommon = new sourceTechnique_common();
                     accessor texAccessor = new accessor
                     {
-                        source = "#" + textureArray.id,
+                        source = '#' + textureArray.id,
                         count = mesh.vertexCount,
-
+                        stride = 2
                     };
                     paramType = bytesPerVertex == 8 ? "float" : "half";
                     texAccessor.param = new param[]
@@ -196,7 +195,6 @@ namespace ps2ls.IO
                             type = paramType,
                         },
                     };
-                    texAccessor.stride = Convert.ToUInt64(texAccessor.param.Length);
                     texTechCommon.accessor = texAccessor;
                     textureSource.technique_common = texTechCommon;
 
@@ -215,14 +213,14 @@ namespace ps2ls.IO
             vertices.input = new InputLocal[] { new InputLocal()
                 {
                     semantic = "POSITION",
-                    source = "#" + positionSource.id,
+                    source = '#' + positionSource.id,
                 },
             };
             #endregion
 
             #region triangles
 
-            UIntSet[] indexBuffer = ModelExporterStatic.GetIndexBuffer(mesh);
+            UIntSet[] indexBuffer = ModelExporterStatic.GetIndexTriBuffer(mesh);
             triangles triangles = new triangles()
             {
                 count = Convert.ToUInt64(indexBuffer.Length),
@@ -232,20 +230,20 @@ namespace ps2ls.IO
             List<InputLocalOffset> triangleInputList = new List<InputLocalOffset>(){ new InputLocalOffset()
                 {
                     semantic = "VERTEX",
-                    source = "#" + vertices.id,
+                    source = '#' + vertices.id,
                     offset = triOffset++,
                 },
             };
             if (hasNormals) triangleInputList.Add(new InputLocalOffset()
             {
                 semantic = "NORMAL",
-                source = "#" + geom.id + "-normals",
+                source = '#' + geom.id + "-normals",
                 offset = triOffset++,
             });
             if (hasTexCoords) triangleInputList.Add(new InputLocalOffset()
             {
                 semantic = "TEXCOORD",
-                source = "#" + geom.id + "-map-0",
+                source = '#' + geom.id + "-map-0",
                 offset = triOffset++,
                 set = 0,
             });
@@ -271,6 +269,255 @@ namespace ps2ls.IO
 
             geom.Item = cMesh;
             return geom;
+        }
+
+        public static controller CreateControllerFromMesh(Mesh mesh, string meshName)
+        {
+            controller controller = new controller()
+            {
+                id = meshName + "-skin",
+                name = "Armature"
+            };
+
+
+            skin skin = new skin()
+            {
+                bind_shape_matrix = MatrixToString(Matrix4.Identity), //TODO What actually is this?
+                source1 = '#' + meshName + "-mesh",
+            };
+
+            List<source> sourceList = new List<source>();
+
+            #region Joints
+            source jointsSource = new source()
+            {
+                id = meshName + "-skin-joints"
+            };
+
+            Name_array jointArray = new Name_array()
+            {
+                id = meshName + "-skin-joints-array",
+                count = 0,//todo joint count
+
+            };
+
+            string[] joinNameList = new string[0]; //TODO fill joint list
+
+            jointArray.Values = joinNameList;
+            jointsSource.Item = jointArray;
+
+            sourceTechnique_common jointTechCommon = new sourceTechnique_common();
+            accessor jointAccessor = new accessor()
+            {
+                source = '#' + jointArray.id,
+                count = 0,//todo should be listLength/stride
+                stride = 1
+            };
+            jointAccessor.param = new param[]
+            {
+                new param()
+                {
+                    name = "JOINT",
+                    type = "name",
+                },
+            };
+            jointTechCommon.accessor = jointAccessor;
+            jointsSource.technique_common = jointTechCommon;
+            sourceList.Add(jointsSource);
+            #endregion
+
+            #region Bind Poses
+            source bindPosesSource = new source()
+            {
+                id = meshName + "-skin-bind-poses"
+            };
+
+            float_array bindPoseArray = new float_array()
+            {
+                id = meshName + "-skin-bind-poses-array",
+                count = 0,//todo count
+
+            };
+
+            double[] bindPosesList = new double[0]; //TODO matrix list
+
+            bindPoseArray.Values = bindPosesList;
+            bindPosesSource.Item = bindPoseArray;
+
+            sourceTechnique_common bindPosesTechCommon = new sourceTechnique_common();
+            accessor bindPosesAccessor = new accessor()
+            {
+                source = '#' + bindPoseArray.id,
+                count = 0,//todo should be listLength/stride
+                stride = 16,
+            };
+            bindPosesAccessor.param = new param[]
+            {
+                new param()
+                {
+                    name = "TRANSFORM",
+                    type = "float4x4",
+                },
+            };
+            bindPosesTechCommon.accessor = bindPosesAccessor;
+            bindPosesSource.technique_common = bindPosesTechCommon;
+            sourceList.Add(bindPosesSource);
+            #endregion
+
+            #region SkinWeights
+            source skinWeightsSource = new source()
+            {
+                id = meshName + "-skin-weights"
+            };
+
+            float_array skinWeightsArray = new float_array()
+            {
+                id = meshName + "-skin-weights-array",
+                count = 0,//todo count
+
+            };
+
+            double[] skinWeightsList = new double[0]; //TODO matrix list
+
+            skinWeightsArray.Values = skinWeightsList;
+            skinWeightsSource.Item = skinWeightsArray;
+
+            sourceTechnique_common skinWeightsTechCommon = new sourceTechnique_common();
+            accessor skinWeightsAccessor = new accessor()
+            {
+                source = '#' + skinWeightsArray.id,
+                count = 0,//todo should be listLength/stride
+                stride = 1,
+            };
+            skinWeightsAccessor.param = new param[]
+            {
+                new param()
+                {
+                    name = "WEIGHT",
+                    type = "float",
+                },
+            };
+            skinWeightsTechCommon.accessor = skinWeightsAccessor;
+            skinWeightsSource.technique_common = skinWeightsTechCommon;
+            sourceList.Add(skinWeightsSource);
+            #endregion
+
+            skin.source = sourceList.ToArray();
+
+
+            List<InputLocal> jointInputs = new List<InputLocal>();
+            jointInputs.Add(new InputLocal()
+            {
+                semantic = "JOINT",
+                source = '#' + jointsSource.id
+            });
+            jointInputs.Add(new InputLocal()
+            {
+                semantic = "INV_BIND_MATRIX",
+                source = '#' + bindPosesSource.id
+            });
+            skin.joints = new skinJoints()
+            {
+                input = jointInputs.ToArray()
+            };
+
+            skinVertex_weights vertexWeights = new skinVertex_weights();
+
+
+            List<InputLocalOffset> vertWeightInputs = new List<InputLocalOffset>();
+            vertWeightInputs.Add(new InputLocalOffset()
+            {
+                semantic = "JOINT",
+                source = '#' + jointsSource.id,
+                offset = 0
+            });
+            vertWeightInputs.Add(new InputLocalOffset()
+            {
+                semantic = "WEIGHT",
+                source = '#' + skinWeightsSource.id,
+                offset = 1
+            });
+            vertexWeights.input = vertWeightInputs.ToArray();
+
+            StringBuilder vCountBuilder = new StringBuilder();//TODO fill vCount
+            vertexWeights.vcount = vCountBuilder.ToString();
+
+            StringBuilder vBuilder = new StringBuilder();//TODO fill v
+            vertexWeights.v = vBuilder.ToString();
+
+            skin.vertex_weights = vertexWeights;
+
+            controller.Item = skin;
+            return controller;
+        }
+
+        private static string MatrixToString(Matrix4 matrix)
+        {
+            StringBuilder matrixString = new StringBuilder();
+            for (int y = 0; y < 4; y++)
+            {
+                for (int x = 0; x < 4; x++)
+                {
+                    matrixString.Append(matrix[x, y]).Append(' ');
+                }
+            }
+            return matrixString.ToString();
+        }
+        public static node BuildNode(string name, NodeType type)
+        {
+            return BuildNode(name, type, Matrix4.Identity);
+        }
+        public static node BuildNode(string name, NodeType type, Matrix4 transform)
+        {
+            node node = type == NodeType.JOINT ? new node()
+            {
+                id = "Armature_" + name,
+                name = name,
+                sid = name,
+                type = type,
+            } : new node()
+            {
+                id = name,
+                name = name,
+                type = type,
+            };
+
+            StringBuilder matrixString = new StringBuilder();
+            for (int y = 0; y < 4; y++)
+            {
+                for (int x = 0; x < 4; x++)
+                {
+                    matrixString.Append(transform[x, y]).Append(' ');
+                }
+            }
+
+            matrix nodeMatrix = new matrix()
+            {
+                sid = "transform",
+                _Text_ = matrixString.ToString(),
+            };
+            node.Items = new object[] { nodeMatrix };
+            node.ItemsElementName = new ItemsChoiceType2[] { ItemsChoiceType2.matrix };
+            return node;
+        }
+
+        public static node BuildArmature(Model model, string cleanName)
+        {
+            node rootNode = BuildNode(cleanName, NodeType.JOINT);
+            node workingNode = rootNode;
+            foreach (Bone bone in model.bones)
+            {
+                node newNode = BuildArmatureRecursive(bone);
+                workingNode.node1 = new node[] { newNode };
+                workingNode = newNode;
+            }
+            return rootNode;
+        }
+
+        private static node BuildArmatureRecursive(Bone bone)
+        {
+            node activeNode = BuildNode(bone.name, NodeType.JOINT, bone.inverseBindPose);
+            return activeNode;
         }
     }
 }
