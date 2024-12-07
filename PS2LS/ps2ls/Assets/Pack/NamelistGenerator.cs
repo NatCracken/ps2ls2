@@ -69,7 +69,7 @@ namespace ps2ls.Assets
                 ExtractFromPack(targetPacks[i], i + 1 + "/" + packCount);
             }
 
-            nameListDirectory = Path.GetDirectoryName(targetPacks[0]) + @"\NameList" + (useRegex ? "_RegEx" : "") + ".txt";
+            nameListDirectory = Path.GetDirectoryName(targetPacks[0]) + @"\NameList.txt";
             StreamWriter writer = new StreamWriter(nameListDirectory, false);
             int count = nameDict.Count;
             int j = 0;
@@ -89,20 +89,18 @@ namespace ps2ls.Assets
             MessageBox.Show("Found " + processedNames.Count + " names in: " + DateTime.Now.Subtract(startTime).ToString(@"hh\:mm\:ss") + ".\rNamelist created at:\r" + nameListDirectory, "Namelist Created", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        public static void GenerateNameList(string[] getPacks, bool useRegex)
+        public static void GenerateNameList(string[] getPacks)
         {
             if (Instance == null) Instance = new NamelistGenerator();
-            Instance.GenerateNameListInternal(getPacks, useRegex);
+            Instance.GenerateNameListInternal(getPacks);
         }
 
         string[] targetPacks;
-        bool useRegex;
         DateTime startTime;
-        private void GenerateNameListInternal(string[] getPacks, bool useRegex)
+        private void GenerateNameListInternal(string[] getPacks)
         {
             if (buildNamelistBackgroundWorker.IsBusy) return;
             targetPacks = getPacks;
-            this.useRegex = useRegex;
             startTime = DateTime.Now;
             loadingForm = new GenericLoadingForm();
             loadingForm.SetWindowTitle("Generating Namelist...");
@@ -202,7 +200,7 @@ namespace ps2ls.Assets
                     currentAsset.isZipped
                 );
 
-                string[] foundNames = ExtractNames(assetData, useRegex);
+                string[] foundNames = ExtractNames(assetData);
                 if (foundNames.Length == 0)
                     continue;
 
@@ -214,7 +212,7 @@ namespace ps2ls.Assets
 
         static readonly byte[] bFsb5 = Encoding.UTF8.GetBytes("FSB5");
         static readonly byte[] bActorRuntime = Encoding.UTF8.GetBytes("<ActorRuntime>");
-        private static string[] ExtractNames(byte[] source, bool useRegex)
+        private static string[] ExtractNames(byte[] source)
         {
             if (source.Length == 0) return new string[0];
             if (MatchBytes(source, bFsb5))
@@ -227,7 +225,6 @@ namespace ps2ls.Assets
                 return SearchADR(source);
             }
 
-            if (useRegex) return PatternMatchExtractNames(source);
             return ByteMatchExtractNames(source);
         }
 
@@ -305,23 +302,6 @@ namespace ps2ls.Assets
         {
             while (source[offset] != 10) { offset++; } //adr definition use 10-13 (newline-carrage return)
             offset += 2;
-        }
-
-        //static readonly Regex removePattern = new Regex(@"[^\u002D-\u007A]", RegexOptions.Compiled);
-        static readonly Regex filePattern = new Regex(@"([><\w-]+\.(" +
-            @"adr|agr|ags|apb|apx|bat|bin|cdt|cnk0|cnk1|cnk2|cnk3|cnk4|cnk5|
-            crc|crt|cso|cur|dat|db|dds|def|dir|dll|
-            dma|dme|dmv|dsk|dx11efb|dx11rsb|dx11ssb|eco|efb|exe|
-            fsb|fxd|fxo|gfx|gnf|i64|ini|jpg|lst|lua|mrn|pak|
-            pem|playerstudio|png|prsb|psd|pssb|tga|thm|tome|ttf|
-            txt|vnfo|wav|xlsx|xml|xrsb|xssb|zone" +
-            @"))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static string[] PatternMatchExtractNames(byte[] source)
-        {
-            List<string> names = new List<string>();
-            MatchCollection matches = filePattern.Matches(Encoding.UTF8.GetString(source));
-            foreach (Match m in matches) names.Add(m.Value);
-            return names.ToArray();
         }
 
         static readonly List<byte[]> fileExtentions = new List<byte[]>() {
