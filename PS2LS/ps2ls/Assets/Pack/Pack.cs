@@ -108,13 +108,7 @@ namespace ps2ls.Assets
 
         public static byte[] Decompress(byte[] data)
         {
-            using (var memStream = new MemoryStream(data))
-            using (var zLibStream = new ZlibStream(memStream, CompressionMode.Decompress))
-            using (var outStream = new MemoryStream())
-            {
-                zLibStream.CopyTo(outStream);
-                return outStream.ToArray();
-            }
+            return ZlibStream.UncompressBuffer(data);
         }
 
         byte[] pngHeader = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
