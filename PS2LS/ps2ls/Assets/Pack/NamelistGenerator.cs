@@ -193,24 +193,23 @@ namespace ps2ls.Assets
         {
             while (remainingProcess.TryDequeue(out int todo))
             {
-                string[] foundNames = ExtractNames(CreateBufferFromAsset(assets[todo], fileStream), useRegex);
-                if (foundNames.Length == 0) continue;
+                AssetLite currentAsset = assets[todo];
+                byte[] assetData = Pack.CreateBufferFromAsset
+                (
+                    fileStream,
+                    currentAsset.dataLength,
+                    currentAsset.offset,
+                    currentAsset.isZipped
+                );
+
+                string[] foundNames = ExtractNames(assetData, useRegex);
+                if (foundNames.Length == 0)
+                    continue;
+
                 foundNames = ProcessNames(foundNames);
-                foreach (string name in foundNames) SaveName(name);
+                foreach (string name in foundNames)
+                    SaveName(name);
             }
-        }
-
-        private byte[] CreateBufferFromAsset(AssetLite asset, FileStream fileStream)
-        {
-            byte[] buffer = new byte[asset.dataLength];
-
-            long offset = Convert.ToInt64(asset.offset) + (asset.isZipped ? 8 : 0);//zipped assets need another offset of 8 bytes
-            fileStream.Seek(offset, SeekOrigin.Begin);
-            fileStream.Read(buffer, 0, (int)asset.dataLength);
-
-            if (asset.isZipped) buffer = Pack.Decompress(buffer);
-
-            return buffer;
         }
 
         static readonly byte[] bFsb5 = Encoding.UTF8.GetBytes("FSB5");
