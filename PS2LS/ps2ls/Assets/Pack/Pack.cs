@@ -112,7 +112,12 @@ namespace ps2ls.Assets
             using (var outStream = new MemoryStream(expectedLength))
             {
                 zLibStream.CopyTo(outStream);
-                return outStream.ToArray();
+
+                // We set outStream's capacity to the expected length, meaning the internal buffer will be exactly
+                // the length of the data, provided we've actually written the expected amount
+                return outStream.Position == expectedLength
+                    ? outStream.GetBuffer()
+                    : outStream.ToArray();
             }
         }
 
@@ -144,10 +149,9 @@ namespace ps2ls.Assets
             packFileStream.Seek(offset, SeekOrigin.Begin);
             packFileStream.Read(buffer, 0, (int)assetDataLength);
 
-            if (assetIsZipped)
-                buffer = Decompress(expectedLength, buffer);
-
-            return buffer;
+            return assetIsZipped
+                ? Decompress(expectedLength, buffer)
+                : buffer;
         }
 
         public static byte[] CreateBufferFromAsset(FileStream packFileStream, Asset asset)
