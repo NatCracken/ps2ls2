@@ -113,10 +113,12 @@ namespace ps2ls.Assets
             {
                 zLibStream.CopyTo(outStream);
 
-                // We set outStream's capacity to the expected length, meaning the internal buffer will be exactly
-                // the length of the data, provided we've actually written the expected amount
-                return outStream.Position == expectedLength
-                    ? outStream.GetBuffer()
+                // We set outStream's capacity to the expected length, meaning the internal buffer should already be
+                // the correct length, provided we've actually written the expected amount
+                byte[] internalBuffer = outStream.GetBuffer();
+                // Still check the stream's position, in case we've written fewer bytes than expected
+                return internalBuffer.Length == expectedLength && outStream.Position == expectedLength
+                    ? internalBuffer
                     : outStream.ToArray();
             }
         }
