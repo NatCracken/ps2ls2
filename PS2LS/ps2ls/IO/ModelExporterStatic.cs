@@ -11,6 +11,9 @@ using SharpGLTF.Geometry;
 using SharpGLTF.Scenes;
 using SharpGLTF.Materials;
 using SharpGLTF.Geometry.VertexTypes;
+using VERTEX = SharpGLTF.Geometry.VertexBuilder<SharpGLTF.Geometry.VertexTypes.VertexPositionNormalTangent, SharpGLTF.Geometry.VertexTypes.VertexEmpty, SharpGLTF.Geometry.VertexTypes.VertexJoints4>;
+using MESH = SharpGLTF.Geometry.MeshBuilder<SharpGLTF.Geometry.VertexTypes.VertexPositionNormalTangent, SharpGLTF.Geometry.VertexTypes.VertexEmpty, SharpGLTF.Geometry.VertexTypes.VertexJoints4>;
+using SharpGLTF.Transforms;
 
 namespace ps2ls.IO
 {
@@ -28,6 +31,7 @@ namespace ps2ls.IO
             Obj,
             Dae,
             glTF2,
+            assimp,
         }
 
         public static string outputDirectory;
@@ -111,16 +115,16 @@ namespace ps2ls.IO
                 CanExportTexutres = false
             });
 
-            /*ExportFormatInfos.Add(ExportFormats.Dae, new ExportFormatInfo
+            ExportFormatInfos.Add(ExportFormats.Dae, new ExportFormatInfo
             {
                 ExportFormat = ExportFormats.Dae,
                 Name = "Collada",
                 CanExportNormals = true,
                 CanExportTextureCoordinates = true,
-                CanExportBones = false,
+                CanExportBones = true,
                 CanExportMaterials = false,
                 CanExportTexutres = false
-            });*/
+            });
 
             ExportFormatInfos.Add(ExportFormats.glTF2, new ExportFormatInfo
             {
@@ -131,6 +135,18 @@ namespace ps2ls.IO
                 CanExportBones = false,
                 CanExportMaterials = false,
                 CanExportTexutres = false
+            });
+
+
+            ExportFormatInfos.Add(ExportFormats.assimp, new ExportFormatInfo
+            {
+                ExportFormat = ExportFormats.assimp,
+                Name = "assimpTest",
+                CanExportNormals = true,
+                CanExportTextureCoordinates = true,
+                CanExportBones = true,
+                CanExportMaterials = true,
+                CanExportTexutres = true
             });
         }
 
@@ -159,26 +175,22 @@ namespace ps2ls.IO
                 return;
             }
 
-            //try
-            //{
             switch (exportOptions.ExportFormatInfo.ExportFormat)
             {
                 case ExportFormats.Obj:
                     ExportModelAsOBJToDirectory(model, directory, exportOptions);
                     break;
                 case ExportFormats.Dae:
-                    //exportModelAsDAEToDirectory(model, directory, exportOptions);
+                    ExportModelAsDAEToDirectory(model, directory, exportOptions);
                     break;
                 case ExportFormats.glTF2:
                     ExportModelAsGLTF2ToDirectory(model, directory, exportOptions);
                     break;
+                case ExportFormats.assimp:
+                    AssimpLIbraryTestStatic.TestWork(model, directory, exportOptions);
+                    break;
             }
-            /* }
-             catch (Exception ex)
-             {
-                 Console.WriteLine("Failed to export " + model.Name);
-                 Console.WriteLine(ex.StackTrace);
-             }*/
+
 
 
 
@@ -194,9 +206,7 @@ namespace ps2ls.IO
             PackageDirectory(model.name, ref directory, options);
 
             ExportLinkedTextures(model, directory, options);
-#if DEBUG
-            ExportBonesAsTextToDirectory(model, directory);
-#endif
+
             string path = directory + @"\" + Path.GetFileNameWithoutExtension(model.name) + ".obj";
 
             FileStream fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Write);
@@ -241,7 +251,7 @@ namespace ps2ls.IO
 
                 sw.WriteLine("g Mesh" + i);
 
-                UIntSet[] indexBuffer = GetIndexBuffer(mesh);
+                UIntSet[] indexBuffer = GetIndexTriBuffer(mesh);
 
                 foreach (UIntSet uis in indexBuffer)
                 {
@@ -559,7 +569,7 @@ namespace ps2ls.IO
             return buffer;
         }
 
-        public static UIntSet[] GetIndexBuffer(Mesh mesh)
+        public static UIntSet[] GetIndexTriBuffer(Mesh mesh)
         {
             UIntSet[] buffer = new UIntSet[mesh.indexCount / 3];
             int indexSize = (int)mesh.indexSize;
@@ -591,6 +601,19 @@ namespace ps2ls.IO
             return buffer;
         }
 
+        public static int[] GetIndexBuffer(Mesh mesh)
+        {
+            int[] buffer = new int[mesh.indexCount];
+            int indexSize = (int)mesh.indexSize;
+            if (indexSize == 2)//if ushort
+            {
+                for (int i = 0; i < buffer.Length; i++) buffer[i] = Convert.ToInt32(BitConverter.ToUInt16(mesh.indexData, i * indexSize));
+                return buffer;
+            }
+            for (int i = 0; i < buffer.Length; i++) buffer[i] = Convert.ToInt32(BitConverter.ToUInt32(mesh.indexData, i * indexSize));
+            return buffer;
+        }
+
         public static Vector3[] GetBoneBuffer(Mesh mesh, BoneDrawCall bdc, VertexLayout vertexLayout, ExportOptions options)
         {
             //bytesPerVertex = 0;
@@ -616,76 +639,8 @@ namespace ps2ls.IO
 
             return buffer;
         }
-        private static void ExportModelAsSTLToDirectory(Model model, string directory, ExportOptions options)
-        {
-            //NumberFormatInfo format = new NumberFormatInfo();
-            //format.NumberDecimalSeparator = ".";
 
-            //String path = directory + @"\" + Path.GetFileNameWithoutExtension(model.Name) + ".stl";
-
-            //FileStream fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Write);
-            //StreamWriter streamWriter = new StreamWriter(fileStream);
-
-            //for (Int32 i = 0; i < model.Meshes.Length; ++i)
-            //{
-            //    Mesh mesh = model.Meshes[i];
-
-            //    for (Int32 j = 0; j < mesh.Indices.Length; j += 3)
-            //    {
-            //        Vector3 normal = Vector3.Zero;
-            //        normal += mesh.Vertices[mesh.Indices[j + 0]].Normal;
-            //        normal += mesh.Vertices[mesh.Indices[j + 1]].Normal;
-            //        normal += mesh.Vertices[mesh.Indices[j + 2]].Normal;
-            //        normal.Normalize();
-
-            //        streamWriter.WriteLine("facet normal " + normal.X.ToString("E", format) + " " + normal.Y.ToString("E", format) + " " + normal.Z.ToString("E", format));
-            //        streamWriter.WriteLine("outer loop");
-
-            //        for (Int32 k = 0; k < 3; ++k)
-            //        {
-            //            Vector3 vertex = mesh.Vertices[mesh.Indices[j + k]].Position;
-
-            //            streamWriter.WriteLine("vertex " + vertex.X.ToString("E", format) + " " + vertex.Y.ToString("E", format) + " " + vertex.Z.ToString("E", format));
-            //        }
-
-            //        streamWriter.WriteLine("endloop");
-            //        streamWriter.WriteLine("endfacet");
-            //    }
-            //}
-
-            //streamWriter.Close();
-        }
-
-        private static void ExportBonesAsTextToDirectory(Model model, string directory)
-        {
-            String path = directory + @"\" + Path.GetFileNameWithoutExtension(model.name) + ".txt";
-
-            FileStream fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Write);
-            StreamWriter sw = new StreamWriter(fileStream);
-
-            sw.WriteLine("-------------------------------------------------");
-            sw.WriteLine("--------------####BoneDrawCalls###---------------");
-            sw.WriteLine("-------------------------------------------------");
-            foreach (BoneDrawCall bm in model.boneDrawCalls)
-            {
-                sw.WriteLine(bm.Unknown0
-                + ", " + bm.BoneStart
-                + ", " + bm.BoneCount
-                + ", " + bm.Delta
-                + ", " + bm.Unknown1
-                + ", " + bm.VertexOffset
-                + ", " + bm.VertexCount
-                + ", " + bm.IndexOffset
-                + ", " + bm.IndexCount);
-            }
-            sw.WriteLine("-------------------------------------------------");
-            sw.WriteLine("----------------####MapEntries###----------------");
-            sw.WriteLine("-------------------------------------------------");
-            foreach (BoneMapEntry bme in model.boneMapEntries) sw.WriteLine(bme.boneIndex + ", " + bme.globalIndex);
-            sw.Close();
-        }
-
-        private static void PackageDirectory(string modelName, ref string directory, ExportOptions options)
+        public static void PackageDirectory(string modelName, ref string directory, ExportOptions options)
         {
             if (options.Package)
             {
@@ -698,7 +653,7 @@ namespace ps2ls.IO
             }
         }
 
-        private static void ExportLinkedTextures(Model model, string directory, ExportOptions options)
+        public static void ExportLinkedTextures(Model model, string directory, ExportOptions options)
         {
             if (options.Textures)
             {
@@ -738,52 +693,83 @@ namespace ps2ls.IO
             coll.asset = collAsset;
 
             string cleanName = Path.GetFileNameWithoutExtension(model.name);
-            library_geometries libGeometries = new library_geometries();
-            List<geometry> geometryList = new List<geometry>();
+
+            node rootNode = ColladaBuilderStatic.BuildNode(cleanName, NodeType.NODE);
             List<node> nodeList = new List<node>();
+
+            bool bones = options.Bones && model.boneCount > 0;
+            string[] skeletonID = new string[] { };
+            if (bones)
+            {
+                node armature = ColladaBuilderStatic.BuildArmature(model, cleanName);
+                skeletonID = new string[] { '#' + armature.id };
+                nodeList.Add(armature);
+            }
+
+            List<geometry> geometryList = new List<geometry>();
+            List<controller> controllerList = new List<controller>();
             foreach (Mesh mesh in model.meshes)
             {
                 VertexLayout vertexLayout = GetVertexLayoutFromMaterialHash(model.dma.materials[(int)mesh.drawCallOffset].MaterialDefinitionHash);
 
                 string meshName = cleanName + "_" + mesh.drawCallOffset;
-                geometryList.Add(ColladaBuilderStatic.createGeometryFromMesh(mesh, meshName, vertexLayout, options));
+                geometryList.Add(ColladaBuilderStatic.CreateGeometryFromMesh(mesh, meshName, vertexLayout, options));
 
-                node meshNode = new node()
+                node meshNode = ColladaBuilderStatic.BuildNode(meshName, NodeType.NODE);
+                if (bones)
                 {
-                    id = meshName,
-                    name = meshName,
-                    type = NodeType.NODE,
-                };
-                matrix nodeMatrix = new matrix()
-                {
-                    sid = "transform",
-                    _Text_ = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1",//no transform
-                };
-                meshNode.Items = new object[] { nodeMatrix };
-                meshNode.ItemsElementName = new ItemsChoiceType2[] { ItemsChoiceType2.matrix };
-                meshNode.instance_geometry = new instance_geometry[]
-                {
-                    new instance_geometry()
+                    controllerList.Add(ColladaBuilderStatic.CreateControllerFromMesh(mesh, meshName));
+
+                    meshNode.instance_controller = new instance_controller[]
                     {
-                        url = "#" + meshNode.id + "-mesh",
-                        name = meshNode.name,
-                    },
-                };
-
+                        new instance_controller()
+                        {
+                            url = "#" + meshNode.id + "-mesh",
+                            skeleton = skeletonID
+                        },
+                    };
+                }
+                else
+                {
+                    meshNode.instance_geometry = new instance_geometry[]
+                    {
+                        new instance_geometry()
+                        {
+                            url = "#" + meshNode.id + "-skin",
+                            name = meshNode.name,
+                        },
+                    };
+                }
                 nodeList.Add(meshNode);
             }
+            List<object> sceneObjects = new List<object>();
+            library_geometries libGeometries = new library_geometries();
             libGeometries.geometry = geometryList.ToArray();
+            sceneObjects.Add(libGeometries);
 
-            library_visual_scenes libVisualScenes = new library_visual_scenes();
+            if (bones)
+            {
+                library_controllers libControllers = new library_controllers()
+                {
+                    controller = controllerList.ToArray()
+                };
+                sceneObjects.Add(libControllers);
+            }
+
+            rootNode.node1 = nodeList.ToArray();
             visual_scene visualScene = new visual_scene()
             {
                 id = "Scene",
                 name = "Scene",
             };
-            visualScene.node = nodeList.ToArray();
-            libVisualScenes.visual_scene = new visual_scene[] { visualScene };
+            visualScene.node = new node[] { rootNode };
+            library_visual_scenes libVisualScenes = new library_visual_scenes()
+            {
+                visual_scene = new visual_scene[] { visualScene }
+            };
+            sceneObjects.Add(libVisualScenes);
 
-            coll.Items = new object[] { libGeometries, libVisualScenes };
+            coll.Items = sceneObjects.ToArray();
 
             COLLADAScene cScene = new COLLADAScene
             {
@@ -812,11 +798,25 @@ namespace ps2ls.IO
 
             SceneBuilder scene = new SceneBuilder();
 
+            bool hasBones = model.boneCount != 1;
+            NodeBuilder skeleton = new NodeBuilder();
+            if (hasBones)
+            {
+                //TODO hierarchy
+                foreach (Bone bone in model.bones)
+                {
+
+                    Matrix4 bindPose = bone.inverseBindPose.Inverted();
+                    skeleton = skeleton.CreateNode().
+                        WithLocalTranslation(VectorToNumVector(bindPose.ExtractTranslation())).
+                        WithLocalRotation(QuaternionToNumQuaternion(bindPose.ExtractRotation())).
+                        WithLocalScale(VectorToNumVector(bindPose.ExtractScale()));
+                }
+            }
+
             for (int i = 0; i < model.meshes.Length; i++)
             {
-
-                MaterialBuilder mat = new MaterialBuilder()
-                    .WithDoubleSide(true);
+                MaterialBuilder mat = new MaterialBuilder().WithDoubleSide(true);
 
                 Mesh mesh = model.meshes[i];
                 VertexLayout vertexLayout = GetVertexLayoutFromMaterialHash(model.dma.materials[(int)mesh.drawCallOffset].MaterialDefinitionHash);
@@ -837,28 +837,61 @@ namespace ps2ls.IO
                         tangentBuffer[j].W = 1;
                     }
                 }
-                UIntSet[] indexBuffer = GetIndexBuffer(mesh);
+                UIntSet[] indexBuffer = GetIndexTriBuffer(mesh);
 
-                MeshBuilder<VertexPositionNormalTangent> meshBuilder = new MeshBuilder<VertexPositionNormalTangent>(model.name + "_Mesh" + i);
+                MESH meshBuilder = new MESH(model.name + "_Mesh" + i);
+
                 var primativeBuilder = meshBuilder.UsePrimitive(mat);
 
                 foreach (UIntSet tri in indexBuffer)
                 {
+                    int vertIndex = Convert.ToInt32(tri.x);
+                    VERTEX vertX = new VERTEX(
+                        GenerateVertex(positionBuffer[vertIndex], normalBuffer[vertIndex], tangentBuffer[vertIndex]),
+                        new VertexEmpty(),
+                        (0, 1));//TODO weights
+                    vertIndex = Convert.ToInt32(tri.y);
+                    VERTEX vertY = new VERTEX(
+                         GenerateVertex(positionBuffer[vertIndex], normalBuffer[vertIndex], tangentBuffer[vertIndex]),
+                        new VertexEmpty(),
+                        (0, 1));//TODO weights
+                    vertIndex = Convert.ToInt32(tri.z);
+                    VERTEX vertZ = new VERTEX(
+                        GenerateVertex(positionBuffer[vertIndex], normalBuffer[vertIndex], tangentBuffer[vertIndex]),
+                        new VertexEmpty(),
+                        (0, 1));//TODO weights
+
                     //glts triangles are flipped ¯\_(ツ)_/¯
-                    primativeBuilder.AddTriangle(
-                        VectorToVertex(positionBuffer[tri.z], normalBuffer[tri.z], tangentBuffer[tri.z]),
-                        VectorToVertex(positionBuffer[tri.y], normalBuffer[tri.y], tangentBuffer[tri.y]),
-                        VectorToVertex(positionBuffer[tri.x], normalBuffer[tri.x], tangentBuffer[tri.x])
-                        );
+                    primativeBuilder.AddTriangle(vertZ, vertY, vertX);
                 }
 
-                scene.AddRigidMesh(meshBuilder, SharpGLTF.Transforms.AffineTransform.Identity);
+                if (hasBones)
+                {
+                    scene.AddSkinnedMesh(meshBuilder, System.Numerics.Matrix4x4.Identity, skeleton);
+                }
+                else
+                {
+                    scene.AddRigidMesh(meshBuilder, System.Numerics.Matrix4x4.Identity);
+                }
             }
 
             SharpGLTF.Schema2.ModelRoot modelRoot = scene.ToGltf2();
             modelRoot.SaveGLTF(path);
         }
-        private static System.Numerics.Vector3 VectorToNumVertex(Vector3 value)
+
+        private static System.Numerics.Matrix4x4 MatrixToNumMatrix(Matrix4 matrix)
+        {
+            return new System.Numerics.Matrix4x4(
+                matrix.M11, matrix.M12, matrix.M13, matrix.M14,
+                matrix.M21, matrix.M22, matrix.M23, matrix.M24,
+                matrix.M31, matrix.M32, matrix.M33, matrix.M34,
+                matrix.M41, matrix.M42, matrix.M43, matrix.M44);
+        }
+        private static System.Numerics.Quaternion QuaternionToNumQuaternion(Quaternion rot)
+        {
+            return new System.Numerics.Quaternion(rot.X, rot.Y, rot.Z, rot.W);
+        }
+        private static System.Numerics.Vector3 VectorToNumVector(Vector3 value)
         {
             return new System.Numerics.Vector3(value.X, value.Y, value.Z);
         }
@@ -866,10 +899,11 @@ namespace ps2ls.IO
         {
             return new System.Numerics.Vector4(value.X, value.Y, value.Z, value.W);
         }
-        private static VertexPositionNormalTangent VectorToVertex(Vector3 position, Vector3 normal, Vector4 Tangent)
+        private static VertexPositionNormalTangent GenerateVertex(Vector3 position, Vector3 normal, Vector4 Tangent)
         {
-            return new VertexPositionNormalTangent(VectorToNumVertex(position), VectorToNumVertex(normal), VectorToNumVertex(Tangent));
+            return new VertexPositionNormalTangent(VectorToNumVector(position), VectorToNumVector(normal), VectorToNumVertex(Tangent));
         }
+
     }
 
     public struct UIntSet
@@ -882,4 +916,5 @@ namespace ps2ls.IO
             z = getZ;
         }
     }
+
 }
