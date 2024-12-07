@@ -324,7 +324,7 @@
             // 
             this.showBoundingBoxButton.CheckOnClick = true;
             this.showBoundingBoxButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.showBoundingBoxButton.Enabled = false;
+            this.showBoundingBoxButton.Enabled = true;
             this.showBoundingBoxButton.Image = global::ps2ls.Properties.Resources.sphere_aabb2;
             this.showBoundingBoxButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.showBoundingBoxButton.Name = "showBoundingBoxButton";
