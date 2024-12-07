@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Ionic.Zlib;
+using System;
+using System.Buffers;
+using System.Buffers.Binary;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Windows.Forms;
 using System.ComponentModel;
 using System.Diagnostics;
-using ps2ls.IO;
-using Ionic.Zlib;
+using System.IO;
+using System.Windows.Forms;
 
 namespace ps2ls.Assets
 {
@@ -106,11 +105,11 @@ namespace ps2ls.Assets
             return pack;
         }
 
-        public static byte[] Decompress(byte[] data)
+        public static byte[] Decompress(int expectedLength, byte[] data)
         {
             using (var memStream = new MemoryStream(data))
             using (var zLibStream = new ZlibStream(memStream, CompressionMode.Decompress))
-            using (var outStream = new MemoryStream())
+            using (var outStream = new MemoryStream(expectedLength))
             {
                 zLibStream.CopyTo(outStream);
                 return outStream.ToArray();
@@ -119,17 +118,41 @@ namespace ps2ls.Assets
 
         byte[] pngHeader = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
         byte[] jpgHeader = new byte[] { 0xFF, 0xD8, 0xFF, 0xE1, 0x11, 0xBF, 0x45, 0x78 };
-        public byte[] CreateBufferFromAsset(FileStream fileStream, Asset asset)
+        public static byte[] CreateBufferFromAsset
+        (
+            FileStream packFileStream,
+            ulong assetDataLength,
+            ulong assetDataOffset,
+            bool assetIsZipped
+        )
         {
-            byte[] buffer = new byte[(int)asset.DataLength];
+            int expectedLength = (int)assetDataLength;
+            byte[] buffer = new byte[expectedLength];
+            long offset = Convert.ToInt64(assetDataOffset);
 
-            long offset = Convert.ToInt64(asset.Offset) + (asset.isZipped ? 8 : 0);//zipped assets need another offset of 8 bytes
-            fileStream.Seek(offset, SeekOrigin.Begin);
-            fileStream.Read(buffer, 0, (int)asset.DataLength);
+            // Zipped assets have an eight-byte prefix containing 4 bytes of magic data and then the length of the
+            // unzipped data
+            if (assetIsZipped)
+            {
+                offset += 4;
+                byte[] unzippedLenBytes = ArrayPool<byte>.Shared.Rent(sizeof(uint));
+                offset += packFileStream.Read(unzippedLenBytes, 0, sizeof(uint));
+                expectedLength = (int)BinaryPrimitives.ReadUInt32LittleEndian(unzippedLenBytes);
+                ArrayPool<byte>.Shared.Return(unzippedLenBytes);
+            }
 
-            if (asset.isZipped) buffer = Decompress(buffer);
+            packFileStream.Seek(offset, SeekOrigin.Begin);
+            packFileStream.Read(buffer, 0, (int)assetDataLength);
+
+            if (assetIsZipped)
+                buffer = Decompress(expectedLength, buffer);
 
             return buffer;
+        }
+
+        public static byte[] CreateBufferFromAsset(FileStream packFileStream, Asset asset)
+        {
+            return CreateBufferFromAsset(packFileStream, asset.DataLength, asset.Offset, asset.isZipped);
         }
 
         public Boolean ExtractAllAssetsToDirectory(String directory)
