@@ -51,6 +51,7 @@ _ReSharper.*
 #################
 **/packages/**/*
 **/vs/**/*
+**/.vs/**/*
 **/Publish/**/*
 **/Extracts/**/*
 DiffTool/Diff.txt

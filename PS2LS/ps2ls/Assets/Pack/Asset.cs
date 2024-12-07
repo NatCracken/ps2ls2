@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.ComponentModel;
 using ps2ls.IO;
+using System.Buffers;
 
 namespace ps2ls.Assets
 {
@@ -77,12 +78,16 @@ namespace ps2ls.Assets
             asset.UnzippedLength = 0;
             if (asset.isZipped)
             {
-                long pos = stream.Position;
+                long initialPosition = stream.Position;
                 stream.Seek(Convert.ToInt64(asset.Offset), SeekOrigin.Begin);
-                uint zipMagic = BinaryReaderLE.ReadUInt32();
+
+                byte[] magicBytes = ArrayPool<byte>.Shared.Rent(sizeof(uint));
+                stream.Read(magicBytes, 0, 4);
                 //TODO check magic matches a1b2c3d4 header
+                ArrayPool<byte>.Shared.Return(magicBytes);
+
                 asset.UnzippedLength = BinaryReaderBE.ReadUInt32();
-                stream.Seek(pos, SeekOrigin.Begin);
+                stream.Seek(initialPosition, SeekOrigin.Begin);
             }
 
             if (nameDict.ContainsKey(asset.NameHash))

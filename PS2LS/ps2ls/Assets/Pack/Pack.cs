@@ -133,27 +133,34 @@ namespace ps2ls.Assets
             bool assetIsZipped
         )
         {
-            int expectedLength = (int)assetDataLength;
-            byte[] buffer = new byte[expectedLength];
-            long offset = Convert.ToInt64(assetDataOffset);
+            packFileStream.Seek(Convert.ToInt64(assetDataOffset), SeekOrigin.Begin);
 
-            // Zipped assets have an eight-byte prefix containing 4 bytes of magic data and then the length of the
-            // unzipped data
-            if (assetIsZipped)
+            byte[] buffer;
+
+            if (!assetIsZipped)
             {
-                offset += 4;
-                byte[] unzippedLenBytes = ArrayPool<byte>.Shared.Rent(sizeof(uint));
-                offset += packFileStream.Read(unzippedLenBytes, 0, sizeof(uint));
-                expectedLength = (int)BinaryPrimitives.ReadUInt32LittleEndian(unzippedLenBytes);
-                ArrayPool<byte>.Shared.Return(unzippedLenBytes);
+                buffer = new byte[assetDataLength];
+                packFileStream.Read(buffer, 0, (int)assetDataLength);
+                return buffer;
             }
 
-            packFileStream.Seek(offset, SeekOrigin.Begin);
-            packFileStream.Read(buffer, 0, (int)assetDataLength);
+            //skip 4 bytes of magic
+            packFileStream.Seek(4, SeekOrigin.Current);
+            byte[] unzippedLenBytes = ArrayPool<byte>.Shared.Rent(sizeof(uint));
+            packFileStream.Read(unzippedLenBytes, 0, sizeof(uint));
+            //this is basically the only big endian number in the entire format
+            int expectedLength = (int)BinaryPrimitives.ReadUInt32BigEndian(unzippedLenBytes);
+            ArrayPool<byte>.Shared.Return(unzippedLenBytes);
 
-            return assetIsZipped
-                ? Decompress(expectedLength, buffer)
-                : buffer;
+            if (expectedLength < 0)
+            {
+                throw new OutOfMemoryException("Asset is too big for memorystream, It's uint length and as of writing only int length is supported");
+            }
+
+            buffer = new byte[assetDataLength];
+            packFileStream.Read(buffer, 0, (int)assetDataLength);
+            return Decompress(expectedLength, buffer);
+
         }
 
         public static byte[] CreateBufferFromAsset(FileStream packFileStream, Asset asset)
