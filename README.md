@@ -1,3 +1,5 @@
+This is no longer actively maintained. If you want it; fork it, make ps2ls3 its none of my buisness.
+
 PS2LS
 =====
 
